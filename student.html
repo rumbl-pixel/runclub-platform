@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Run Club – Student Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+  </head>
+  <body class="page page-student">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-icon">&#127939;</span>
+          <h1>Run Club Connect</h1>
+        </div>
+        <nav class="main-nav">
+          <a href="index.html">Home</a>
+          <a href="admin.html">Admin login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="content">
+      <div style="max-width: 420px; margin: 0 auto;">
+        <h2 style="margin-bottom: 1rem;">Student Login</h2>
+        <form id="student-form" class="card">
+          <label>
+            Your code
+            <input type="text" id="code" required placeholder="e.g. JSMITH42" autocomplete="off" autocapitalize="characters" />
+          </label>
+          <button id="submit-btn" type="submit">Sign in</button>
+          <p style="margin-top: 0.75rem; font-size: 0.82rem; color: #888;">
+            Your teacher gave you this code. Type it exactly as shown on your card.
+          </p>
+        </form>
+
+        <section class="card" id="result-card" hidden>
+          <h2>&#127939; Your Profile</h2>
+          <div id="athlete-display"></div>
+          <pre id="result" hidden></pre>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>Run Club Connect &copy; 2026 &middot; <a href="privacy-policy.html">Privacy Policy</a></p>
+    </footer>
+
+    <script src="student.js"></script>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Run Club – Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+  </head>
+  <body class="page page-admin-dashboard">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-icon">&#127939;</span>
+          <h1>Run Club Connect</h1>
+        </div>
+        <nav class="main-nav">
+          <a href="index.html">Home</a>
+          <a href="student.html">Student login</a>
+          <button id="logout-btn" type="button">Log out</button>
+        </nav>
+      </div>
+      <p id="session-label" class="session-bar"></p>
+    </header>
+
+    <main class="content">
+
+      <!-- STUDENT PROFILES -->
+      <section class="card" id="student-profiles">
+        <h2>&#128101; Student Profiles</h2>
+        <p style="color:#555; font-size:0.9rem;">Demo students loaded from local data. Upload a CSV later to replace these.</p>
+        <ul id="student-list"></ul>
+      </section>
+
+      <!-- SCANNER -->
+      <section class="card" id="scanner-section">
+        <h2>&#128247; Run Session Scanner</h2>
+        <p style="color:#555; font-size:0.9rem;">
+          Type or scan a student barcode and press Enter. A Bluetooth scanner
+          acts as a keyboard and will auto-submit.
+        </p>
+        <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+          <label style="flex:1; margin-bottom:0;">
+            Barcode
+            <input type="text" id="scan-input" placeholder="e.g. STUDENT1" />
+          </label>
+          <button id="scan-btn" type="button">Scan</button>
+        </div>
+        <pre id="scan-result" hidden></pre>
+      </section>
+
+      <!-- LEADERBOARD -->
+      <section class="card" id="leaderboards">
+        <h2>&#127942; Leaderboard</h2>
+        <p style="color:#555; font-size:0.9rem;">Updates live as you scan. Sorted by total laps.</p>
+        <pre id="leaderboard-output" hidden></pre>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section class="card" id="activity-section">
+        <h2>&#127939; Log Activity / Challenge</h2>
+        <p style="color:#555; font-size:0.9rem;">
+          Record distance-learning activity or create a challenge event.
+        </p>
+        <label>
+          Student
+          <select id="activity-student"></select>
+        </label>
+        <label>
+          Activity type
+          <input type="text" id="activity-type" placeholder="e.g. Lunch run" />
+        </label>
+        <label>
+          Minutes
+          <input type="number" id="activity-minutes" min="1" placeholder="20" />
+        </label>
+        <button id="log-activity-btn" type="button">Log activity</button>
+        <pre id="activity-result" hidden></pre>
+        <div id="activity-log-list" style="margin-top:1rem;"></div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="card" id="reports-section">
+        <h2>&#128202; Reports &amp; Awards</h2>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button id="export-report-json-btn" type="button">Export JSON report</button>
+          <button id="export-report-csv-btn" type="button" class="secondary">Export CSV leaderboard</button>
+          <button id="generate-awards-btn" type="button" class="secondary">Generate award cards</button>
+        </div>
+        <pre id="reports-result" hidden></pre>
+        <div id="awards-list" style="margin-top:1rem;"></div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>Run Club Connect &copy; 2026 &middot; <a href="privacy-policy.html">Privacy Policy</a></p>
+    </footer>
+
+    <script src="admin-dashboard.js"></script>
+  </body>
+</html>

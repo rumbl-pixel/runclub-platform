@@ -1,0 +1,3 @@
+# Keep local config secrets out of git
+config.js
+.DS_Store

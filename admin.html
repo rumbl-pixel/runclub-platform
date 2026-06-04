@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Run Club – Admin Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+  </head>
+  <body class="page page-admin-login">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-icon">&#127939;</span>
+          <h1>Run Club Connect</h1>
+        </div>
+        <nav class="main-nav">
+          <a href="index.html">Home</a>
+          <a href="student.html">Student login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="content">
+      <div style="max-width: 400px; margin: 0 auto;">
+        <h2 style="margin-bottom: 1rem;">Admin Login</h2>
+        <form id="admin-login-form" class="card">
+          <label>
+            Email
+            <input type="email" id="admin-email" required placeholder="admin@yourschool.edu" />
+          </label>
+          <label>
+            Password
+            <input type="password" id="admin-password" required placeholder="Password" />
+          </label>
+          <button type="submit">Sign in</button>
+          <p id="admin-error" class="error-message"></p>
+          <p style="margin-top: 1rem; font-size: 0.82rem; color: #888;">
+            Demo mode: any email and password will work.
+          </p>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>Run Club Connect &copy; 2026 &middot; <a href="privacy-policy.html">Privacy Policy</a></p>
+    </footer>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,283 @@
+/* ===========================
+   Base reset + typography
+=========================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f6fb;
+  color: #1a1a2e;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+a { color: #0c5aa8; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===========================
+   Header
+=========================== */
+.site-header {
+  background: #0c5aa8;
+  color: white;
+  padding: 1rem 2rem 1.25rem;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: white;
+}
+
+.brand-icon {
+  font-size: 1.6rem;
+}
+
+.tagline {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ===========================
+   Navigation
+=========================== */
+.main-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.main-nav a {
+  color: white;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.4);
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.1);
+  transition: background 0.15s;
+}
+
+.main-nav a:hover { background: rgba(255,255,255,0.25); text-decoration: none; }
+
+.main-nav button {
+  color: white;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.4);
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.1);
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.15s;
+}
+
+.main-nav button:hover { background: rgba(255,255,255,0.25); }
+
+/* ===========================
+   Layout
+=========================== */
+.content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ===========================
+   Cards
+=========================== */
+.card {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.15rem;
+  color: #0c5aa8;
+}
+
+/* ===========================
+   Portal grid
+=========================== */
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.portal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid #c2d4f5;
+  background: #e6f0ff;
+  transition: background 0.15s, box-shadow 0.15s;
+  color: #1a1a2e;
+}
+
+.portal-card:hover {
+  background: #d5e5ff;
+  box-shadow: 0 2px 8px rgba(12,90,168,0.1);
+  text-decoration: none;
+}
+
+.portal-icon { font-size: 1.5rem; }
+.portal-card strong { font-size: 1rem; }
+.portal-card span { font-size: 0.82rem; color: #555; }
+
+/* ===========================
+   Forms
+=========================== */
+label {
+  display: block;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.4rem;
+  border: 1px solid #ccc;
+  margin-top: 0.25rem;
+  font: inherit;
+  font-size: 0.95rem;
+  background: #fafafa;
+  transition: border-color 0.15s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #0c5aa8;
+  background: #fff;
+}
+
+button {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #0c5aa8;
+  background: #0c5aa8;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+button:hover { background: #0a4d94; }
+button:disabled { opacity: 0.6; cursor: default; }
+
+button.secondary {
+  background: white;
+  color: #0c5aa8;
+}
+
+button.secondary:hover { background: #e6f0ff; }
+
+/* ===========================
+   Messages / results
+=========================== */
+.error-message {
+  color: #b00020;
+  font-size: 0.88rem;
+  margin-top: 0.5rem;
+}
+
+.success-message {
+  color: #1a7f37;
+  font-size: 0.88rem;
+  margin-top: 0.5rem;
+}
+
+pre {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  margin-top: 0.75rem;
+}
+
+/* ===========================
+   Session info bar
+=========================== */
+.session-bar {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.8);
+  margin-top: 0.4rem;
+}
+
+/* ===========================
+   Footer
+=========================== */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.82rem;
+  color: #888;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 2rem;
+}
+
+.site-footer a { color: #888; }
+
+/* ===========================
+   Leaderboard / list items
+=========================== */
+#student-list {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+#student-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+}
+
+#student-list li:last-child { border-bottom: none; }
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 600px) {
+  .header-inner { flex-direction: column; align-items: flex-start; }
+  .content { padding: 1rem; }
+  .portal-grid { grid-template-columns: 1fr 1fr; }
+}
