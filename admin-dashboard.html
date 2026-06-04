@@ -60,6 +60,12 @@
           </div>
         </div>
 
+        <div class="card" id="offline-queue-card">
+          <h2>&#128260; Offline Scan Queue</h2>
+          <p style="color:#555;font-size:0.9rem;">Review kiosk scan batches that were captured while offline, then merge them into the main records.</p>
+          <div id="offline-queue-list"></div>
+        </div>
+
         <!-- TIMED LAP / TIMED MILE -->
         <div class="card">
           <h2>&#9201; Timed Lap Events</h2>
@@ -97,6 +103,12 @@
             <label style="margin:0;">Filter by class
               <select id="lb-class-filter"><option value="">All classes</option></select>
             </label>
+            <label style="margin:0;">Filter by medal
+              <select id="lb-medal-filter">
+                <option value="">All medals</option>
+              </select>
+            </label>
+            <button id="print-leaderboard-btn" type="button" class="secondary">Print wall poster</button>
           </div>
           <div id="leaderboard-table"></div>
         </div>
@@ -160,6 +172,19 @@
             <button id="print-certificates-btn" type="button" class="secondary">Print certificates</button>
           </div>
           <div id="awards-display"></div>
+        </div>
+
+        <div class="card">
+          <h2>&#129351; Medals</h2>
+          <p style="color:#555;font-size:0.9rem;">Simple distance tiers for celebrating regular progress.</p>
+          <div id="medal-rules"></div>
+          <div id="medal-summary" style="margin-top:1rem;"></div>
+        </div>
+
+        <div class="card">
+          <h2>&#128196; Certificates</h2>
+          <p style="color:#555;font-size:0.9rem;">Students appear here when they cross a printable distance milestone.</p>
+          <div id="certificates-list"></div>
         </div>
 
         <!-- CHALLENGES -->

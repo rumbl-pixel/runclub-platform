@@ -40,6 +40,30 @@
   function minutesToKm(m) { return m/20; } // Marathon Kids: 20 min = 1 km
   function totalKm(s) { return lapsTokm(s.laps)+minutesToKm(s.minutes||0); }
 
+  var MEDAL_TIERS=[
+    {name:'Platinum',km:42.2,color:'#8b5cf6'},
+    {name:'Gold',km:20,color:'#d97706'},
+    {name:'Silver',km:10,color:'#64748b'},
+    {name:'Bronze',km:5,color:'#b45309'},
+    {name:'Starter',km:0,color:'#0c5aa8'}
+  ];
+  var CERTIFICATE_MILESTONES=[
+    {name:'5km',km:5},
+    {name:'10km',km:10},
+    {name:'Half Marathon',km:21.1},
+    {name:'Marathon',km:42.2}
+  ];
+
+  function medalFor(student) {
+    var km=totalKm(student);
+    return MEDAL_TIERS.find(function(t){return km>=t.km;}) || MEDAL_TIERS[MEDAL_TIERS.length-1];
+  }
+
+  function medalBadge(student) {
+    var medal=medalFor(student);
+    return '<span class="award-badge" style="border-color:'+medal.color+';color:'+medal.color+';">'+medal.name+'</span>';
+  }
+
   // --- Helpers ---
   function showResult(el,payload) { el.hidden=false; el.textContent=JSON.stringify(payload,null,2); }
 
@@ -117,6 +141,8 @@
       renderStudentList();
       renderLeaderboard();
       renderAwards();
+      renderMedals();
+      renderCertificates();
       renderSchoolSummary();
     }
     scanInput.value=''; scanInput.focus();
@@ -139,6 +165,56 @@
     sessionLogEl.innerHTML=html;
   }
   renderSessionLog([]);
+
+  // === OFFLINE QUEUE ===
+  var offlineQueueEl=document.getElementById('offline-queue-list');
+
+  function defaultOfflineQueue(){
+    return [{
+      id:'demo-offline-1',
+      device:'Kiosk device A',
+      lastUpdated:new Date().toISOString(),
+      scans:[
+        {barcode:'STUDENT1',time:new Date().toISOString()},
+        {barcode:'STUDENT2',time:new Date().toISOString()},
+        {barcode:'STUDENT4',time:new Date().toISOString()}
+      ]
+    }];
+  }
+
+  function renderOfflineQueue(){
+    var batches=load('rc_offline_queue', defaultOfflineQueue());
+    if(!batches.length){offlineQueueEl.innerHTML='<p style="color:#888;font-size:0.85rem;">No offline kiosk batches waiting to sync.</p>';return;}
+    offlineQueueEl.innerHTML=batches.map(function(batch){
+      return '<div style="padding:0.75rem;border:1px solid #e2e8f0;border-radius:0.5rem;margin-bottom:0.75rem;background:#f8faff;">'+
+        '<strong>'+batch.device+'</strong><br>'+
+        '<span style="font-size:0.82rem;color:#555;">'+batch.scans.length+' scans • Last updated '+new Date(batch.lastUpdated).toLocaleTimeString()+'</span>'+
+        '<details style="margin-top:0.5rem;"><summary>Review batch</summary>'+
+        '<ul style="margin:0.5rem 0 0;padding-left:1.1rem;font-size:0.82rem;">'+batch.scans.map(function(scan){return '<li>'+scan.barcode+' • '+new Date(scan.time).toLocaleTimeString()+'</li>';}).join('')+'</ul>'+
+        '</details>'+
+        '<button type="button" class="secondary sync-offline-batch" data-batch="'+batch.id+'" style="margin-top:0.75rem;">Sync to main data</button>'+
+      '</div>';
+    }).join('');
+    document.querySelectorAll('.sync-offline-batch').forEach(function(btn){
+      btn.onclick=function(){ syncOfflineBatch(btn.dataset.batch); };
+    });
+  }
+
+  function syncOfflineBatch(batchId){
+    var batches=load('rc_offline_queue', defaultOfflineQueue());
+    var batch=batches.find(function(b){return b.id===batchId;});
+    if(!batch){return;}
+    var students=getStudents();
+    batch.scans.forEach(function(scan){
+      var barcode=String(scan.barcode||'').toUpperCase();
+      var student=students.find(function(s){return s.barcode===barcode||s.id===barcode;});
+      if(student){student.laps+=1;}
+    });
+    saveStudents(students);
+    save('rc_offline_queue', batches.filter(function(b){return b.id!==batchId;}));
+    renderOfflineQueue(); renderStudentList(); renderLeaderboard(); renderAwards(); renderMedals(); renderCertificates(); renderSchoolSummary();
+  }
+  renderOfflineQueue();
 
   document.getElementById('download-session-btn').addEventListener('click',function(){
     var data={scans:sessionScans,session:currentSession,past:load(K.sessions,[])};
@@ -218,6 +294,7 @@
   // === LEADERBOARD ===
   var lbYearEl=document.getElementById('lb-year-filter');
   var lbClassEl=document.getElementById('lb-class-filter');
+  var lbMedalEl=document.getElementById('lb-medal-filter');
   var lbTableEl=document.getElementById('leaderboard-table');
 
   function populateLbFilters(){
@@ -228,20 +305,23 @@
     years.forEach(function(y){var o=document.createElement('option');o.value=y;o.textContent=y;lbYearEl.appendChild(o);});
     lbClassEl.innerHTML='<option value="">All classes</option>';
     classes.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;lbClassEl.appendChild(o);});
+    lbMedalEl.innerHTML='<option value="">All medals</option>';
+    MEDAL_TIERS.forEach(function(m){var o=document.createElement('option');o.value=m.name;o.textContent=m.name;lbMedalEl.appendChild(o);});
   }
   populateLbFilters();
 
   function renderLeaderboard(){
     var students=getStudents();
-    var year=lbYearEl.value; var cls=lbClassEl.value;
+    var year=lbYearEl.value; var cls=lbClassEl.value; var medal=lbMedalEl.value;
     if(year) students=students.filter(function(s){return s.year===year;});
     if(cls) students=students.filter(function(s){return s.cls===cls;});
+    if(medal) students=students.filter(function(s){return medalFor(s).name===medal;});
     var sorted=students.slice().sort(function(a,b){return totalKm(b)-totalKm(a);});
     if(!sorted.length){lbTableEl.innerHTML='<p style="color:#888;font-size:0.85rem;">No students match filter.</p>';return;}
     var html='<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">';
-    html+='<thead><tr style="background:#f4f6fb;"><th style="padding:0.4rem 0.5rem;text-align:left;">Rank</th><th>Name</th><th>Year</th><th>Class</th><th>Laps</th><th>Km</th></tr></thead><tbody>';
+    html+='<thead><tr style="background:#f4f6fb;"><th style="padding:0.4rem 0.5rem;text-align:left;">Rank</th><th>Name</th><th>Year</th><th>Class</th><th>Laps</th><th>Km</th><th>Medal</th></tr></thead><tbody>';
     sorted.forEach(function(s,i){
-      html+='<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:0.4rem 0.5rem;">'+( i+1)+'</td><td>'+s.name+'</td><td>'+s.year+'</td><td>'+s.cls+'</td><td>'+s.laps+'</td><td>'+lapsTokm(s.laps).toFixed(2)+'</td></tr>';
+      html+='<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:0.4rem 0.5rem;">'+( i+1)+'</td><td>'+s.name+'</td><td>'+s.year+'</td><td>'+s.cls+'</td><td>'+s.laps+'</td><td>'+totalKm(s).toFixed(2)+'</td><td>'+medalBadge(s)+'</td></tr>';
     });
     html+='</tbody></table>';
     lbTableEl.innerHTML=html;
@@ -249,6 +329,18 @@
   renderLeaderboard();
   lbYearEl.addEventListener('change',renderLeaderboard);
   lbClassEl.addEventListener('change',renderLeaderboard);
+  lbMedalEl.addEventListener('change',renderLeaderboard);
+
+  function printLeaderboardPoster(){
+    var sorted=getStudents().slice().sort(function(a,b){return totalKm(b)-totalKm(a);}).slice(0,20);
+    var win=window.open('','_blank');
+    var html='<html><head><title>Run Club Leaderboard Poster</title><style>body{font-family:Arial,sans-serif;padding:2rem;color:#111827;} h1{text-align:center;color:#0c5aa8;font-size:2.4rem;} table{width:100%;border-collapse:collapse;font-size:1.4rem;} th,td{padding:0.7rem;border-bottom:2px solid #e5e7eb;text-align:left;} .rank{font-weight:800;color:#0c5aa8;} @media print{@page{margin:1cm;}}</style></head><body>';
+    html+='<h1>Run Club Leaderboard</h1><table><thead><tr><th>Rank</th><th>Student</th><th>Class</th><th>Distance</th><th>Medal</th></tr></thead><tbody>';
+    sorted.forEach(function(s,i){html+='<tr><td class="rank">#'+(i+1)+'</td><td>'+s.name+'</td><td>'+s.cls+'</td><td>'+totalKm(s).toFixed(2)+' km</td><td>'+medalFor(s).name+'</td></tr>';});
+    html+='</tbody></table></body></html>';
+    win.document.write(html); win.document.close(); win.print();
+  }
+  document.getElementById('print-leaderboard-btn').addEventListener('click',printLeaderboardPoster);
 
   // === ACTIVITY ===
   var actStudentEl=document.getElementById('activity-student');
@@ -291,7 +383,7 @@
     var st=students.find(function(s){return s.id===studentId;});
     if(st){st.minutes=(st.minutes||0)+mins; saveStudents(students);}
     showResult(actResultEl,{success:true,message:'Activity logged.',student:student.name,minutes:mins,km_credit:minutesToKm(mins).toFixed(2)});
-    renderActivityLog(); renderLeaderboard(); renderSchoolSummary();
+    renderActivityLog(); renderLeaderboard(); renderMedals(); renderCertificates(); renderSchoolSummary();
     actMinsEl.value='';
   });
 
@@ -326,6 +418,9 @@
 
   // === AWARDS ===
   var awardsDisplayEl=document.getElementById('awards-display');
+  var medalRulesEl=document.getElementById('medal-rules');
+  var medalSummaryEl=document.getElementById('medal-summary');
+  var certificatesListEl=document.getElementById('certificates-list');
   var MILESTONES=[5,10,25,50,100,200,500];
   var MILESTONE_LABELS={5:'First 5 Laps',10:'10 Lap Club',25:'Quarter Century',50:'Half Century',100:'Century Club',200:'Double Century',500:'Elite Runner'};
 
@@ -346,6 +441,36 @@
     awardsDisplayEl.innerHTML=html||'<p style="color:#888;font-size:0.85rem;">No milestone awards yet. Start scanning!</p>';
   }
   renderAwards();
+
+  function renderMedals(){
+    medalRulesEl.innerHTML=MEDAL_TIERS.filter(function(t){return t.name!=='Starter';}).map(function(t){
+      return '<span class="award-badge" style="border-color:'+t.color+';color:'+t.color+';">'+t.name+' • '+t.km+' km</span>';
+    }).join('');
+    var counts={};
+    MEDAL_TIERS.forEach(function(t){counts[t.name]=0;});
+    getStudents().forEach(function(s){counts[medalFor(s).name]+=1;});
+    medalSummaryEl.innerHTML='<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">'+MEDAL_TIERS.map(function(t){
+      return '<div class="stat-box"><div class="stat-value" style="color:'+t.color+';">'+counts[t.name]+'</div><div class="stat-label">'+t.name+'</div></div>';
+    }).join('')+'</div>';
+  }
+  renderMedals();
+
+  function certificatesFor(student){
+    var km=totalKm(student);
+    return CERTIFICATE_MILESTONES.filter(function(m){return km>=m.km;});
+  }
+
+  function renderCertificates(){
+    var rows=[];
+    getStudents().forEach(function(s){
+      certificatesFor(s).forEach(function(c){rows.push({student:s,milestone:c});});
+    });
+    if(!rows.length){certificatesListEl.innerHTML='<p style="color:#888;font-size:0.85rem;">No certificates ready yet.</p>';return;}
+    certificatesListEl.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:0.85rem;"><thead><tr style="background:#f4f6fb;"><th style="text-align:left;padding:0.45rem;">Student</th><th>Class</th><th>Milestone</th><th>Status</th></tr></thead><tbody>'+
+      rows.map(function(r){return '<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:0.45rem;">'+r.student.name+'</td><td>'+r.student.cls+'</td><td>'+r.milestone.name+'</td><td>Ready to print</td></tr>';}).join('')+
+      '</tbody></table>';
+  }
+  renderCertificates();
 
   document.getElementById('refresh-awards-btn').addEventListener('click',renderAwards);
   document.getElementById('print-certificates-btn').addEventListener('click',function(){
@@ -471,7 +596,7 @@
         added++;
       });
       saveStudents(students);
-      renderStudentList(); renderLeaderboard(); populateActivityStudents(); populateTimedStudents(); populateLbFilters(); renderSchoolSummary();
+      renderStudentList(); renderLeaderboard(); populateActivityStudents(); populateTimedStudents(); populateLbFilters(); renderMedals(); renderCertificates(); renderSchoolSummary();
       showResult(importResultEl,{success:true,added:added,skipped:skipped,total:students.length});
     };
     reader.readAsText(file);

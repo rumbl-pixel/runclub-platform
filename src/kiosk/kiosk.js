@@ -33,6 +33,14 @@
   var undoBtn = document.getElementById('kiosk-undo');
 
   var EXIT_PIN = '1234'; // teacher PIN to leave kiosk (change before go-live)
+  var PRAISE_MESSAGES = [
+    'Great pace',
+    'Strong running',
+    'Keep moving',
+    'Brilliant effort',
+    'Nice lap',
+    'You are building momentum'
+  ];
   var sessionLaps = 0;
   var lastResult = null;
   var resetTimer = null;
@@ -70,7 +78,8 @@
       lastResult = res;
       sessionLaps += 1;
       var s = res.student;
-      var sub = 'Lap ' + s.laps + ' • ' + s.km.toFixed(2) + ' km';
+      var praise = PRAISE_MESSAGES[sessionLaps % PRAISE_MESSAGES.length];
+      var sub = praise + ' • Lap ' + s.laps + ' • ' + s.km.toFixed(2) + ' km';
       if (res.milestone) { sub += ' • 🏅 ' + res.milestone + ' milestone!'; }
       setBanner('success', '✓ Lap logged for ' + s.name, sub);
       lastScanLabel.textContent = 'Last: ' + s.name + ' at ' + new Date().toLocaleTimeString();

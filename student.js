@@ -1,5 +1,5 @@
 // student.js
-// Student portal: login + profile + awards + goals (self-set & coach-assigned) + home activity.
+// Student portal: login + profile + awards + goals (self-set & coach-assigned).
 // Local-first: uses the shared RunClubScan roster so student IDs and laps match
 // the admin dashboard and kiosk. Goals come from RunClubGoals.
 (function () {
@@ -9,6 +9,13 @@
   var Goals = window.RunClubGoals;
 
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
+  var MEDAL_TIERS = [
+    { name: 'Platinum', km: 42.2, color: '#8b5cf6' },
+    { name: 'Gold', km: 20, color: '#d97706' },
+    { name: 'Silver', km: 10, color: '#64748b' },
+    { name: 'Bronze', km: 5, color: '#b45309' },
+    { name: 'Starter', km: 0, color: '#0c5aa8' }
+  ];
 
   var currentStudent = null;
 
@@ -46,7 +53,22 @@
       : '<p style="color:#888;font-size:0.85rem;">Keep running to earn your first award at 5 laps!</p>';
 
     document.getElementById('result-card').hidden = false;
+    renderMedalProgress(s);
     renderGoals();
+  }
+
+  function renderMedalProgress(student) {
+    var km = Scan.totalKm(student);
+    var current = MEDAL_TIERS.find(function (tier) { return km >= tier.km; }) || MEDAL_TIERS[MEDAL_TIERS.length - 1];
+    var next = MEDAL_TIERS.slice().reverse().find(function (tier) { return tier.km > km; });
+    var percent = next ? Math.min(100, Math.round((km / next.km) * 100)) : 100;
+    var nextCopy = next
+      ? (next.name + ' at ' + next.km + ' km')
+      : 'Top medal reached';
+    document.getElementById('medal-progress').innerHTML =
+      '<div class="goal-head"><strong style="color:' + current.color + ';">' + current.name + '</strong></div>' +
+      '<div class="goal-meta">' + km.toFixed(2) + ' km total · Next: ' + nextCopy + '</div>' +
+      '<div class="goal-bar"><div class="goal-bar-fill" style="width:' + percent + '%;background:' + current.color + ';"></div></div>';
   }
 
   // --- Goals rendering ---
