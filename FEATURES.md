@@ -1,21 +1,45 @@
-# Gwynne Park Run Club - Priority List
+# Gwynne Park Run Club - Roadmap
 
-Inspired by Marathon Kids Connect and StrideTrack. Privacy remains a release gate, so Priority 0 is held for the final live-readiness pass.
+Inspired by Marathon Kids Connect and StrideTrack. This file is the source of truth for feature progress.
+
+Workflow rules live in `docs/roadmap-workflow.md`.
+
+## Progress Snapshot
+
+- Priority 0: 0 / 10 complete. Status: Go-Live Gate.
+- Priority 1: 14 / 14 complete. Status: Done.
+- Priority 2: 0 / 8 complete. Status: Ready Next.
+- Priority 3: 0 / 10 complete. Status: Planned.
+- Priority 4: 0 / 10 complete. Status: Planned.
+- Priority 5: 0 / 9 complete. Status: Planned.
+- Priority 6: 0 / 8 complete. Status: Planned.
+- Priority 7: 0 / 10 complete. Status: Planned.
+- Priority 8: 0 / 8 complete. Status: Parked.
+
+## Current Focus
+
+- Current lane: Priority 2 - Next Build.
+- Recommended next item: 2.1 PWA/installable scanning shell.
+- Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
 
 ## Priority 0 - Live Privacy And Security Gate
 
-- [ ] Replace local demo storage with a real backend.
-- [ ] Add role-based permissions for admin, coach, parent, and student views.
-- [ ] Add school-level data isolation.
-- [ ] Remove public demo access before launch.
-- [ ] Add consent, retention, and export/delete controls for student data.
-- [ ] Use non-guessable student and parent access tokens.
-- [ ] Complete privacy policy, incident plan, and admin onboarding notes.
-- [ ] Add production monitoring and backup/export process.
-- [ ] Run security review on student identifiers, scan logs, and reports.
-- [ ] Final live deployment checklist.
+Status: Go-Live Gate. Complete before using real student data.
+
+- [ ] 0.1 Replace local demo storage with a real backend.
+- [ ] 0.2 Add real staff/admin authentication.
+- [ ] 0.3 Add role-based permissions for admin, coach, parent, and student views.
+- [ ] 0.4 Add school-scoped data isolation.
+- [ ] 0.5 Remove universal public `DEMO` access before launch.
+- [ ] 0.6 Use non-guessable student and parent access tokens.
+- [ ] 0.7 Add consent, retention, export, and deletion controls for student data.
+- [ ] 0.8 Add audit logs for imports, scans, edits, exports, deletions, and manual adjustments.
+- [ ] 0.9 Complete privacy policy, incident plan, admin onboarding notes, and backup/export process.
+- [ ] 0.10 Run final security review and live deployment checklist.
 
 ## Priority 1 - Operational MVP
+
+Status: Done. Keep stable unless a bug is found.
 
 - [x] ~~1.1 Admin can manually add, edit, and delete students.~~
 - [x] ~~1.2 Admin can import roster CSVs with duplicate/invalid row feedback.~~
@@ -34,9 +58,98 @@ Inspired by Marathon Kids Connect and StrideTrack. Privacy remains a release gat
 
 ## Priority 2 - Next Build
 
-- [ ] PWA/installable scanning for phones and iPads.
-- [ ] Offline scan queue sync once a backend exists.
-- [ ] Richer class, division, and medal reporting.
-- [ ] Per-term student progress PDFs.
-- [ ] Onboarding wizard for track length, year groups, and award thresholds.
-- [ ] Sports Carnival and Cross Country PB module.
+Status: Ready Next. These can be built before the production backend where practical.
+
+- [ ] 2.1 PWA/installable scanning shell for phones and iPads.
+- [ ] 2.2 Better offline scan queue interface and retry states.
+- [ ] 2.3 Configurable duplicate scan cooldown in admin settings.
+- [ ] 2.4 Registered scanner/tablet device names for audit logs.
+- [ ] 2.5 Track/session setup options, including lap length and session type.
+- [ ] 2.6 Richer class, division, medal, and certificate reports.
+- [ ] 2.7 Per-student progress history and term summary view.
+- [ ] 2.8 Onboarding wizard for school, track length, years, classes, and award thresholds.
+
+## Priority 3 - Backend And Cross-Device Sync
+
+Status: Planned. This is the bridge from demo/local use to real multi-device operation.
+
+- [ ] 3.1 Choose backend stack and deployment target.
+- [ ] 3.2 Create database schema for schools, users, school users, groups, students, laps, sessions, awards, challenges, devices, and audit logs.
+- [ ] 3.3 Replace `localStorage` roster reads/writes with backend data access.
+- [ ] 3.4 Replace lap/session storage with backend writes and server timestamps.
+- [ ] 3.5 Add idempotency keys for scan requests.
+- [ ] 3.6 Add sync for offline scan queue.
+- [ ] 3.7 Add conflict handling for duplicate or delayed offline scans.
+- [ ] 3.8 Add backend-powered leaderboards and reports.
+- [ ] 3.9 Add backup/export jobs.
+- [ ] 3.10 Add migration path from current demo data to real school setup.
+
+## Priority 4 - Reporting And Admin Power Tools
+
+Status: Planned.
+
+- [ ] 4.1 Class, year, division, and school summary dashboards.
+- [ ] 4.2 Per-student full history view.
+- [ ] 4.3 Term progress reports.
+- [ ] 4.4 Printable class reports.
+- [ ] 4.5 Printable award packs.
+- [ ] 4.6 Certificate batch export.
+- [ ] 4.7 Session attendance and participation summaries.
+- [ ] 4.8 Manual adjustment ledger with reason notes.
+- [ ] 4.9 Import/export templates for common school admin workflows.
+- [ ] 4.10 Admin analytics for participation, progress, and inactive students.
+
+## Priority 5 - Parent And Student Experience
+
+Status: Planned.
+
+- [ ] 5.1 Parent account linking.
+- [ ] 5.2 Stronger guardian access controls.
+- [ ] 5.3 Parent view for child progress, awards, and goals.
+- [ ] 5.4 Student progress timeline.
+- [ ] 5.5 Milestone notifications.
+- [ ] 5.6 Challenge notifications.
+- [ ] 5.7 Student progress PDFs per term.
+- [ ] 5.8 Improved award and certificate display.
+- [ ] 5.9 Student-friendly goal reflection without self-reported activity logging.
+
+## Priority 6 - Competitions And Challenges
+
+Status: Planned.
+
+- [ ] 6.1 House competitions.
+- [ ] 6.2 Class competitions.
+- [ ] 6.3 Year-level competitions.
+- [ ] 6.4 Club-wide challenges.
+- [ ] 6.5 Team and house leaderboards.
+- [ ] 6.6 Custom challenge rules.
+- [ ] 6.7 Challenge progress tracking.
+- [ ] 6.8 Challenge award/certificate tie-ins.
+
+## Priority 7 - Sports Carnival And Cross Country
+
+Status: Planned.
+
+- [ ] 7.1 Sports Carnival module.
+- [ ] 7.2 Cross Country module.
+- [ ] 7.3 PB tracking.
+- [ ] 7.4 Sprint time results.
+- [ ] 7.5 Distance event time results.
+- [ ] 7.6 Jump, throw, and length results.
+- [ ] 7.7 Field-event attempt tracking.
+- [ ] 7.8 Age champion scoring.
+- [ ] 7.9 House points.
+- [ ] 7.10 Carnival and cross country exports.
+
+## Priority 8 - Polish, Help, And Long-Term Enhancements
+
+Status: Parked.
+
+- [ ] 8.1 Cleaner mobile and tablet layouts.
+- [ ] 8.2 Admin help/setup notes inside the app.
+- [ ] 8.3 Program resources and lesson-plan section.
+- [ ] 8.4 Granular privacy controls such as pseudonyms and consent flags.
+- [ ] 8.5 Custom milestone thresholds.
+- [ ] 8.6 Multi-school reporting.
+- [ ] 8.7 Theme and branding settings.
+- [ ] 8.8 Accessibility audit and improvements.
