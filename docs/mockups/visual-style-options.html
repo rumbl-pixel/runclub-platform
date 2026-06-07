@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gwynne Park Run Club - Visual Style Mockups</title>
+    <style>
+      :root {
+        --school-blue: #003880;
+        --school-blue-2: #0755a3;
+        --gold: #c99722;
+        --gold-soft: #f7e7b4;
+        --ink: #142033;
+        --muted: #64748b;
+        --paper: #f7f9fc;
+        --card: #ffffff;
+        --line: #dbe4ef;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #eef3f8;
+        color: var(--ink);
+      }
+
+      header {
+        background: var(--school-blue);
+        color: white;
+        padding: 28px clamp(18px, 4vw, 48px);
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 42px);
+        letter-spacing: 0;
+      }
+
+      header p {
+        max-width: 820px;
+        margin: 8px 0 0;
+        color: rgba(255,255,255,0.84);
+      }
+
+      main {
+        width: min(1200px, calc(100% - 32px));
+        margin: 28px auto 56px;
+      }
+
+      .intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 22px;
+      }
+
+      .palette {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .swatch {
+        min-width: 118px;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 8px;
+        background: white;
+        overflow: hidden;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .swatch div { height: 38px; }
+      .swatch span { display: block; padding: 7px 9px; }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .option {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+      }
+
+      .option-body { padding: 16px; }
+
+      .option h2 {
+        margin: 0 0 4px;
+        color: var(--school-blue);
+        font-size: 20px;
+      }
+
+      .option p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .mock-app {
+        min-height: 480px;
+        background: var(--paper);
+        border-top: 1px solid var(--line);
+      }
+
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+      }
+
+      .brand {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-weight: 800;
+      }
+
+      .logo {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        background: white;
+        border-radius: 6px;
+        padding: 3px;
+      }
+
+      .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 5px 7px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .pill {
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .mock-content {
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .hero-card,
+      .panel,
+      .stat {
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: white;
+      }
+
+      .hero-card {
+        padding: 16px;
+      }
+
+      .hero-card h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+      }
+
+      .hero-card p {
+        margin: 0;
+        font-size: 13px;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .stat {
+        padding: 10px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 20px;
+      }
+
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        margin-top: 1px;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(15,23,42,0.08);
+        font-size: 13px;
+      }
+
+      .row:last-child { border-bottom: 0; }
+      .rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+      }
+
+      .classic .app-header {
+        background: var(--school-blue);
+        color: white;
+      }
+
+      .classic .toggle {
+        background: rgba(255,255,255,0.16);
+        color: white;
+      }
+
+      .classic .hero-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 70%);
+        border-left: 6px solid var(--gold);
+      }
+
+      .classic .rank {
+        background: var(--school-blue);
+        color: white;
+      }
+
+      .classic .pill {
+        background: var(--gold-soft);
+        color: #775312;
+      }
+
+      .bright .mock-app {
+        background: #f8fbff;
+      }
+
+      .bright .app-header {
+        background: white;
+        color: var(--school-blue);
+        border-bottom: 4px solid var(--gold);
+      }
+
+      .bright .toggle {
+        background: #e8f2ff;
+        color: var(--school-blue);
+      }
+
+      .bright .hero-card {
+        background: #fff8df;
+        border-color: #ead28a;
+      }
+
+      .bright .rank {
+        background: var(--gold);
+        color: #1f2937;
+      }
+
+      .bright .pill {
+        background: #e9f3ff;
+        color: var(--school-blue);
+      }
+
+      .dark .mock-app {
+        background: #071a33;
+        color: #e6eef8;
+      }
+
+      .dark .app-header {
+        background: #06152a;
+        color: white;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .dark .toggle {
+        background: rgba(201,151,34,0.18);
+        color: #f7d777;
+        border: 1px solid rgba(247,215,119,0.3);
+      }
+
+      .dark .hero-card,
+      .dark .panel,
+      .dark .stat {
+        background: #0d2442;
+        border-color: rgba(255,255,255,0.1);
+      }
+
+      .dark .hero-card {
+        border-left: 6px solid var(--gold);
+      }
+
+      .dark .rank {
+        background: var(--gold);
+        color: #06152a;
+      }
+
+      .dark .pill {
+        background: rgba(201,151,34,0.18);
+        color: #f7d777;
+      }
+
+      .dark .stat span,
+      .dark .option p,
+      .dark .hero-card p,
+      .dark .row span {
+        color: #aab8ca;
+      }
+
+      .notes {
+        margin-top: 22px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px;
+      }
+
+      .notes h2 { margin-top: 0; color: var(--school-blue); }
+      .notes li { margin-bottom: 8px; }
+
+      @media (max-width: 980px) {
+        .options { grid-template-columns: 1fr; }
+        .intro { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Visual Style Mockups</h1>
+      <p>Three possible directions for making Gwynne Park Run Club feel more unique, school-aligned, and fun without losing the clean admin workflow.</p>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <h2>Colour Anchor</h2>
+          <p>The logo sampling points toward a deep school blue around <strong>#003880</strong>. The gold is a proposed uniform-inspired accent, used lightly so the interface still feels practical.</p>
+        </div>
+        <div class="palette">
+          <div class="swatch"><div style="background:#003880"></div><span>School blue #003880</span></div>
+          <div class="swatch"><div style="background:#0755a3"></div><span>Action blue #0755A3</span></div>
+          <div class="swatch"><div style="background:#c99722"></div><span>Uniform gold #C99722</span></div>
+        </div>
+      </section>
+
+      <section class="options">
+        <article class="option classic">
+          <div class="option-body">
+            <h2>A. School Sport Classic</h2>
+            <p>Most practical. Strong school-blue header, subtle gold accents, clean cards.</p>
+          </div>
+          <div class="mock-app">
+            <div class="app-header">
+              <div class="brand"><img class="logo" src="../../assets/gwynne-park-logo.png" alt="" />Run Club</div>
+              <div class="toggle">Light / Dark</div>
+            </div>
+            <div class="mock-content">
+              <div class="hero-card">
+                <h3>Run Session Scanner</h3>
+                <p>Oval iPad 1 - Run Club - 250m laps</p>
+              </div>
+              <div class="stat-grid">
+                <div class="stat"><strong>248</strong><span>Laps</span></div>
+                <div class="stat"><strong>62km</strong><span>Total</span></div>
+                <div class="stat"><strong>18</strong><span>Awards</span></div>
+              </div>
+              <div class="panel">
+                <div class="row"><div class="rank">1</div><div>Mia T.</div><span class="pill">Gold</span></div>
+                <div class="row"><div class="rank">2</div><div>Noah W.</div><span class="pill">Silver</span></div>
+                <div class="row"><div class="rank">3</div><div>Ava P.</div><span class="pill">Bronze</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="option bright">
+          <div class="option-body">
+            <h2>B. Bright House Day</h2>
+            <p>Friendlier and more student-facing. More gold, softer blue, still tidy.</p>
+          </div>
+          <div class="mock-app">
+            <div class="app-header">
+              <div class="brand"><img class="logo" src="../../assets/gwynne-park-logo.png" alt="" />Run Club</div>
+              <div class="toggle">Light / Dark</div>
+            </div>
+            <div class="mock-content">
+              <div class="hero-card">
+                <h3>Today’s Running Crew</h3>
+                <p>Celebrate laps, medals, and class progress.</p>
+              </div>
+              <div class="stat-grid">
+                <div class="stat"><strong>42</strong><span>Active</span></div>
+                <div class="stat"><strong>12</strong><span>Classes</span></div>
+                <div class="stat"><strong>7</strong><span>PBs</span></div>
+              </div>
+              <div class="panel">
+                <div class="row"><div class="rank">5B</div><div>Class Challenge</div><span class="pill">82%</span></div>
+                <div class="row"><div class="rank">4C</div><div>Medal Push</div><span class="pill">68%</span></div>
+                <div class="row"><div class="rank">6A</div><div>Marathon Club</div><span class="pill">51%</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="option dark">
+          <div class="option-body">
+            <h2>C. Night Training Mode</h2>
+            <p>Best for the dark-mode idea. Deep navy, gold highlights, high contrast.</p>
+          </div>
+          <div class="mock-app">
+            <div class="app-header">
+              <div class="brand"><img class="logo" src="../../assets/gwynne-park-logo.png" alt="" />Run Club</div>
+              <div class="toggle">Dark mode on</div>
+            </div>
+            <div class="mock-content">
+              <div class="hero-card">
+                <h3>Scanner Ready</h3>
+                <p>Hold a card under the camera or Bluetooth scanner.</p>
+              </div>
+              <div class="stat-grid">
+                <div class="stat"><strong>19</strong><span>This session</span></div>
+                <div class="stat"><strong>3s</strong><span>Cooldown</span></div>
+                <div class="stat"><strong>0</strong><span>Queue</span></div>
+              </div>
+              <div class="panel">
+                <div class="row"><div class="rank">✓</div><div>Lap logged</div><span class="pill">STUDENT4</span></div>
+                <div class="row"><div class="rank">✓</div><div>Lap logged</div><span class="pill">STUDENT2</span></div>
+                <div class="row"><div class="rank">!</div><div>Duplicate ignored</div><span class="pill">Review</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="notes">
+        <h2>My Recommendation</h2>
+        <ul>
+          <li>Use <strong>A. School Sport Classic</strong> as the default light mode because it feels credible for staff and school leadership.</li>
+          <li>Add <strong>C. Night Training Mode</strong> as the dark mode via a top-right slider/toggle.</li>
+          <li>Borrow a little of <strong>B</strong> for student-facing celebration pieces, like badges, progress strips, and certificate highlights.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

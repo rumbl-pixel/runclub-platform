@@ -270,4 +270,16 @@ assert(/renderTotalLeaderboard/.test(leaderboardJs), 'leaderboard script should 
 assert(/DIVISIONS/.test(leaderboardJs), 'leaderboard script should define division groups');
 assert(/YEAR_GROUPS/.test(leaderboardJs), 'leaderboard script should define year group views');
 
+const styles = read('styles.css');
+assert(/--school-blue:\s*#003880/.test(styles), 'site theme should use the Gwynne Park school blue token');
+assert(/--uniform-gold:\s*#c99722/.test(styles), 'site theme should use the uniform gold accent token');
+assert(/leaderboard-grid[\s\S]*minmax\(min\(100%,\s*520px\),\s*1fr\)/.test(styles), 'leaderboard grid should use wide responsive columns to prevent table clipping');
+assert(/leaderboard-grid\s*>\s*div[\s\S]*overflow-x:\s*auto/.test(styles), 'leaderboard sections should handle table overflow inside each panel');
+assert(/leaderboard-table[\s\S]*min-width:\s*500px/.test(styles), 'leaderboard tables should keep readable column widths');
+assert(/#student-progress-history,[\s\S]*#leaderboard-table,[\s\S]*#certificates-list,[\s\S]*#audit-trail-list[\s\S]*overflow-x:\s*auto/.test(styles), 'admin table containers should prevent column clipping');
+assert(/offline-scan-table[\s\S]*min-width:\s*560px/.test(styles), 'offline scan tables should keep readable column widths');
+assert(/report-mini table[\s\S]*min-width:\s*420px/.test(styles), 'report summary tables should keep readable column widths');
+assert(/styles\.css\?v=5/.test(leaderboardHtml), 'leaderboard page should request the current themed stylesheet version');
+assert(/gwynne-park-run-club-v5/.test(serviceWorker), 'service worker cache should be bumped for the site-wide theme update');
+
 console.log('portal smoke checks passed');

@@ -6,7 +6,7 @@
   margin: 0;
   height: 100vh;
   overflow: hidden;
-  background: #0b2545;
+  background: #003880;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,8 @@
   align-items: center;
   padding: 16px 24px;
   font-size: 18px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  border-bottom: 4px solid #c99722;
 }
 .kiosk-brand {
   display: flex;
@@ -69,8 +70,8 @@
   opacity: 0.95;
 }
 
-.kiosk-banner--ready    { background: #14507a; }
-.kiosk-banner--attract  { background: #0d3a5c; animation: kioskPulse 2s ease-in-out infinite; }
+.kiosk-banner--ready    { background: #0755a3; }
+.kiosk-banner--attract  { background: #003880; animation: kioskPulse 2s ease-in-out infinite; box-shadow: inset 0 0 0 4px rgba(201, 151, 34, 0.55); }
 .kiosk-banner--success  { background: #1b8a4b; }   /* green */
 .kiosk-banner--error    { background: #c0392b; }   /* red */
 
@@ -92,9 +93,9 @@
   margin-top: 20px;
   min-height: 56px;
   padding: 0 30px;
-  border: 1px solid rgba(255,255,255,0.35);
+  border: 1px solid rgba(247,231,180,0.65);
   border-radius: 14px;
-  background: rgba(255,255,255,0.14);
+  background: rgba(201,151,34,0.28);
   color: #fff;
   font-size: 18px;
   font-weight: 700;
@@ -105,9 +106,9 @@
   width: min(92vw, 520px);
   margin-top: 18px;
   padding: 12px;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(247,231,180,0.36);
   border-radius: 16px;
-  background: rgba(0,0,0,0.22);
+  background: rgba(20,32,51,0.32);
 }
 
 .camera-scan-panel video {
@@ -120,7 +121,7 @@
 
 .camera-scan-panel p {
   margin: 8px 0 0;
-  color: #dbeafe;
+  color: #f7e7b4;
 }
 
 .kiosk-meta {
@@ -138,7 +139,7 @@
   font-size: 20px;
   font-weight: 600;
   color: #fff;
-  background: #b9770e;
+  background: #c99722;
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -153,9 +154,9 @@
   min-height: 48px;
   padding: 0 24px;
   font-size: 16px;
-  color: #cfe2f3;
+  color: #f7e7b4;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(247, 231, 180, 0.45);
   border-radius: 12px;
   cursor: pointer;
 }
