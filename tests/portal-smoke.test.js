@@ -303,5 +303,30 @@ const features = read('FEATURES.md');
 assert(/Training And At-Home Tasks/.test(features), 'roadmap should include the training workflow lane');
 assert(/assigned at-home training/.test(features), 'roadmap should include assigned at-home training tasks');
 assert(/link click visibility/.test(features), 'roadmap should include training link click visibility');
+assert(/Priority 3: 2 \/ 10 complete/.test(features), 'roadmap should show backend stack and schema completed');
+assert(/~~3\.1 Choose backend stack and deployment target\.~~/.test(features), 'roadmap should mark backend stack decision complete');
+assert(/~~3\.2 Create database schema/.test(features), 'roadmap should mark initial backend schema complete');
+
+const backendDecision = read('docs/backend-stack-decision.md');
+assert(/Use Supabase as the production backend/.test(backendDecision), 'backend decision should choose Supabase');
+assert(/Postgres Row Level Security/.test(backendDecision), 'backend decision should require RLS');
+assert(/training_assignments/.test(backendDecision), 'backend decision should include training tables in the next schema step');
+
+assertFile('supabase/migrations/202606080001_initial_schema.sql');
+const initialSchema = read('supabase/migrations/202606080001_initial_schema.sql');
+[
+  'schools',
+  'school_users',
+  'students',
+  'run_sessions',
+  'lap_entries',
+  'scan_audit_logs',
+  'training_assignments',
+  'training_assignment_students',
+  'training_link_events'
+].forEach((table) => {
+  assert(new RegExp(`create table if not exists public\\.${table}`).test(initialSchema), `initial backend schema should create ${table}`);
+  assert(new RegExp(`alter table public\\.${table} enable row level security`).test(initialSchema), `${table} should enable row level security`);
+});
 
 console.log('portal smoke checks passed');

@@ -9,7 +9,7 @@ Workflow rules live in `docs/roadmap-workflow.md`.
 - Priority 0: 0 / 10 complete. Status: Go-Live Gate.
 - Priority 1: 14 / 14 complete. Status: Done.
 - Priority 2: 8 / 8 complete. Status: Done.
-- Priority 3: 0 / 10 complete. Status: Planned.
+- Priority 3: 2 / 10 complete. Status: In Progress.
 - Priority 4: 0 / 10 complete. Status: Planned.
 - Priority 5: 0 / 10 complete. Status: Planned.
 - Priority 6: 0 / 8 complete. Status: Planned.
@@ -19,7 +19,7 @@ Workflow rules live in `docs/roadmap-workflow.md`.
 ## Current Focus
 
 - Current lane: Priority 3 - Backend And Cross-Device Sync.
-- Recommended next item: 3.1 Choose backend stack and deployment target.
+- Recommended next item: 3.3 Replace `localStorage` roster reads/writes with backend data access.
 - Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
 
 ## Priority 0 - Live Privacy And Security Gate
@@ -73,8 +73,8 @@ Status: Done. Keep stable unless a bug is found.
 
 Status: Planned. This is the bridge from demo/local use to real multi-device operation.
 
-- [ ] 3.1 Choose backend stack and deployment target.
-- [ ] 3.2 Create database schema for schools, users, school users, groups, students, laps, sessions, awards, challenges, devices, and audit logs.
+- [x] ~~3.1 Choose backend stack and deployment target.~~
+- [x] ~~3.2 Create database schema for schools, users, school users, groups, students, laps, sessions, awards, challenges, devices, and audit logs.~~
 - [ ] 3.3 Replace `localStorage` roster reads/writes with backend data access.
 - [ ] 3.4 Replace lap/session storage with backend writes and server timestamps.
 - [ ] 3.5 Add idempotency keys for scan requests.
