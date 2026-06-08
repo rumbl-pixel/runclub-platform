@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=9" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -173,6 +173,13 @@
           <p style="color:#555;font-size:0.9rem;">Students are stored locally for this demo. Add one here or use the Import tab for a full roster.</p>
           <input type="text" id="student-search" placeholder="Search by name, ID, year or class..." style="margin-bottom:1rem;" />
           <ul id="student-list"></ul>
+        </div>
+
+        <div class="card">
+          <h2>Parent Account Linking</h2>
+          <p style="color:#555;font-size:0.9rem;">Create local guardian link codes for the parent portal. These are a demo bridge until real parent accounts and access tokens are enabled.</p>
+          <button id="generate-guardian-links-btn" type="button" class="secondary">Generate missing guardian links</button>
+          <div id="guardian-link-list" style="margin-top:1rem;"></div>
         </div>
 
         <div class="card" id="student-progress-card">

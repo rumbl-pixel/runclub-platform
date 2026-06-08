@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Parent Portal</title>
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=9" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -27,15 +27,16 @@
       <div style="max-width:640px;margin:0 auto;">
         <h2 style="margin-bottom:1rem;">Parent Login</h2>
         <form id="parent-form" class="card">
-          <label>Child code
-            <input type="text" id="parent-code" required placeholder="e.g. STUDENT1 or DEMO" autocomplete="off" autocapitalize="characters" />
+          <label>Child or guardian link code
+            <input type="text" id="parent-code" required placeholder="e.g. STUDENT1, GP-STUDENT1-123456, or DEMO" autocomplete="off" autocapitalize="characters" />
           </label>
           <button type="submit">View progress</button>
           <p id="parent-error" class="error-message"></p>
-          <p style="margin-top:0.75rem;font-size:0.82rem;color:#888;">Use the code from your child's barcode card. Type DEMO to open a sample child profile.</p>
+          <p id="guardian-link-code" style="margin-top:0.75rem;font-size:0.82rem;color:#888;">Use the code from your child's barcode card or the guardian link code provided by the school. Type DEMO to open a sample child profile.</p>
         </form>
 
         <section id="parent-result" hidden>
+          <div id="parent-link-summary" class="card"></div>
           <div class="athlete-card">
             <h3 id="parent-athlete-name">Runner Profile</h3>
             <div class="athlete-stats" id="parent-athlete-stats"></div>

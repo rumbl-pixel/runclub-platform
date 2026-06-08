@@ -4,17 +4,61 @@
 
   var Scan = window.RunClubScan;
   var Goals = window.RunClubGoals;
+  var GUARDIAN_LINKS_KEY = 'rc_guardian_links';
   var currentStudent = null;
+  var currentAccess = null;
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
+
+  function load(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function guardianLinks() {
+    return load(GUARDIAN_LINKS_KEY, []);
+  }
+
+  function findLinkedStudent(code) {
+    var c = String(code || '').trim().toUpperCase();
+    var link = guardianLinks().find(function (row) {
+      return String(row.code || '').toUpperCase() === c;
+    });
+    if (!link) { return null; }
+    var student = Scan.getStudents().find(function (s) { return s.id === link.student_id; });
+    if (!student) { return null; }
+    return { student: student, link: link };
+  }
 
   function findStudent(code) {
     var c = String(code || '').trim().toUpperCase();
     if (c === 'DEMO') {
-      return Scan.getStudents()[0] || null;
+      var demo = Scan.getStudents()[0] || null;
+      return demo ? { student: demo, link: null, accessType: 'demo' } : null;
     }
-    return Scan.getStudents().find(function (s) {
+    var linked = findLinkedStudent(c);
+    if (linked) {
+      linked.accessType = 'guardian';
+      return linked;
+    }
+    var student = Scan.getStudents().find(function (s) {
       return s.id.toUpperCase() === c || (s.barcode && s.barcode.toUpperCase() === c);
     });
+    return student ? { student: student, link: null, accessType: 'barcode' } : null;
+  }
+
+  function renderLinkSummary(access) {
+    var el = document.getElementById('parent-link-summary');
+    if (!el) { return; }
+    var copy = access.accessType === 'guardian'
+      ? 'Linked with a guardian code issued by the school.'
+      : access.accessType === 'demo'
+        ? 'Viewing a demo child profile.'
+        : 'Viewing with a child barcode/student code.';
+    el.innerHTML = '<h2>Linked Access</h2><p style="color:#555;font-size:0.9rem;margin-bottom:0;">' + copy + '</p>';
   }
 
   function renderStats(student) {
@@ -74,6 +118,7 @@
 
   function render(student) {
     currentStudent = student;
+    renderLinkSummary(currentAccess || { accessType: 'barcode' });
     renderStats(student);
     renderAwards(student);
     renderGoals(student);
@@ -84,12 +129,13 @@
     e.preventDefault();
     var errorEl = document.getElementById('parent-error');
     errorEl.textContent = '';
-    var student = findStudent(document.getElementById('parent-code').value);
-    if (!student) {
+    var access = findStudent(document.getElementById('parent-code').value);
+    if (!access) {
       errorEl.textContent = 'Code not recognised. Check the barcode card or ask the school.';
       return;
     }
-    render(student);
+    currentAccess = access;
+    render(access.student);
   });
 
   document.getElementById('print-parent-certificate-btn').addEventListener('click', printParentCertificate);

@@ -11,7 +11,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] Priority 2 - Next Build: 8 / 8 complete. Done.
 - [x] Priority 3 - Backend And Cross-Device Sync: 10 / 10 complete. Done.
 - [x] Priority 4 - Reporting And Admin Power Tools: 10 / 10 complete. Done.
-- [ ] Priority 5 - Parent And Student Experience: 0 / 10 complete. Planned.
+- [ ] Priority 5 - Parent And Student Experience: 1 / 10 complete. In Progress.
 - [ ] Priority 6 - Competitions And Challenges: 0 / 8 complete. Planned.
 - [ ] Priority 7 - Sports Carnival And Cross Country: 0 / 10 complete. Planned.
 - [ ] Priority 8 - Polish, Help, And Long-Term Enhancements: 0 / 8 complete. Parked.
@@ -21,6 +21,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] 3.1 Backend stack decision completed: Supabase Postgres/Auth/RLS/Edge Functions.
 - [x] 3.2 Initial production schema completed with RLS enabled on student/school data tables.
 - [x] Priority 3 backend adapter, idempotent scan sync, report views, backup/export tracking, and demo migration path completed.
+- [x] 5.1 Parent account linking completed with local guardian link codes.
 
 ## Go-Live Gate
 
@@ -84,7 +85,7 @@ Do not enter real student data until Priority 0 is complete.
 
 ## Planned Later
 
-- [ ] Priority 5: parent/student accounts, notifications, progress timeline, completed Training workflow.
+- [ ] Priority 5: guardian access controls, notifications, progress timeline, completed Training workflow.
 - [ ] Priority 6: house/class/year competitions and challenge progress.
 - [ ] Priority 7: Sports Carnival and Cross Country modules.
 - [ ] Priority 8: mobile polish, help notes, privacy controls, branding settings, accessibility audit.

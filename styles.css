@@ -287,6 +287,20 @@ a:hover { text-decoration: underline; }
   padding-bottom: 0.25rem;
 }
 
+#total-leaderboard,
+#division-senior,
+#division-intermediate,
+#division-junior,
+#year-2,
+#year-3,
+#year-4,
+#year-5,
+#year-6 {
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
 .leaderboard-grid h3 {
   margin: 0 0 0.65rem;
   color: var(--school-blue);
@@ -563,6 +577,11 @@ pre {
   border-radius: 8px;
   margin-bottom: 0.85rem;
   background: var(--surface-tint);
+  overflow-x: auto;
+}
+
+.offline-batch details {
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -982,6 +1001,19 @@ pre {
   .portal-grid { grid-template-columns: 1fr 1fr; }
   .features-grid { grid-template-columns: 1fr; }
   .athlete-stats { gap: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .offline-scan-table {
+    min-width: 0;
+    font-size: 0.72rem;
+  }
+
+  .offline-scan-table th,
+  .offline-scan-table td {
+    padding: 0.28rem;
+    overflow-wrap: anywhere;
+  }
 }
 
 /* --- Goals (student portal) --- */

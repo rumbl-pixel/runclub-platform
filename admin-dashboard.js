@@ -16,6 +16,7 @@
 
   // --- Storage keys ---
   var K = { students:'rc_students', activity:'rc_activity', sessions:'rc_sessions', events:'rc_events', challenges:'rc_challenges', timedRuns:'rc_timed', customAwards:'rc_custom_awards', scanAudit:'rc_scan_audit', scannerSettings:'rc_scanner_settings', offlineQueue:'rc_offline_queue', programSettings:'rc_program_settings', training:'rc_training', trainingClicks:'rc_training_clicks', adjustments:'rc_adjustments' };
+  var GUARDIAN_LINKS_KEY = 'rc_guardian_links';
 
   function load(key, def) { try { var r=localStorage.getItem(key); return r?JSON.parse(r):def; } catch{return def;} }
   function save(key,val) { localStorage.setItem(key,JSON.stringify(val)); }
@@ -519,9 +520,12 @@
   var progressTermEl=document.getElementById('progress-term');
   var studentProgressSummaryEl=document.getElementById('student-progress-summary');
   var studentProgressHistoryEl=document.getElementById('student-progress-history');
+  var guardianLinkListEl=document.getElementById('guardian-link-list');
+  var generateGuardianLinksBtn=document.getElementById('generate-guardian-links-btn');
 
   function refreshStudentViews(){
     renderStudentList();
+    renderGuardianLinks();
     populateProgressStudents();
     populateTrainingStudents();
     populateLbFilters();
@@ -589,6 +593,71 @@
   }
   renderStudentList();
   studentSearchEl.addEventListener('input',renderStudentList);
+
+  function guardianLinks(){ return load(GUARDIAN_LINKS_KEY,[]); }
+  function saveGuardianLinks(rows){ save(GUARDIAN_LINKS_KEY,rows); }
+
+  function generateGuardianLinkCode(student){
+    var seed=(student.id||student.barcode||student.name||'student').replace(/[^a-z0-9]/gi,'').slice(0,8).toUpperCase();
+    var random=Math.floor(100000+Math.random()*900000);
+    return 'GP-' + seed + '-' + random;
+  }
+
+  function upsertGuardianLink(student){
+    var rows=guardianLinks();
+    var existing=rows.find(function(row){return row.student_id===student.id;});
+    var code=generateGuardianLinkCode(student);
+    if(existing){
+      existing.code=code;
+      existing.student_name=student.name;
+      existing.year=student.year;
+      existing.class_name=student.cls;
+      existing.updated_at=new Date().toISOString();
+    } else {
+      rows.push({student_id:student.id,student_name:student.name,year:student.year,class_name:student.cls,code:code,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+    }
+    saveGuardianLinks(rows);
+    renderGuardianLinks();
+  }
+
+  function generateMissingGuardianLinks(){
+    var rows=guardianLinks();
+    var has={};
+    rows.forEach(function(row){has[row.student_id]=true;});
+    getStudents().forEach(function(student){
+      if(!has[student.id]){
+        rows.push({student_id:student.id,student_name:student.name,year:student.year,class_name:student.cls,code:generateGuardianLinkCode(student),created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+      }
+    });
+    saveGuardianLinks(rows);
+    renderGuardianLinks();
+  }
+
+  function renderGuardianLinks(){
+    if(!guardianLinkListEl){return;}
+    var students=getStudents();
+    var rows=guardianLinks().filter(function(row){return students.some(function(student){return student.id===row.student_id;});});
+    if(rows.length!==guardianLinks().length){saveGuardianLinks(rows);}
+    if(!rows.length){
+      guardianLinkListEl.innerHTML='<p style="color:#888;font-size:0.85rem;">No guardian links generated yet.</p>';
+      return;
+    }
+    guardianLinkListEl.innerHTML='<table class="progress-history-table"><thead><tr><th>Student</th><th>Year</th><th>Class</th><th>Guardian code</th><th>Action</th></tr></thead><tbody>'+
+      rows.map(function(row){
+        return '<tr><td>'+escapeHtml(row.student_name)+'</td><td>'+escapeHtml(row.year)+'</td><td>'+escapeHtml(row.class_name)+'</td><td><code>'+escapeHtml(row.code)+'</code></td><td><button type="button" class="link-btn reissue-guardian-link" data-student="'+escapeAttr(row.student_id)+'">Reissue</button></td></tr>';
+      }).join('')+'</tbody></table>';
+    document.querySelectorAll('.reissue-guardian-link').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var student=getStudents().find(function(s){return s.id===btn.dataset.student;});
+        if(student){upsertGuardianLink(student);}
+      });
+    });
+  }
+
+  if(generateGuardianLinksBtn){
+    generateGuardianLinksBtn.addEventListener('click',generateMissingGuardianLinks);
+  }
+  renderGuardianLinks();
 
   function populateProgressStudents(){
     var selected=progressStudentEl.value;

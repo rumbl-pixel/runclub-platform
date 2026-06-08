@@ -12,15 +12,15 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 - Priority 2: 8 / 8 complete. Status: Done.
 - Priority 3: 10 / 10 complete. Status: Done.
 - Priority 4: 10 / 10 complete. Status: Done.
-- Priority 5: 0 / 10 complete. Status: Planned.
+- Priority 5: 1 / 10 complete. Status: In Progress.
 - Priority 6: 0 / 8 complete. Status: Planned.
 - Priority 7: 0 / 10 complete. Status: Planned.
 - Priority 8: 0 / 8 complete. Status: Parked.
 
 ## Current Focus
 
-- Current lane: Priority 3 - Backend And Cross-Device Sync completed.
-- Recommended next item: Review backend configuration, then choose Priority 5 or Priority 6.
+- Current lane: Priority 5 - Parent And Student Experience.
+- Recommended next item: 5.2 Stronger guardian access controls.
 - Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
 
 ## Priority 0 - Live Privacy And Security Gate
@@ -102,11 +102,11 @@ Status: Done. Keep stable unless a bug is found.
 
 ## Priority 5 - Parent And Student Experience
 
-Status: Planned.
+Status: In Progress.
 
 Training And At-Home Tasks now has a local-first skeleton in place. Before launch, this lane needs privacy-reviewed backend storage, clearer guardian visibility, and careful language so assigned at-home training remains teacher-directed rather than student self-reported activity.
 
-- [ ] 5.1 Parent account linking.
+- [x] ~~5.1 Parent account linking.~~
 - [ ] 5.2 Stronger guardian access controls.
 - [ ] 5.3 Parent view for child progress, awards, and goals.
 - [ ] 5.4 Student progress timeline.

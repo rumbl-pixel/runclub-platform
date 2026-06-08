@@ -186,6 +186,8 @@ assert(/generate-student-barcode-btn/.test(adminDashboardHtml), 'admin students 
 assert(/new-student-first/.test(adminDashboardHtml) && /new-student-last/.test(adminDashboardHtml), 'admin add-student form should collect student names');
 assert(/student-editor-modal/.test(adminDashboardHtml), 'admin students area should include an edit-student modal');
 assert(/edit-student-form/.test(adminDashboardHtml), 'admin students area should include an edit-student form');
+assert(/guardian-link-list/.test(adminDashboardHtml), 'admin students area should include guardian link management');
+assert(/generate-guardian-links-btn/.test(adminDashboardHtml), 'admin students area should generate guardian link codes');
 assert(/student-progress-card/.test(adminDashboardHtml), 'admin students area should include progress history');
 assert(/progress-student/.test(adminDashboardHtml) && /progress-term/.test(adminDashboardHtml), 'student progress history should include student and term filters');
 assert(/export-progress-csv-btn/.test(adminDashboardHtml), 'student progress history should export CSV');
@@ -253,6 +255,9 @@ assert(/printStudentBarcodeCard/.test(adminDashboardJs), 'admin dashboard should
 assert(/qrCodeHtml/.test(adminDashboardJs), 'admin dashboard should render real QR codes on student cards');
 assert(/openStudentEditor/.test(adminDashboardJs), 'admin dashboard should let admins edit student details');
 assert(/deleteStudent/.test(adminDashboardJs), 'admin dashboard should let admins remove students');
+assert(/GUARDIAN_LINKS_KEY/.test(adminDashboardJs), 'admin dashboard should store guardian link records');
+assert(/generateGuardianLinkCode/.test(adminDashboardJs), 'admin dashboard should generate guardian link codes');
+assert(/renderGuardianLinks/.test(adminDashboardJs), 'admin dashboard should render guardian link records');
 assert(/Edit/.test(adminDashboardJs) && /Remove/.test(adminDashboardJs), 'student list should expose edit and remove actions');
 assert(/renderBarcodeConfirmation/.test(adminDashboardJs), 'admin add-student flow should render a compact barcode confirmation');
 assert(/createCustomAward/.test(adminDashboardJs), 'admin dashboard should create custom awards');
@@ -304,6 +309,8 @@ assert(/DEMO/.test(parentHtml), 'parent portal should show a DEMO hint');
 assert(/parent\.js/.test(parentHtml), 'parent portal should load parent.js');
 assert(!/Log Home Activity|Home Activity|parent-activity-form/.test(parentHtml), 'parent portal should not include home activity logging');
 assert(/print-parent-certificate-btn/.test(parentHtml), 'parent portal should let parents print child award certificates');
+assert(/guardian-link-code/.test(parentHtml), 'parent portal should explain guardian link codes');
+assert(/parent-link-summary/.test(parentHtml), 'parent portal should show parent link status after access');
 
 const parentJs = read('parent.js');
 assert(/DEMO/.test(parentJs), 'parent portal should handle DEMO bypass');
@@ -311,6 +318,8 @@ assert(/RunClubScan/.test(parentJs), 'parent portal should use shared scanning r
 assert(/RunClubGoals/.test(parentJs), 'parent portal should use shared goals data');
 assert(!/parent-activity-form|rc_selfreports/.test(parentJs), 'parent portal should not submit home activity logs');
 assert(/printParentCertificate/.test(parentJs), 'parent portal should print child award certificates');
+assert(/GUARDIAN_LINKS_KEY/.test(parentJs), 'parent portal should read guardian link records');
+assert(/findLinkedStudent/.test(parentJs), 'parent portal should resolve guardian link codes');
 
 const leaderboardHtml = read('leaderboard.html');
 assert(/Total Leaderboard/.test(leaderboardHtml), 'leaderboard page should include a whole-school total leaderboard');
@@ -333,9 +342,10 @@ assert(/leaderboard-grid\s*>\s*div[\s\S]*overflow-x:\s*auto/.test(styles), 'lead
 assert(/leaderboard-table[\s\S]*min-width:\s*500px/.test(styles), 'leaderboard tables should keep readable column widths');
 assert(/#student-progress-history,[\s\S]*#leaderboard-table,[\s\S]*#certificates-list,[\s\S]*#audit-trail-list[\s\S]*overflow-x:\s*auto/.test(styles), 'admin table containers should prevent column clipping');
 assert(/offline-scan-table[\s\S]*min-width:\s*560px/.test(styles), 'offline scan tables should keep readable column widths');
+assert(/@media \(max-width: 480px\)[\s\S]*offline-scan-table[\s\S]*min-width:\s*0/.test(styles), 'offline scan tables should compact on narrow mobile screens');
 assert(/report-mini table[\s\S]*min-width:\s*420px/.test(styles), 'report summary tables should keep readable column widths');
-assert(/styles\.css\?v=6/.test(leaderboardHtml), 'leaderboard page should request the current themed stylesheet version');
-assert(/gwynne-park-run-club-v8/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
+assert(/styles\.css\?v=9/.test(leaderboardHtml), 'leaderboard page should request the current unclipped stylesheet version');
+assert(/gwynne-park-run-club-v9/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 
 const features = read('FEATURES.md');
@@ -345,10 +355,12 @@ assert(/link click visibility/.test(features), 'roadmap should include training 
 assert(/docs\/roadmap-progress\.md/.test(features), 'roadmap should link to the quick progress checklist');
 assert(/Priority 3: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show backend integration completed');
 assert(/Priority 4: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show Priority 4 completed');
+assert(/Priority 5: 1 \/ 10 complete\. Status: In Progress/.test(features), 'roadmap should show Priority 5 started');
 assert(/~~3\.1 Choose backend stack and deployment target\.~~/.test(features), 'roadmap should mark backend stack decision complete');
 assert(/~~3\.2 Create database schema/.test(features), 'roadmap should mark initial backend schema complete');
 assert(/~~3\.10 Add migration path/.test(features), 'roadmap should mark demo data migration complete');
 assert(/~~4\.10 Admin analytics/.test(features), 'roadmap should mark Priority 4 analytics complete');
+assert(/~~5\.1 Parent account linking/.test(features), 'roadmap should mark parent account linking complete');
 
 const backendDecision = read('docs/backend-stack-decision.md');
 assert(/Use Supabase as the production backend/.test(backendDecision), 'backend decision should choose Supabase');
