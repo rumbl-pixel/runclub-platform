@@ -10,6 +10,7 @@ const message = messageIndex >= 0 && process.argv[messageIndex + 1]
   : 'Automated build: assemble modules and sync to production';
 
 const copies = [
+  ['src/backend/backend.js', 'backend.js'],
   ['src/scanning/scanning.js', 'scanning.js'],
   ['src/data/tracking.js', 'tracking.js'],
   ['src/goals/goals.js', 'goals.js'],

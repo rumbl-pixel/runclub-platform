@@ -10,6 +10,12 @@ window.RUN_CLUB_CONFIG = {
   // Set true to run the UI with fake local data while backend is unfinished.
   demoMode: true,
 
+  // Set true only after Supabase URL, anon key, schoolId, and RLS policies are ready.
+  syncEnabled: false,
+
+  // Public school UUID from the Supabase schools table.
+  schoolId: "",
+
   // Your Supabase anon/public key (safe to expose in browser)
   supabaseAnonKey: "",
 

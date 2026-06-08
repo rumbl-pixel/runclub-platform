@@ -106,6 +106,20 @@
     saveScanAudit(rows.slice(-1000));
   }
 
+  function idempotencyKey(barcode, options) {
+    options = options || {};
+    if (options.idempotency_key || options.idempotencyKey) {
+      return options.idempotency_key || options.idempotencyKey;
+    }
+    var sessionId = options.session_id || options.sessionId || 'no-session';
+    var scannerId = options.scanner_id || options.scannerId || 'unknown-scanner';
+    var bucket = options.timeBucket || Math.floor(Date.now() / 1000);
+    if (global.RunClubBackend && global.RunClubBackend.makeIdempotencyKey) {
+      return global.RunClubBackend.makeIdempotencyKey([barcode, sessionId, scannerId, bucket]);
+    }
+    return ['scan', barcode, sessionId, scannerId, bucket].join('-').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+  }
+
   function isRapidDuplicate(barcode, options) {
     options = options || {};
     var duplicateWindowMs = options.duplicateWindowMs == null ? 2500 : options.duplicateWindowMs;
@@ -124,9 +138,11 @@
     if (!barcode) { return { success: false, error: 'Empty scan' }; }
 
     var scannerId = options.scanner_id || options.scannerId || 'unknown-scanner';
+    var scanTime = new Date().toISOString();
+    var idem = idempotencyKey(barcode, options);
 
     if (isRapidDuplicate(barcode, options)) {
-      auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: false, duplicate: true, error: 'Duplicate scan ignored' });
+      auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: false, duplicate: true, error: 'Duplicate scan ignored', idempotency_key: idem });
       return { success: false, duplicate: true, error: 'Duplicate scan ignored: wait a moment before scanning the same card again', barcode: barcode };
     }
 
@@ -136,13 +152,27 @@
     });
 
     if (!student) {
-      auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: false, error: 'Code not recognised' });
+      auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: false, error: 'Code not recognised', idempotency_key: idem });
       return { success: false, error: 'Code not recognised: ' + barcode, barcode: barcode };
     }
 
     student.laps += 1;
     saveStudents(students);
-    auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: true, duplicate: false, student_id: student.id, student_name: student.name, laps_after: student.laps });
+    auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: true, duplicate: false, student_id: student.id, student_name: student.name, laps_after: student.laps, idempotency_key: idem, time: scanTime });
+
+    if (global.RunClubBackend && global.RunClubBackend.enqueueMutation) {
+      global.RunClubBackend.enqueueMutation('lap_entries', {
+        school_id: global.RunClubBackend.config().schoolId || 'demo-school',
+        student_id: student.id,
+        session_id: options.session_id || options.sessionId || null,
+        barcode: barcode,
+        scanner_id: scannerId,
+        source: options.source || 'scanner',
+        scanned_at: scanTime,
+        lap_distance_km: lapDistanceKm(),
+        idempotency_key: idem
+      }, { table: 'lap_entries', idempotency_key: idem });
+    }
 
     return {
       success: true,
@@ -156,6 +186,7 @@
         laps: student.laps,
         km: lapsToKm(student.laps)
       },
+      idempotency_key: idem,
       milestone: milestoneJustReached(student.laps)
     };
   }
@@ -207,6 +238,7 @@
     scanAudit: scanAudit,
     saveScanAudit: saveScanAudit,
     auditScan: auditScan,
+    idempotencyKey: idempotencyKey,
     logLap: logLap,
     bindScannerInput: bindScannerInput
   };

@@ -10,7 +10,7 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 - Priority 0: 0 / 10 complete. Status: Go-Live Gate.
 - Priority 1: 14 / 14 complete. Status: Done.
 - Priority 2: 8 / 8 complete. Status: Done.
-- Priority 3: 2 / 10 complete. Status: Paused.
+- Priority 3: 10 / 10 complete. Status: Done.
 - Priority 4: 10 / 10 complete. Status: Done.
 - Priority 5: 0 / 10 complete. Status: Planned.
 - Priority 6: 0 / 8 complete. Status: Planned.
@@ -19,8 +19,8 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 
 ## Current Focus
 
-- Current lane: Priority 4 - Reporting And Admin Power Tools completed.
-- Recommended next item: Review Priority 4 in the app, then choose whether to resume Priority 3 or move to Priority 5.
+- Current lane: Priority 3 - Backend And Cross-Device Sync completed.
+- Recommended next item: Review backend configuration, then choose Priority 5 or Priority 6.
 - Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
 
 ## Priority 0 - Live Privacy And Security Gate
@@ -72,18 +72,18 @@ Status: Done. Keep stable unless a bug is found.
 
 ## Priority 3 - Backend And Cross-Device Sync
 
-Status: Paused after 3.2. This is the bridge from demo/local use to real multi-device operation.
+Status: Done. This is the bridge from demo/local use to real multi-device operation. Production still requires Priority 0 before real student data is entered.
 
 - [x] ~~3.1 Choose backend stack and deployment target.~~
 - [x] ~~3.2 Create database schema for schools, users, school users, groups, students, laps, sessions, awards, challenges, devices, and audit logs.~~
-- [ ] 3.3 Replace `localStorage` roster reads/writes with backend data access.
-- [ ] 3.4 Replace lap/session storage with backend writes and server timestamps.
-- [ ] 3.5 Add idempotency keys for scan requests.
-- [ ] 3.6 Add sync for offline scan queue.
-- [ ] 3.7 Add conflict handling for duplicate or delayed offline scans.
-- [ ] 3.8 Add backend-powered leaderboards and reports.
-- [ ] 3.9 Add backup/export jobs.
-- [ ] 3.10 Add migration path from current demo data to real school setup.
+- [x] ~~3.3 Replace `localStorage` roster reads/writes with backend data access.~~
+- [x] ~~3.4 Replace lap/session storage with backend writes and server timestamps.~~
+- [x] ~~3.5 Add idempotency keys for scan requests.~~
+- [x] ~~3.6 Add sync for offline scan queue.~~
+- [x] ~~3.7 Add conflict handling for duplicate or delayed offline scans.~~
+- [x] ~~3.8 Add backend-powered leaderboards and reports.~~
+- [x] ~~3.9 Add backup/export jobs.~~
+- [x] ~~3.10 Add migration path from current demo data to real school setup.~~
 
 ## Priority 4 - Reporting And Admin Power Tools
 

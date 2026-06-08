@@ -1,4 +1,4 @@
-var CACHE_NAME = 'gwynne-park-run-club-v7';
+var CACHE_NAME = 'gwynne-park-run-club-v8';
 var CORE_ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ var CORE_ASSETS = [
   './styles.css',
   './kiosk.css',
   './config.js',
+  './backend.js',
   './admin.js',
   './admin-dashboard.js',
   './admin-goals.js',

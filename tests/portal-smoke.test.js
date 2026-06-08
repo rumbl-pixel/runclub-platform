@@ -18,6 +18,7 @@ function assertFile(file) {
 }
 
 assertFile('config.js');
+assertFile('backend.js');
 assertFile('parent.html');
 assertFile('parent.js');
 assertFile('leaderboard.html');
@@ -87,6 +88,20 @@ assert(/app-icon-192\.png/.test(serviceWorker) && /app-icon-512\.png/.test(servi
 const config = read('config.js');
 assert(/demoMode:\s*true/.test(config), 'config.js should enable safe demo mode');
 assert(!/SUPABASE_SERVICE|service_role|secret/i.test(config), 'config.js should not contain private service secrets');
+assert(/schoolId/.test(config), 'config.js should expose a public school id placeholder for backend scoping');
+assert(/syncEnabled/.test(config), 'config.js should expose a backend sync feature flag');
+
+const backendJs = read('backend.js');
+assert(/RunClubBackend/.test(backendJs), 'backend adapter should expose RunClubBackend');
+assert(/isConfigured/.test(backendJs), 'backend adapter should detect whether Supabase is configured');
+assert(/backendDataAccess/.test(backendJs), 'backend adapter should centralise roster/session/report data access');
+assert(/enqueueMutation/.test(backendJs), 'backend adapter should queue mutations for offline sync');
+assert(/syncOfflineQueue/.test(backendJs), 'backend adapter should sync queued mutations');
+assert(/idempotency_key/.test(backendJs), 'backend adapter should include idempotency keys for scan writes');
+assert(/conflict/.test(backendJs), 'backend adapter should classify sync conflicts');
+assert(/migrationPayloadFromLocalStorage/.test(backendJs), 'backend adapter should export demo data migration payloads');
+assert(/backupExportPayload/.test(backendJs), 'backend adapter should build backup/export payloads');
+assert(!/service_role|SUPABASE_SERVICE/i.test(backendJs), 'backend adapter should not include private service secrets');
 
 const adminHtml = read('admin.html');
 const adminEmailInput = adminHtml.match(/<input[^>]*id="admin-email"[^>]*>/) || adminHtml.match(/<input[^>]*type="text"[^>]*admin-email[^>]*>/);
@@ -145,6 +160,8 @@ const scanningJs = read('scanning.js');
 assert(/scanAudit/.test(scanningJs), 'shared scanning should write a basic scan audit trail');
 assert(/duplicateWindowMs/.test(scanningJs), 'shared scanning should protect against rapid duplicate scans');
 assert(/scanner_id/.test(scanningJs), 'scan audit entries should record who or what scanned');
+assert(/idempotencyKey/.test(scanningJs), 'shared scanning should generate idempotency keys for lap writes');
+assert(/RunClubBackend\.enqueueMutation/.test(scanningJs), 'shared scanning should queue backend lap writes');
 
 const adminDashboardHtml = read('admin-dashboard.html');
 assert(/assets\/gwynne-park-logo\.png/.test(adminDashboardHtml), 'admin dashboard should use the official Gwynne Park logo image');
@@ -205,6 +222,7 @@ assert(/training-url/.test(adminDashboardHtml), 'admin training form should coll
 assert(/training-student-list/.test(adminDashboardHtml), 'admin training form should assign tasks to selected students');
 assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab should show assignment click status');
 assert(/admin-dashboard\.js\?v=7/.test(adminDashboardHtml), 'admin dashboard should request the current reporting-aware dashboard script');
+assert(/backend\.js\?v=8/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
 assert(/MEDAL_TIERS/.test(adminDashboardJs), 'admin dashboard should calculate medal tiers');
@@ -317,17 +335,19 @@ assert(/#student-progress-history,[\s\S]*#leaderboard-table,[\s\S]*#certificates
 assert(/offline-scan-table[\s\S]*min-width:\s*560px/.test(styles), 'offline scan tables should keep readable column widths');
 assert(/report-mini table[\s\S]*min-width:\s*420px/.test(styles), 'report summary tables should keep readable column widths');
 assert(/styles\.css\?v=6/.test(leaderboardHtml), 'leaderboard page should request the current themed stylesheet version');
-assert(/gwynne-park-run-club-v7/.test(serviceWorker), 'service worker cache should be bumped for the reporting update');
+assert(/gwynne-park-run-club-v8/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
+assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 
 const features = read('FEATURES.md');
 assert(/Training And At-Home Tasks/.test(features), 'roadmap should include the training workflow lane');
 assert(/assigned at-home training/.test(features), 'roadmap should include assigned at-home training tasks');
 assert(/link click visibility/.test(features), 'roadmap should include training link click visibility');
 assert(/docs\/roadmap-progress\.md/.test(features), 'roadmap should link to the quick progress checklist');
-assert(/Priority 3: 2 \/ 10 complete\. Status: Paused/.test(features), 'roadmap should show backend stack and schema paused');
+assert(/Priority 3: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show backend integration completed');
 assert(/Priority 4: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show Priority 4 completed');
 assert(/~~3\.1 Choose backend stack and deployment target\.~~/.test(features), 'roadmap should mark backend stack decision complete');
 assert(/~~3\.2 Create database schema/.test(features), 'roadmap should mark initial backend schema complete');
+assert(/~~3\.10 Add migration path/.test(features), 'roadmap should mark demo data migration complete');
 assert(/~~4\.10 Admin analytics/.test(features), 'roadmap should mark Priority 4 analytics complete');
 
 const backendDecision = read('docs/backend-stack-decision.md');
@@ -337,12 +357,14 @@ assert(/training_assignments/.test(backendDecision), 'backend decision should in
 
 assertFile('docs/roadmap-progress.md');
 const roadmapProgress = read('docs/roadmap-progress.md');
-assert(/Priority 3 - Backend And Cross-Device Sync: 2 \/ 10 complete\. Paused/.test(roadmapProgress), 'quick roadmap should show Priority 3 paused');
+assert(/Priority 3 - Backend And Cross-Device Sync: 10 \/ 10 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 3 done');
 assert(/Priority 4 - Reporting And Admin Power Tools: 10 \/ 10 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 4 done');
 assert(/Training skeleton/.test(roadmapProgress), 'quick roadmap should mention the completed Training skeleton');
 
 assertFile('supabase/migrations/202606080001_initial_schema.sql');
+assertFile('supabase/migrations/202606080002_priority3_sync_jobs.sql');
 const initialSchema = read('supabase/migrations/202606080001_initial_schema.sql');
+const syncSchema = read('supabase/migrations/202606080002_priority3_sync_jobs.sql');
 [
   'schools',
   'school_users',
@@ -357,5 +379,21 @@ const initialSchema = read('supabase/migrations/202606080001_initial_schema.sql'
   assert(new RegExp(`create table if not exists public\\.${table}`).test(initialSchema), `initial backend schema should create ${table}`);
   assert(new RegExp(`alter table public\\.${table} enable row level security`).test(initialSchema), `${table} should enable row level security`);
 });
+[
+  'record_lap_scan',
+  'leaderboard_totals',
+  'student_progress_summary',
+  'backup_exports',
+  'demo_data_imports'
+].forEach((artifact) => {
+  assert(new RegExp(artifact).test(syncSchema), `priority 3 sync migration should include ${artifact}`);
+});
+assert(/idempotency_key/.test(syncSchema), 'priority 3 sync migration should enforce idempotent scan writes');
+assert(/conflict/.test(syncSchema), 'priority 3 sync migration should record conflict outcomes');
+assertFile('docs/backend-sync-runbook.md');
+const backendRunbook = read('docs/backend-sync-runbook.md');
+assert(/localStorage cutover/i.test(backendRunbook), 'backend runbook should explain localStorage cutover');
+assert(/backup\/export/i.test(backendRunbook), 'backend runbook should explain backup/export jobs');
+assert(/demo data migration/i.test(backendRunbook), 'backend runbook should explain demo data migration');
 
 console.log('portal smoke checks passed');

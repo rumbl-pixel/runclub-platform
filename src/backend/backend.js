@@ -1,0 +1,262 @@
+// src/backend/backend.js
+// Priority 3 backend adapter for Supabase-ready data access and offline sync.
+// This file is browser-safe: public anon keys only, no private server credentials.
+(function (global) {
+  'use strict';
+
+  var CONFIG = global.RUN_CLUB_CONFIG || {};
+  var QUEUE_KEY = 'rc_backend_mutation_queue';
+  var SYNC_LOG_KEY = 'rc_backend_sync_log';
+
+  var TABLES = {
+    students: 'students',
+    runSessions: 'run_sessions',
+    lapEntries: 'lap_entries',
+    scanAuditLogs: 'scan_audit_logs',
+    leaderboardTotals: 'leaderboard_totals',
+    studentProgressSummary: 'student_progress_summary',
+    backupExports: 'backup_exports',
+    demoDataImports: 'demo_data_imports'
+  };
+
+  function localLoad(key, fallback) {
+    try {
+      var raw = global.localStorage && global.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function localSave(key, value) {
+    if (global.localStorage) {
+      global.localStorage.setItem(key, JSON.stringify(value));
+    }
+  }
+
+  function config() {
+    return {
+      demoMode: CONFIG.demoMode !== false,
+      syncEnabled: CONFIG.syncEnabled === true,
+      schoolId: CONFIG.schoolId || '',
+      supabaseUrl: String(CONFIG.supabaseUrl || '').replace(/\/+$/, ''),
+      supabaseAnonKey: CONFIG.supabaseAnonKey || ''
+    };
+  }
+
+  function isConfigured() {
+    var c = config();
+    return !!(c.syncEnabled && c.schoolId && c.supabaseUrl && c.supabaseAnonKey);
+  }
+
+  function tableUrl(table, query) {
+    var c = config();
+    return c.supabaseUrl + '/rest/v1/' + table + (query ? '?' + query : '');
+  }
+
+  function headers(extra) {
+    var c = config();
+    return Object.assign({
+      apikey: c.supabaseAnonKey,
+      Authorization: 'Bearer ' + c.supabaseAnonKey,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    }, extra || {});
+  }
+
+  function classifySyncError(status, text) {
+    if (status === 409 || /duplicate|unique|idempotency/i.test(text || '')) {
+      return 'conflict';
+    }
+    if (status === 401 || status === 403) {
+      return 'auth';
+    }
+    if (status >= 500) {
+      return 'server';
+    }
+    return 'error';
+  }
+
+  function request(method, table, body, query) {
+    if (!isConfigured()) {
+      return Promise.resolve({ ok: false, skipped: true, reason: 'backend-not-configured' });
+    }
+    return global.fetch(tableUrl(table, query), {
+      method: method,
+      headers: headers(),
+      body: body == null ? undefined : JSON.stringify(body)
+    }).then(function (response) {
+      return response.text().then(function (text) {
+        var data = text ? JSON.parse(text) : null;
+        if (!response.ok) {
+          return { ok: false, status: response.status, kind: classifySyncError(response.status, text), error: text || response.statusText };
+        }
+        return { ok: true, status: response.status, data: data };
+      });
+    }).catch(function (error) {
+      return { ok: false, kind: 'network', error: error && error.message ? error.message : String(error) };
+    });
+  }
+
+  function makeIdempotencyKey(parts) {
+    parts = Array.isArray(parts) ? parts : [parts];
+    var clean = parts.map(function (part) { return String(part == null ? '' : part).trim().toLowerCase(); }).join('|');
+    var hash = 0;
+    for (var i = 0; i < clean.length; i += 1) {
+      hash = ((hash << 5) - hash + clean.charCodeAt(i)) | 0;
+    }
+    return 'idem-' + Math.abs(hash) + '-' + clean.length;
+  }
+
+  function queue() {
+    return localLoad(QUEUE_KEY, []);
+  }
+
+  function saveQueue(rows) {
+    localSave(QUEUE_KEY, rows.slice(-2000));
+  }
+
+  function enqueueMutation(type, payload, options) {
+    options = options || {};
+    var idempotencyKey = options.idempotency_key || options.idempotencyKey || payload.idempotency_key || makeIdempotencyKey([type, payload.student_id, payload.barcode, payload.scanned_at || payload.time || Date.now()]);
+    var row = {
+      id: 'mutation-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      type: type,
+      table: options.table || type,
+      idempotency_key: idempotencyKey,
+      payload: Object.assign({}, payload, { idempotency_key: idempotencyKey }),
+      status: 'queued',
+      attempts: 0,
+      created_at: new Date().toISOString()
+    };
+    var rows = queue();
+    rows.push(row);
+    saveQueue(rows);
+    return row;
+  }
+
+  function syncOfflineQueue() {
+    var rows = queue();
+    if (!isConfigured()) {
+      return Promise.resolve({ ok: false, skipped: true, reason: 'backend-not-configured', queued: rows.length });
+    }
+    var chain = Promise.resolve([]);
+    rows.forEach(function (item) {
+      chain = chain.then(function (results) {
+        if (item.status === 'synced' || item.status === 'conflict') {
+          results.push(item);
+          return results;
+        }
+        item.status = 'syncing';
+        item.attempts = (item.attempts || 0) + 1;
+        return request('POST', item.table, item.payload).then(function (result) {
+          if (result.ok) {
+            item.status = 'synced';
+            item.synced_at = new Date().toISOString();
+          } else if (result.kind === 'conflict') {
+            item.status = 'conflict';
+            item.conflict = true;
+            item.error = result.error || 'Conflict while syncing';
+          } else {
+            item.status = 'failed';
+            item.error = result.error || result.reason || 'Sync failed';
+          }
+          results.push(item);
+          return results;
+        });
+      });
+    });
+    return chain.then(function (updated) {
+      saveQueue(updated);
+      localSave(SYNC_LOG_KEY, localLoad(SYNC_LOG_KEY, []).concat([{ time: new Date().toISOString(), count: updated.length }]).slice(-200));
+      return { ok: true, queued: updated.length, rows: updated };
+    });
+  }
+
+  function mapRemoteStudent(row) {
+    return {
+      id: row.id,
+      barcode: row.barcode,
+      first: row.first_name,
+      last: row.last_name,
+      name: (row.preferred_name || (row.first_name + ' ' + row.last_name)).trim(),
+      year: row.year_group,
+      cls: row.class_name,
+      laps: Number(row.lap_count || row.laps || 0),
+      minutes: Number(row.minutes || 0),
+      events: []
+    };
+  }
+
+  var backendDataAccess = {
+    getStudents: function (fallback) {
+      if (!isConfigured()) {
+        return Promise.resolve(fallback || localLoad('rc_students', []));
+      }
+      return request('GET', TABLES.students, null, 'school_id=eq.' + encodeURIComponent(config().schoolId) + '&active=eq.true&order=class_name.asc,last_name.asc')
+        .then(function (result) {
+          return result.ok ? result.data.map(mapRemoteStudent) : (fallback || localLoad('rc_students', []));
+        });
+    },
+    upsertStudent: function (student) {
+      var c = config();
+      var payload = {
+        school_id: c.schoolId,
+        barcode: student.barcode || student.id,
+        first_name: student.first || '',
+        last_name: student.last || '',
+        preferred_name: student.name || '',
+        year_group: student.year || '',
+        class_name: student.cls || '',
+        active: true
+      };
+      return request('POST', TABLES.students, payload);
+    },
+    createRunSession: function (session) {
+      return request('POST', TABLES.runSessions, Object.assign({ school_id: config().schoolId }, session));
+    },
+    leaderboardTotals: function () {
+      if (!isConfigured()) { return Promise.resolve(localLoad('rc_students', [])); }
+      return request('GET', TABLES.leaderboardTotals, null, 'school_id=eq.' + encodeURIComponent(config().schoolId) + '&order=total_laps.desc');
+    },
+    studentProgressSummary: function () {
+      if (!isConfigured()) { return Promise.resolve([]); }
+      return request('GET', TABLES.studentProgressSummary, null, 'school_id=eq.' + encodeURIComponent(config().schoolId));
+    }
+  };
+
+  function migrationPayloadFromLocalStorage() {
+    return {
+      exported_at: new Date().toISOString(),
+      school_id: config().schoolId || 'demo-school',
+      students: localLoad('rc_students', []),
+      scan_audit: localLoad('rc_scan_audit', []),
+      sessions: localLoad('rc_sessions', []),
+      goals: localLoad('rc_goals', {}),
+      training: localLoad('rc_training', []),
+      training_clicks: localLoad('rc_training_clicks', []),
+      adjustments: localLoad('rc_adjustments', [])
+    };
+  }
+
+  function backupExportPayload() {
+    return Object.assign({ backup_kind: 'browser-export' }, migrationPayloadFromLocalStorage(), {
+      queued_mutations: queue(),
+      sync_log: localLoad(SYNC_LOG_KEY, [])
+    });
+  }
+
+  global.RunClubBackend = {
+    TABLES: TABLES,
+    config: config,
+    isConfigured: isConfigured,
+    backendDataAccess: backendDataAccess,
+    makeIdempotencyKey: makeIdempotencyKey,
+    enqueueMutation: enqueueMutation,
+    syncOfflineQueue: syncOfflineQueue,
+    migrationPayloadFromLocalStorage: migrationPayloadFromLocalStorage,
+    backupExportPayload: backupExportPayload,
+    _localLoad: localLoad,
+    _localSave: localSave
+  };
+})(window);
