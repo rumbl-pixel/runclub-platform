@@ -10,6 +10,7 @@
   var STUDENT_SESSION_KEY = 'runClubStudentSession';
   var TRAINING_KEY = 'rc_training';
   var TRAINING_CLICKS_KEY = 'rc_training_clicks';
+  var SCAN_AUDIT_KEY = 'rc_scan_audit';
 
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
   var MEDAL_TIERS = [
@@ -177,6 +178,7 @@
     renderStudentBarcode(s);
     renderMedalProgress(s);
     renderGoals();
+    renderStudentTimeline();
     renderTraining();
   }
 
@@ -230,6 +232,99 @@
         if (task) { recordTrainingClick(task); }
       });
     });
+  }
+
+  function timelineKind(type) {
+    return {
+      scan: 'Lap scan',
+      award: 'Award milestone',
+      goal: 'Goal',
+      training: 'Training assigned',
+      training_opened: 'Training opened'
+    }[type] || type;
+  }
+
+  function studentTimelineRows(student) {
+    var rows = [];
+    loadLocal(SCAN_AUDIT_KEY, []).forEach(function (row) {
+      if (row.student_id === student.id && (row.success || row.undo)) {
+        rows.push({
+          date: row.time || new Date().toISOString(),
+          type: row.undo ? 'scan' : 'scan',
+          title: row.undo ? 'Lap adjusted by school' : 'Lap logged at run club',
+          detail: row.undo ? 'A scan was corrected by staff.' : 'One lap was added to your total.',
+          value: row.undo ? '-1 lap' : '+1 lap'
+        });
+      }
+    });
+    Scan.MILESTONES.filter(function (m) { return student.laps >= m; }).forEach(function (m) {
+      rows.push({
+        date: new Date().toISOString(),
+        type: 'award',
+        title: MILESTONE_LABELS[m] || (m + ' laps'),
+        detail: 'Milestone currently earned.',
+        value: m + ' laps'
+      });
+    });
+    Goals.goalsFor(student.id).filter(function (goal) { return Goals.isMetricVisible(goal.metric); }).forEach(function (goal) {
+      var progress = Goals.progress(student.id, goal);
+      rows.push({
+        date: goal.created_at || goal.created || new Date().toISOString(),
+        type: 'goal',
+        title: goal.title,
+        detail: (goal.owner === 'coach' ? 'Coach goal' : 'Personal goal') + (progress.met ? ' achieved.' : ' in progress.'),
+        value: progress.percent + '%'
+      });
+    });
+    trainingAssignmentsFor(student.id).forEach(function (task) {
+      rows.push({
+        date: task.created_at || task.created || task.due_date || new Date().toISOString(),
+        type: 'training',
+        title: task.title,
+        detail: task.due_date ? 'Due ' + task.due_date : 'Teacher-assigned training.',
+        value: trainingOpened(task.id) ? 'Opened' : 'New'
+      });
+    });
+    loadLocal(TRAINING_CLICKS_KEY, []).forEach(function (click) {
+      if (click.student_id === student.id) {
+        rows.push({
+          date: click.opened_at || new Date().toISOString(),
+          type: 'training_opened',
+          title: click.title || 'Training opened',
+          detail: 'You opened this training link.',
+          value: 'Opened'
+        });
+      }
+    });
+    return rows.sort(function (a, b) {
+      return new Date(b.date) - new Date(a.date);
+    });
+  }
+
+  function renderStudentTimeline() {
+    var summaryEl = document.getElementById('student-timeline-summary');
+    var listEl = document.getElementById('student-timeline-list');
+    if (!summaryEl || !listEl || !currentStudent) { return; }
+    var rows = studentTimelineRows(currentStudent);
+    var scanCount = rows.filter(function (row) { return row.type === 'scan'; }).length;
+    var awardCount = rows.filter(function (row) { return row.type === 'award'; }).length;
+    var trainingCount = rows.filter(function (row) { return row.type === 'training' || row.type === 'training_opened'; }).length;
+    summaryEl.innerHTML = '<div class="progress-summary-grid">' +
+      '<div class="stat-box"><div class="stat-value">' + rows.length + '</div><div class="stat-label">Timeline events</div></div>' +
+      '<div class="stat-box"><div class="stat-value">' + scanCount + '</div><div class="stat-label">Run events</div></div>' +
+      '<div class="stat-box"><div class="stat-value">' + awardCount + '</div><div class="stat-label">Milestones</div></div>' +
+      '<div class="stat-box"><div class="stat-value">' + trainingCount + '</div><div class="stat-label">Training</div></div>' +
+      '</div>';
+    if (!rows.length) {
+      listEl.innerHTML = '<p style="color:#888;font-size:0.85rem;">No timeline events yet. Your run club progress will appear here after sessions and teacher-assigned tasks.</p>';
+      return;
+    }
+    listEl.innerHTML = '<div class="student-timeline">' + rows.slice(0, 40).map(function (row) {
+      return '<div class="timeline-item timeline-item--' + escapeHtml(row.type) + '">' +
+        '<div class="timeline-date">' + new Date(row.date).toLocaleDateString() + '</div>' +
+        '<div class="timeline-body"><strong>' + escapeHtml(row.title) + '</strong><span>' + escapeHtml(timelineKind(row.type)) + ' · ' + escapeHtml(row.value) + '</span><p>' + escapeHtml(row.detail) + '</p></div>' +
+        '</div>';
+    }).join('') + '</div>';
   }
 
   function wireStudentTabs() {
@@ -310,6 +405,7 @@
           var v = prompt('Log your result (number only):');
           if (v !== null && v.trim() && !isNaN(Number(v))) { Goals.logResult(currentStudent.id, id, v); renderGoals(); }
         }
+        renderStudentTimeline();
       };
     });
   }
@@ -338,6 +434,7 @@
       e.target.reset();
       panel.hidden = true;
       renderGoals();
+      renderStudentTimeline();
     });
   }
 

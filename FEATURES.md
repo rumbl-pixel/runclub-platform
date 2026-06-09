@@ -12,7 +12,7 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 - Priority 2: 8 / 8 complete. Status: Done.
 - Priority 3: 10 / 10 complete. Status: Done.
 - Priority 4: 10 / 10 complete. Status: Done.
-- Priority 5: 3 / 10 complete. Status: In Progress.
+- Priority 5: 4 / 10 complete. Status: In Progress.
 - Priority 6: 0 / 8 complete. Status: Planned.
 - Priority 7: 0 / 10 complete. Status: Planned.
 - Priority 8: 0 / 8 complete. Status: Parked.
@@ -20,7 +20,7 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 ## Current Focus
 
 - Current lane: Priority 5 - Parent And Student Experience.
-- Recommended next item: 5.4 Student progress timeline.
+- Recommended next item: 5.5 Milestone notifications.
 - Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
 
 ## Priority 0 - Live Privacy And Security Gate
@@ -109,7 +109,7 @@ Training And At-Home Tasks now has a local-first skeleton in place. Before launc
 - [x] ~~5.1 Parent account linking.~~
 - [x] ~~5.2 Stronger guardian access controls.~~
 - [x] ~~5.3 Parent view for child progress, awards, and goals.~~
-- [ ] 5.4 Student progress timeline.
+- [x] ~~5.4 Student progress timeline.~~
 - [ ] 5.5 Milestone notifications.
 - [ ] 5.6 Challenge notifications.
 - [ ] 5.7 Student progress PDFs per term.

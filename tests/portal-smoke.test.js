@@ -126,6 +126,9 @@ assert(/assets\/qrcode-generator\.js/.test(studentProfileHtml), 'student profile
 assert(/student-profile-tabs/.test(studentProfileHtml), 'student profile should expose profile tabs');
 assert(/tab-student-training/.test(studentProfileHtml), 'student profile should include a Training tab');
 assert(/student-training-list/.test(studentProfileHtml), 'student profile should render assigned training tasks');
+assert(/data-student-tab="timeline"/.test(studentProfileHtml), 'student profile should include a Timeline tab');
+assert(/student-timeline-summary/.test(studentProfileHtml), 'student profile should include timeline summary cards');
+assert(/student-timeline-list/.test(studentProfileHtml), 'student profile should include a progress timeline list');
 
 const studentJs = read('student.js');
 assert(/DEMO/.test(studentJs), 'student login should handle DEMO bypass');
@@ -138,8 +141,11 @@ assert(/runClubStudentSession/.test(studentJs), 'student portal should persist s
 assert(/student-profile\.html/.test(studentJs), 'student login should redirect to the separate profile page');
 assert(/rc_training/.test(studentJs), 'student portal should read assigned training tasks');
 assert(/rc_training_clicks/.test(studentJs), 'student portal should track training link clicks');
+assert(/studentTimelineRows/.test(studentJs), 'student portal should build progress timeline rows');
+assert(/renderStudentTimeline/.test(studentJs), 'student portal should render the progress timeline');
+assert(/timelineKind/.test(studentJs), 'student portal should label timeline event types');
 assert(/recordTrainingClick/.test(studentJs), 'student portal should record when a student opens assigned training');
-assert(/student\.js\?v=6/.test(studentProfileHtml) && /student\.js\?v=6/.test(studentHtml), 'student pages should request the current training-aware student script');
+assert(/student\.js\?v=10/.test(studentProfileHtml) && /student\.js\?v=10/.test(studentHtml), 'student pages should request the current training-aware student script');
 
 const homeHtml = read('index.html');
 assert(!/href="kiosk\.html"|Scanner kiosk/.test(homeHtml), 'public home page should not link directly to the admin-only kiosk');
@@ -357,8 +363,8 @@ assert(/#student-progress-history,[\s\S]*#leaderboard-table,[\s\S]*#certificates
 assert(/offline-scan-table[\s\S]*min-width:\s*560px/.test(styles), 'offline scan tables should keep readable column widths');
 assert(/@media \(max-width: 480px\)[\s\S]*offline-scan-table[\s\S]*min-width:\s*0/.test(styles), 'offline scan tables should compact on narrow mobile screens');
 assert(/report-mini table[\s\S]*min-width:\s*420px/.test(styles), 'report summary tables should keep readable column widths');
-assert(/styles\.css\?v=9/.test(leaderboardHtml), 'leaderboard page should request the current unclipped stylesheet version');
-assert(/gwynne-park-run-club-v9/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
+assert(/styles\.css\?v=10/.test(leaderboardHtml), 'leaderboard page should request the current unclipped stylesheet version');
+assert(/gwynne-park-run-club-v10/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 
 const features = read('FEATURES.md');
@@ -368,7 +374,7 @@ assert(/link click visibility/.test(features), 'roadmap should include training 
 assert(/docs\/roadmap-progress\.md/.test(features), 'roadmap should link to the quick progress checklist');
 assert(/Priority 3: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show backend integration completed');
 assert(/Priority 4: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show Priority 4 completed');
-assert(/Priority 5: 3 \/ 10 complete\. Status: In Progress/.test(features), 'roadmap should show Priority 5 progress');
+assert(/Priority 5: 4 \/ 10 complete\. Status: In Progress/.test(features), 'roadmap should show Priority 5 progress');
 assert(/~~3\.1 Choose backend stack and deployment target\.~~/.test(features), 'roadmap should mark backend stack decision complete');
 assert(/~~3\.2 Create database schema/.test(features), 'roadmap should mark initial backend schema complete');
 assert(/~~3\.10 Add migration path/.test(features), 'roadmap should mark demo data migration complete');
@@ -376,6 +382,7 @@ assert(/~~4\.10 Admin analytics/.test(features), 'roadmap should mark Priority 4
 assert(/~~5\.1 Parent account linking/.test(features), 'roadmap should mark parent account linking complete');
 assert(/~~5\.2 Stronger guardian access controls/.test(features), 'roadmap should mark guardian access controls complete');
 assert(/~~5\.3 Parent view for child progress/.test(features), 'roadmap should mark parent progress view complete');
+assert(/~~5\.4 Student progress timeline/.test(features), 'roadmap should mark student progress timeline complete');
 
 const backendDecision = read('docs/backend-stack-decision.md');
 assert(/Use Supabase as the production backend/.test(backendDecision), 'backend decision should choose Supabase');
@@ -386,7 +393,7 @@ assertFile('docs/roadmap-progress.md');
 const roadmapProgress = read('docs/roadmap-progress.md');
 assert(/Priority 3 - Backend And Cross-Device Sync: 10 \/ 10 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 3 done');
 assert(/Priority 4 - Reporting And Admin Power Tools: 10 \/ 10 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 4 done');
-assert(/Priority 5 - Parent And Student Experience: 3 \/ 10 complete\. In Progress/.test(roadmapProgress), 'quick roadmap should show Priority 5 progress');
+assert(/Priority 5 - Parent And Student Experience: 4 \/ 10 complete\. In Progress/.test(roadmapProgress), 'quick roadmap should show Priority 5 progress');
 assert(/Training skeleton/.test(roadmapProgress), 'quick roadmap should mention the completed Training skeleton');
 
 assertFile('supabase/migrations/202606080001_initial_schema.sql');

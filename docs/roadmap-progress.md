@@ -1,6 +1,6 @@
 # Gwynne Park Run Club - Progress Checklist
 
-Last updated: 2026-06-08
+Last updated: 2026-06-09
 
 This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 
@@ -11,7 +11,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] Priority 2 - Next Build: 8 / 8 complete. Done.
 - [x] Priority 3 - Backend And Cross-Device Sync: 10 / 10 complete. Done.
 - [x] Priority 4 - Reporting And Admin Power Tools: 10 / 10 complete. Done.
-- [ ] Priority 5 - Parent And Student Experience: 3 / 10 complete. In Progress.
+- [ ] Priority 5 - Parent And Student Experience: 4 / 10 complete. In Progress.
 - [ ] Priority 6 - Competitions And Challenges: 0 / 8 complete. Planned.
 - [ ] Priority 7 - Sports Carnival And Cross Country: 0 / 10 complete. Planned.
 - [ ] Priority 8 - Polish, Help, And Long-Term Enhancements: 0 / 8 complete. Parked.
@@ -24,6 +24,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] 5.1 Parent account linking completed with local guardian link codes.
 - [x] 5.2 Stronger guardian access controls completed with revoke/restore, expiry, and access logs.
 - [x] 5.3 Parent progress view completed with progress summary, recent scans, awards, goals, and assigned training visibility.
+- [x] 5.4 Student progress timeline completed with read-only scan, award, goal, and training events.
 
 ## Go-Live Gate
 
