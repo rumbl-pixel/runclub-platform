@@ -9,8 +9,15 @@
     "test:backend-live-style": "node tests/backend-live-style.test.js",
     "test:supabase-staging": "node tests/supabase-staging.test.js",
     "check:supabase-live-style": "node scripts/supabase-live-style-check.js",
+    "supabase:start": "supabase start --ignore-health-check",
+    "supabase:status": "supabase status",
+    "supabase:lint": "supabase db lint",
+    "supabase:stop": "supabase stop",
     "serve": "python3 -m http.server 8080"
   },
   "license": "UNLICENSED",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "supabase": "^2.105.0"
+  }
 }

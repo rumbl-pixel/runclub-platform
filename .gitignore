@@ -1,3 +1,4 @@
 # Keep local-only secret overrides out of git.
 config.local.js
+node_modules/
 .DS_Store

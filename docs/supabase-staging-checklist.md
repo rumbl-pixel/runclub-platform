@@ -7,6 +7,13 @@ Use fake staging data only until Priority 0 is complete.
 Install the Supabase CLI before running the local commands below. Create a Supabase project for staging, then apply the migrations:
 
 ```bash
+npm install
+npm run supabase:start
+```
+
+For hosted staging, create a Supabase project for staging, then apply the migrations:
+
+```bash
 supabase link --project-ref your-staging-project-ref
 supabase db push
 ```
@@ -16,6 +23,7 @@ For local Supabase testing:
 ```bash
 supabase start
 supabase db reset
+npm run supabase:lint
 ```
 
 ## 2. Seed Fake Data
