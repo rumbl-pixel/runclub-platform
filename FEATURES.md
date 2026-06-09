@@ -20,8 +20,9 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 ## Current Focus
 
 - Current lane: Priority 5 - Parent And Student Experience.
-- Recommended next item: 5.5 Milestone notifications.
+- Recommended next item: fake-backend screen rollout, one screen at a time, then 5.5 Milestone notifications.
 - Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
+- Backend pilot: local Supabase fake backend is running; Leaderboard is the first screen wired to try backend data and fall back to local demo data.
 
 ## Priority 0 - Live Privacy And Security Gate
 
@@ -105,6 +106,12 @@ Status: Done. Keep stable unless a bug is found.
 Status: In Progress.
 
 Training And At-Home Tasks now has a local-first skeleton in place. Before launch, this lane needs privacy-reviewed backend storage, clearer guardian visibility, and careful language so assigned at-home training remains teacher-directed rather than student self-reported activity.
+
+Completed so far in this lane:
+
+- [x] Parent linking, guardian controls, parent progress view, and student progress timeline.
+- [x] Local Supabase fake-backend staging setup for safe testing before real student data.
+- [x] First fake-backend screen connection started with the public Leaderboard.
 
 - [x] ~~5.1 Parent account linking.~~
 - [x] ~~5.2 Stronger guardian access controls.~~

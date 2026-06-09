@@ -25,6 +25,8 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] 5.2 Stronger guardian access controls completed with revoke/restore, expiry, and access logs.
 - [x] 5.3 Parent progress view completed with progress summary, recent scans, awards, goals, and assigned training visibility.
 - [x] 5.4 Student progress timeline completed with read-only scan, award, goal, and training events.
+- [x] Supabase fake-backend staging is running locally with fake data and Edge Function checks.
+- [x] Screen rollout started: Leaderboard now tries fake-backend data first and falls back to local demo data.
 
 ## Go-Live Gate
 
@@ -59,6 +61,7 @@ Do not enter real student data until Priority 0 is complete.
 - [x] Scanner device names, lap length, session type, and duplicate cooldown settings.
 - [x] Richer reports, progress history, onboarding wizard, and school theme.
 - [x] Training skeleton: admin assignment, student Training tab, and link-open visibility.
+- [x] Fake-backend local Supabase loop with staging seed, `student_auth`, `csv_import`, and schema lint.
 
 ## Priority 3 Checklist
 
@@ -88,7 +91,7 @@ Do not enter real student data until Priority 0 is complete.
 
 ## Planned Later
 
-- [ ] Priority 5: guardian access controls, notifications, progress timeline, completed Training workflow.
+- [ ] Priority 5: milestone/challenge notifications, PDFs, award display polish, student reflection, completed backend-backed Training workflow.
 - [ ] Priority 6: house/class/year competitions and challenge progress.
 - [ ] Priority 7: Sports Carnival and Cross Country modules.
 - [ ] Priority 8: mobile polish, help notes, privacy controls, branding settings, accessibility audit.

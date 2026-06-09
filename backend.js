@@ -257,7 +257,22 @@
     },
     leaderboardTotals: function () {
       if (!isConfigured()) { return Promise.resolve(localLoad('rc_students', [])); }
-      return request('GET', TABLES.leaderboardTotals, null, 'school_id=eq.' + encodeURIComponent(config().schoolId) + '&order=total_laps.desc');
+      return request('GET', TABLES.leaderboardTotals, null, 'school_id=eq.' + encodeURIComponent(config().schoolId) + '&order=total_laps.desc')
+        .then(function (result) {
+          if (!result.ok) { return []; }
+          return (result.data || []).map(function (row) {
+            return {
+              id: row.student_id,
+              barcode: row.barcode,
+              name: row.student_name,
+              year: row.year_group,
+              cls: row.class_name,
+              laps: Number(row.total_laps || 0),
+              total_km: Number(row.total_km || 0),
+              last_scanned_at: row.last_scanned_at
+            };
+          });
+        });
     },
     studentProgressSummary: function () {
       if (!isConfigured()) { return Promise.resolve([]); }

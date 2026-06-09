@@ -349,11 +349,15 @@ assert(/Intermediate/.test(leaderboardHtml) && /Year 3 \+ 4/.test(leaderboardHtm
 assert(/Junior/.test(leaderboardHtml) && /Year 1 \+ 2/.test(leaderboardHtml), 'leaderboard page should include Junior division');
 assert(/Year 2/.test(leaderboardHtml) && /Year 3/.test(leaderboardHtml) && /Year 4/.test(leaderboardHtml) && /Year 5/.test(leaderboardHtml) && /Year 6/.test(leaderboardHtml), 'leaderboard page should include Year 2 through Year 6 views');
 assert(/leaderboard\.js/.test(leaderboardHtml), 'leaderboard page should load leaderboard.js');
+assert(/backend\.js/.test(leaderboardHtml), 'leaderboard page should load the backend adapter for fake backend testing');
 
 const leaderboardJs = read('leaderboard.js');
 assert(/renderTotalLeaderboard/.test(leaderboardJs), 'leaderboard script should render total leaderboard');
 assert(/DIVISIONS/.test(leaderboardJs), 'leaderboard script should define division groups');
 assert(/YEAR_GROUPS/.test(leaderboardJs), 'leaderboard script should define year group views');
+assert(/loadLeaderboardStudents/.test(leaderboardJs), 'leaderboard should load students through a backend-aware path');
+assert(/backendDataAccess\.leaderboardTotals/.test(leaderboardJs), 'leaderboard should try backend leaderboard totals when configured');
+assert(/renderBackendStatus/.test(leaderboardJs), 'leaderboard should show whether fake backend or local demo data is being used');
 
 const styles = read('styles.css');
 assert(/--school-blue:\s*#003880/.test(styles), 'site theme should use the Gwynne Park school blue token');
@@ -366,7 +370,7 @@ assert(/offline-scan-table[\s\S]*min-width:\s*560px/.test(styles), 'offline scan
 assert(/@media \(max-width: 480px\)[\s\S]*offline-scan-table[\s\S]*min-width:\s*0/.test(styles), 'offline scan tables should compact on narrow mobile screens');
 assert(/report-mini table[\s\S]*min-width:\s*420px/.test(styles), 'report summary tables should keep readable column widths');
 assert(/styles\.css\?v=10/.test(leaderboardHtml), 'leaderboard page should request the current unclipped stylesheet version');
-assert(/gwynne-park-run-club-v11/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
+assert(/gwynne-park-run-club-v12/.test(serviceWorker), 'service worker cache should be bumped for the backend sync update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assertFile('tests/backend-live-style.test.js');
 assertFile('scripts/supabase-live-style-check.js');
