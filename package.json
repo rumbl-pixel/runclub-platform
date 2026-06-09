@@ -5,8 +5,9 @@
   "scripts": {
     "build": "node scripts/build.js",
     "deploy": "node scripts/build.js --deploy",
-    "test": "node tests/portal-smoke.test.js && node tests/goals-baseline.test.js && node tests/backend-live-style.test.js",
+    "test": "node tests/portal-smoke.test.js && node tests/goals-baseline.test.js && node tests/backend-live-style.test.js && node tests/supabase-staging.test.js",
     "test:backend-live-style": "node tests/backend-live-style.test.js",
+    "test:supabase-staging": "node tests/supabase-staging.test.js",
     "check:supabase-live-style": "node scripts/supabase-live-style-check.js",
     "serve": "python3 -m http.server 8080"
   },

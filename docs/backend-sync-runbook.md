@@ -21,6 +21,23 @@ Cutover order:
 6. Migrate demo roster and historical records.
 7. Keep demo access disabled before real student data is entered.
 
+Staging setup starts with fake data:
+
+```bash
+supabase link --project-ref your-staging-project-ref
+supabase db push
+supabase db reset
+```
+
+Deploy the first Edge Functions:
+
+```bash
+supabase functions deploy student_auth
+supabase functions deploy csv_import
+```
+
+Seed only fake staging data from `supabase/seed.staging.sql`. See `docs/supabase-staging-checklist.md` before connecting the UI to staging.
+
 ## Scan Sync And Conflicts
 
 Every successful local scan now receives an `idempotency_key` and is queued through `RunClubBackend.enqueueMutation`.
