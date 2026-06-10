@@ -378,7 +378,7 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=30/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
+assert(/admin-dashboard\.js\?v=31/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
 assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
@@ -459,10 +459,14 @@ assert(/studentProfileUrl/.test(adminDashboardJs), 'admin dashboard should build
 assert(/student-name-link/.test(adminDashboardJs), 'admin student names should render as clickable profile links');
 assert(/privacyDisplayName/.test(adminDashboardJs), 'admin dashboard should calculate privacy-aware display names');
 assert(/studentConsentStatus/.test(adminDashboardJs), 'admin dashboard should calculate consent labels');
+assert(/athletics-consent-summary/.test(adminDashboardHtml), 'admin athletics mode should include a consent summary');
+assert(/Athletics carnival consent/.test(adminDashboardHtml), 'admin student editor should label consent as athletics carnival consent');
+assert(/renderAthleticsConsentSummary/.test(adminDashboardJs), 'admin athletics mode should render athletics consent status');
 assert(/editStudentPseudonymEl/.test(adminDashboardJs), 'admin dashboard should wire pseudonym editing');
 assert(/hide_public_name/.test(adminDashboardJs), 'admin dashboard should persist public-name hiding');
 assert(/share_certificates_publicly/.test(adminDashboardJs), 'admin dashboard should persist certificate sharing controls');
-assert(/privacy-badge/.test(adminDashboardJs), 'admin student list should show privacy badges');
+assert(!/publicNameBadge/.test(adminDashboardJs), 'admin student list should not show public pseudonym badges in the main roster');
+assert(!/privacyBadge\.textContent=studentConsentStatus/.test(adminDashboardJs), 'admin student list should not show consent badges in the main roster');
 assert(/printStudentBarcodeCard/.test(adminDashboardJs), 'admin dashboard should print individual student barcode cards');
 assert(/qrCodeHtml/.test(adminDashboardJs), 'admin dashboard should render real QR codes on student cards');
 assert(/openStudentEditor/.test(adminDashboardJs), 'admin dashboard should let admins edit student details');
@@ -692,9 +696,10 @@ assert(/privacy-badge/.test(styles), 'styles should include privacy badge stylin
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=46/.test(leaderboardHtml), 'leaderboard page should request the gold-tinted motion, medical, and dark contrast stylesheet version');
+assert(/styles\.css\?v=47/.test(leaderboardHtml), 'leaderboard page should request the gold-tinted motion, medical, and dark contrast stylesheet version');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
+assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
 assert(/theme-toggle/.test(styles), 'site styles should include the top light/dark mode switch');
 assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview[\s\S]*background:\s*#fff[\s\S]*color:\s*#102a43/.test(styles), 'dark mode should keep printable barcode card text readable on the white card');
 assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview strong,[\s\S]*\.barcode-card-name,[\s\S]*\.barcode-code[\s\S]*color:\s*#0b1f38/.test(styles), 'dark mode should force barcode card name and code to dark ink');
@@ -712,12 +717,12 @@ assert(/feature-suggestion-btn/.test(adminDashboardHtml), 'admin dashboard foote
 assert(/Feature Suggestion/.test(adminDashboardHtml), 'admin dashboard footer should label the feature suggestion button clearly');
 assert(/feature-suggestion-btn/.test(styles), 'site footer should style the feature suggestion button');
 assert(/\.feature-suggestion-btn[\s\S]*rgba\(255,248,221,0\.98\)[\s\S]*rgba\(242,216,145,0\.86\)/.test(styles), 'feature suggestion button should use a pale gold base colour');
-assert(/admin-dashboard\.js\?v=30/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
+assert(/admin-dashboard\.js\?v=31/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
 assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v72/.test(serviceWorker), 'service worker cache should be bumped for the fixed compact header');
+assert(/gwynne-park-run-club-v73/.test(serviceWorker), 'service worker cache should be bumped for the athletics consent roster cleanup');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assertFile('tests/backend-live-style.test.js');
 assertFile('tests/scanning-live-mode.test.js');

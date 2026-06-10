@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=46" />
+    <link rel="stylesheet" href="styles.css?v=47" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -225,6 +225,7 @@
             <span>Interschool Athletics Mode</span>
           </label>
           <p style="color:#555;font-size:0.9rem;">When off, goal options stay focused on Laps, Lap Time, and Distance. Turn this on to show jump, throw, length, sprint, and interschool athletics event options.</p>
+          <div id="athletics-consent-summary" class="athletics-consent-summary"></div>
           <div id="interschool-athletics-events" class="athletics-event-list"></div>
         </div>
 
@@ -300,7 +301,7 @@
               <label>Public pseudonym
                 <input type="text" id="edit-student-pseudonym" placeholder="e.g. Runner 12" autocomplete="off" />
               </label>
-              <label>Consent status
+              <label>Athletics carnival consent
                 <select id="edit-student-consent-status">
                   <option value="pending">Pending</option>
                   <option value="granted">Granted</option>
@@ -1034,7 +1035,7 @@
     <script src="goals.js?v=4"></script>
     <script src="admin-goals.js?v=4"></script>
     <script src="assets/qrcode-generator.js"></script>
-    <script src="admin-dashboard.js?v=30"></script>
+    <script src="admin-dashboard.js?v=31"></script>
     <script src="pwa.js"></script>
   </body>
 </html>

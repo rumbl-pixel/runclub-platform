@@ -795,6 +795,7 @@
     renderPBTracking();
     renderAgeChampionScoring();
     renderHousePoints();
+    renderAthleticsConsentSummary();
     renderChallengeProgress();
     renderChallengeAwards();
   }
@@ -878,18 +879,6 @@
       profileLink.textContent=s.name;
       label.appendChild(profileLink);
       label.appendChild(document.createTextNode(' ('+s.barcode+') – '+s.year+', '+s.cls+(s.house?' • '+s.house:'')+(s.team?' • Team '+s.team:'')+' – '+s.laps+' laps / '+lapsTokm(s.laps).toFixed(2)+' km'));
-      var privacyBadge=document.createElement('span');
-      privacyBadge.className='privacy-badge';
-      privacyBadge.textContent=studentConsentStatus(s);
-      label.appendChild(document.createTextNode(' '));
-      label.appendChild(privacyBadge);
-      if((s.pseudonym||s.hide_public_name||s.consent_status==='declined')&&privacyDisplayName(s)!==s.name){
-        var publicNameBadge=document.createElement('span');
-        publicNameBadge.className='privacy-badge privacy-badge--public';
-        publicNameBadge.textContent='Public: '+privacyDisplayName(s);
-        label.appendChild(document.createTextNode(' '));
-        label.appendChild(publicNameBadge);
-      }
       var goalsBtn=document.createElement('button');
       goalsBtn.textContent='🎯 Goals';
       goalsBtn.className='link-btn';
@@ -1469,6 +1458,7 @@
 
   var interschoolAthleticsModeEl=document.getElementById('interschool-athletics-mode');
   var interschoolAthleticsEventsEl=document.getElementById('interschool-athletics-events');
+  var athleticsConsentSummaryEl=document.getElementById('athletics-consent-summary');
   var crossCountryCourseFormEl=document.getElementById('cross-country-course-form');
   var crossCountryCourseNameEl=document.getElementById('cross-country-course-name');
   var crossCountryYearEl=document.getElementById('cross-country-year');
@@ -1492,11 +1482,35 @@
     }).join('');
   }
 
+  function renderAthleticsConsentSummary(){
+    if(!athleticsConsentSummaryEl){return;}
+    var students=getStudents();
+    var counts={granted:0,pending:0,declined:0};
+    students.forEach(function(student){
+      var status=String(student.consent_status||'pending').toLowerCase();
+      if(status==='granted'){counts.granted+=1;}
+      else if(status==='declined'){counts.declined+=1;}
+      else {counts.pending+=1;}
+    });
+    var followUp=students.filter(function(student){
+      return String(student.consent_status||'pending').toLowerCase()!=='granted';
+    }).slice(0,6);
+    athleticsConsentSummaryEl.innerHTML=
+      '<div class="athletics-consent-counts">'+
+        '<span class="privacy-badge privacy-badge--granted">Athletics consent: '+counts.granted+' approved</span>'+
+        '<span class="privacy-badge">Pending: '+counts.pending+'</span>'+
+        '<span class="privacy-badge privacy-badge--declined">Declined: '+counts.declined+'</span>'+
+      '</div>'+
+      (followUp.length?'<p>Follow up: '+followUp.map(function(student){return escapeHtml(student.name);}).join(', ')+'</p>':'<p>All listed students have athletics carnival consent approved.</p>');
+  }
+
   interschoolAthleticsModeEl.checked=window.RunClubGoals.isInterschoolAthleticsMode();
   interschoolAthleticsModeEl.addEventListener('change',function(){
     window.RunClubGoals.setInterschoolAthleticsMode(interschoolAthleticsModeEl.checked);
+    renderAthleticsConsentSummary();
   });
   renderInterschoolAthleticsEvents();
+  renderAthleticsConsentSummary();
 
   function crossCountryCourses(){
     return load(CROSS_COUNTRY_COURSES_KEY,[]);

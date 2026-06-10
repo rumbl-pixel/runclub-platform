@@ -1225,7 +1225,68 @@ html[data-theme="dark"] .athletics-event-group {
 .privacy-badge--public {
   border-color: rgba(201, 151, 34, 0.45);
   background: rgba(201, 151, 34, 0.12);
-  color: var(--school-blue);
+  color: var(--obsidian-navy-2);
+}
+
+html[data-theme="dark"] .privacy-badge {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.20);
+  color: #d9e6f7;
+}
+
+html[data-theme="dark"] .privacy-badge--public {
+  background: rgba(242,216,145,0.18);
+  border-color: rgba(242,216,145,0.55);
+  color: #fff3c4;
+}
+
+.privacy-badge--granted {
+  border-color: rgba(27,138,75,0.45);
+  background: rgba(27,138,75,0.12);
+  color: #14532d;
+}
+
+.privacy-badge--declined {
+  border-color: rgba(180,35,24,0.45);
+  background: rgba(180,35,24,0.12);
+  color: #7f1d1d;
+}
+
+html[data-theme="dark"] .privacy-badge--granted {
+  background: rgba(34,197,94,0.14);
+  border-color: rgba(34,197,94,0.44);
+  color: #bbf7d0;
+}
+
+html[data-theme="dark"] .privacy-badge--declined {
+  background: rgba(248,113,113,0.14);
+  border-color: rgba(248,113,113,0.44);
+  color: #fecaca;
+}
+
+.athletics-consent-summary {
+  margin: 0.85rem 0 0;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.50);
+}
+
+.athletics-consent-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.athletics-consent-summary p {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+html[data-theme="dark"] .athletics-consent-summary {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
 }
 
 .danger-link {
