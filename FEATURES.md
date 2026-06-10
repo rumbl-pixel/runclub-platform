@@ -23,7 +23,7 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 - Recommended next item: 0.1 Replace local demo storage with a real backend.
 - Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
 - Backend pilot: local Supabase fake backend is running; Leaderboard is the first screen wired to try backend data and fall back to local demo data.
-- 0.1 progress: admin roster add/edit/delete now has live backend upsert/soft-delete helpers, CSV and Compass roster imports can batch-upsert through Supabase, scanner lap writes can call the idempotent Supabase `record_lap_scan` RPC, run sessions can create/finish through Supabase, manual adjustments have a Supabase ledger/RPC path, and roster/scan/import/session/adjustment local-only writes are blocked when live data mode is enabled before the backend is ready.
+- 0.1 progress: admin roster add/edit/delete now has live backend upsert/soft-delete helpers, CSV and Compass roster imports can batch-upsert through Supabase, scanner lap writes can call the idempotent Supabase `record_lap_scan` RPC, scan undo can mark backend lap entries as undone through Supabase, run sessions can create/finish through Supabase, manual adjustments have a Supabase ledger/RPC path, and roster/scan/undo/import/session/adjustment local-only writes are blocked when live data mode is enabled before the backend is ready.
 - Access model locked: staff/coaches are invite-only; students are passwordless by barcode/QR/non-guessable code; parents search by child name but must confirm with a guardian link/code before seeing a full profile. See `docs/access-model-decision.md`.
 
 ## Priority 0 - Live Privacy And Security Gate

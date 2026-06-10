@@ -76,6 +76,9 @@ function assert(condition, message) {
     if (url.includes('/rest/v1/rpc/record_manual_adjustment')) {
       return Promise.resolve(response(200, [{ adjustment_id: 'adj-live-1', entries_created: 2 }]));
     }
+    if (url.includes('/rest/v1/rpc/record_scan_undo')) {
+      return Promise.resolve(response(200, [{ lap_entry_id: 'lap-live-1', outcome: 'undone', undone: true }]));
+    }
     return Promise.resolve(response(404, { error: 'missing route' }));
   });
 
@@ -195,6 +198,21 @@ function assert(condition, message) {
   assert(finishSessionCall.url.includes('school_id=eq.school-live-style'), 'run session finish should be school scoped');
   assert(finishSessionCall.url.includes('id=eq.session-live-1'), 'run session finish should target the backend session id');
   assert(JSON.parse(finishSessionCall.options.body).finished_at === '2026-06-10T10:00:00.000Z', 'run session finish should write the finish timestamp');
+
+  await backend.backendDataAccess.recordScanUndo({
+    idempotency_key: 'scan-STAGING1-123',
+    barcode: 'STAGING1',
+    reason: 'Undo last scan',
+    source: 'admin-dashboard',
+    metadata: { scanner_id: 'Admin dashboard' }
+  });
+  const undoScanCall = calls.find((call) => call.url.includes('/rest/v1/rpc/record_scan_undo'));
+  assert(undoScanCall, 'scan undo should write through a Supabase RPC');
+  const undoScanBody = JSON.parse(undoScanCall.options.body);
+  assert(undoScanBody.p_school_id === 'school-live-style', 'scan undo should include school scope');
+  assert(undoScanBody.p_idempotency_key === 'scan-STAGING1-123', 'scan undo should target the original scan idempotency key');
+  assert(undoScanBody.p_barcode === 'STAGING1', 'scan undo should include the barcode for audit');
+  assert(undoScanBody.p_reason === 'Undo last scan', 'scan undo should include an audit reason');
 
   await backend.backendDataAccess.deleteStudent({ id: 'student-2', barcode: 'STAGING2' });
   const deleteCall = calls.find((call) => call.url.includes('/rest/v1/students') && call.options.method === 'PATCH');

@@ -61,7 +61,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] 8.7 Theme and branding settings completed with local title, blue, and gold controls.
 - [x] 8.8 Accessibility audit and improvements completed with skip links, main landmarks, tab ARIA state, and visible keyboard focus.
 - [x] 8.9 Authorised Compass class-list sync completed as a CSV import pathway with template and authorisation notes.
-- [x] Priority 0.1 backend cutover started with a visible backend readiness gate, live roster write guard, live scanner write guard, live CSV/Compass import guard, live run-session guard, live manual-adjustment guard, Supabase student upsert, Supabase student batch import, Supabase student soft-delete, direct `record_lap_scan` calls, Supabase run session create/finish calls, a manual adjustment ledger/RPC, and student privacy fields migration.
+- [x] Priority 0.1 backend cutover started with a visible backend readiness gate, live roster write guard, live scanner write guard, live scan-undo guard, live CSV/Compass import guard, live run-session guard, live manual-adjustment guard, Supabase student upsert, Supabase student batch import, Supabase student soft-delete, direct `record_lap_scan` calls, direct `record_scan_undo` calls, Supabase run session create/finish calls, a manual adjustment ledger/RPC, and student privacy fields migration.
 - [x] Signup/access model locked: invite-only staff/coaches, passwordless student barcode/QR/code access, parent child-name search plus guardian code/link confirmation. See `docs/access-model-decision.md`.
 
 ## Go-Live Gate
@@ -69,7 +69,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 Do not enter real student data until Priority 0 is complete.
 
 - [ ] 0.1 Replace local demo storage with a real backend.
-  - In progress: roster add/edit/delete, CSV/Compass roster imports, scanner lap writes, run sessions, and manual lap adjustments can now route through Supabase when live data mode is enabled and backend readiness passes.
+  - In progress: roster add/edit/delete, CSV/Compass roster imports, scanner lap writes/undos, run sessions, and manual lap adjustments can now route through Supabase when live data mode is enabled and backend readiness passes.
 - [ ] 0.2 Add real staff/admin authentication.
   - Locked decision: staff and coaches are invite-only through school-scoped Supabase Auth.
 - [ ] 0.3 Add role-based permissions for admin, coach, parent, and student views.

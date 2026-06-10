@@ -425,6 +425,21 @@
     return Promise.resolve({ok:true,local:true});
   }
 
+  function undoScanWithBackend(scan){
+    var guard=liveRosterGuard();
+    if(!guard.ok){return Promise.resolve({ok:false,blocked:true,error:guard.message||'Local scan undo blocked.'});}
+    if(guard.live&&window.RunClubBackend&&window.RunClubBackend.backendDataAccess&&window.RunClubBackend.backendDataAccess.recordScanUndo){
+      return window.RunClubBackend.backendDataAccess.recordScanUndo({
+        idempotency_key:scan.idempotency_key,
+        barcode:scan.barcode,
+        reason:'Undo last scan',
+        source:'admin-dashboard',
+        metadata:{scanner_id:scannerId(),student_id:scan.student_id,student_name:scan.name}
+      });
+    }
+    return Promise.resolve({ok:true,local:true});
+  }
+
   document.getElementById('start-session-btn').addEventListener('click', function(){
     var session={id:'session-'+Date.now(),date:new Date().toISOString().slice(0,10),type:sessionTypeEl.value||programSettings().defaultSessionType,notes:sessionNotesEl.value.trim(),device:scannerId(),lap_distance_km:programSettings().lapDistanceKm,scans:[]};
     startRunSessionWithBackend(session).then(function(result){
@@ -457,13 +472,13 @@
   function handleScan(){
     var barcode=scanInput.value.trim().toUpperCase();
     if(!barcode)return;
-    var result=window.RunClubScan.logLap(barcode,{source:'admin-dashboard',scanner_id:scannerId(),duplicateWindowMs:duplicateWindowMs()});
+    var result=window.RunClubScan.logLap(barcode,{source:'admin-dashboard',scanner_id:scannerId(),session_id:currentSession?(currentSession.backend_id||currentSession.id):null,duplicateWindowMs:duplicateWindowMs()});
     if(!result.success){
       showResult(scanResultEl,{success:false,duplicate:result.duplicate===true,error:result.error||'Scan error'});
     } else {
-      var scan={barcode:barcode,name:result.student.name,laps:result.student.laps,time:new Date().toISOString(),scanner_id:scannerId(),session_type:currentSession?currentSession.type:sessionTypeEl.value};
+      var scan={barcode:barcode,name:result.student.name,laps:result.student.laps,time:new Date().toISOString(),scanner_id:scannerId(),session_type:currentSession?currentSession.type:sessionTypeEl.value,idempotency_key:result.idempotency_key};
       sessionScans.push(scan);
-      lastAdminScan={student_id:result.student.id,name:result.student.name,barcode:barcode};
+      lastAdminScan={student_id:result.student.id,name:result.student.name,barcode:barcode,idempotency_key:result.idempotency_key};
       undoAdminScanBtn.hidden=false;
       if(result.milestone){
         renderMilestoneNotification(recordMilestoneNotification(result.student,result.milestone,'admin-dashboard'));
@@ -490,15 +505,22 @@
     var students=getStudents();
     var student=students.find(function(s){return s.id===lastAdminScan.student_id;});
     if(student&&student.laps>0){
-      student.laps-=1;
-      saveStudents(students);
-      sessionScans=sessionScans.filter(function(scan,index){return index!==sessionScans.length-1;});
-      if(window.RunClubScan&&window.RunClubScan.auditScan){
-        window.RunClubScan.auditScan({barcode:lastAdminScan.barcode,scanner_id:scannerId(),source:'admin-dashboard',success:true,undo:true,student_id:student.id,student_name:student.name,laps_after:student.laps});
-      }
-      renderSessionLog(sessionScans);
-      renderStudentList(); renderLeaderboard(); renderAwards(); renderMedals(); renderCertificates(); renderSchoolSummary(); renderReportSummaries(); renderAuditTrail();
-      showResult(scanResultEl,{success:true,message:'Last scan undone.',student:{id:student.id,name:student.name,total_laps:student.laps}});
+      undoScanWithBackend(lastAdminScan).then(function(result){
+        if(!result.ok){showResult(scanResultEl,{success:false,error:result.error||result.reason||'Local scan undo blocked.'});return;}
+        student.laps-=1;
+        saveStudents(students);
+        sessionScans=sessionScans.filter(function(scan,index){return index!==sessionScans.length-1;});
+        if(window.RunClubScan&&window.RunClubScan.auditScan){
+          window.RunClubScan.auditScan({barcode:lastAdminScan.barcode,scanner_id:scannerId(),source:'admin-dashboard',success:true,undo:true,student_id:student.id,student_name:student.name,laps_after:student.laps,idempotency_key:lastAdminScan.idempotency_key});
+        }
+        renderSessionLog(sessionScans);
+        renderStudentList(); renderLeaderboard(); renderAwards(); renderMedals(); renderCertificates(); renderSchoolSummary(); renderReportSummaries(); renderAuditTrail();
+        showResult(scanResultEl,{success:true,message:'Last scan undone.',student:{id:student.id,name:student.name,total_laps:student.laps}});
+        lastAdminScan=null;
+        undoAdminScanBtn.hidden=true;
+        scanInput.focus();
+      });
+      return;
     }
     lastAdminScan=null;
     undoAdminScanBtn.hidden=true;

@@ -384,6 +384,17 @@
         p_metadata: scan.metadata || {}
       });
     },
+    recordScanUndo: function (scan) {
+      var c = config();
+      return callRpc('record_scan_undo', {
+        p_school_id: c.schoolId,
+        p_idempotency_key: scan.idempotency_key,
+        p_barcode: scan.barcode || '',
+        p_reason: scan.reason || 'Undo last scan',
+        p_source: scan.source || 'admin-dashboard',
+        p_metadata: scan.metadata || {}
+      });
+    },
     recordManualAdjustment: function (adjustment) {
       var c = config();
       return callRpc('record_manual_adjustment', {
