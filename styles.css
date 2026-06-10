@@ -495,11 +495,13 @@ html[data-theme="dark"] [style*="color: #888"] {
 }
 
 .step {
-  background: rgba(255,255,255,0.58);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035)),
+    linear-gradient(135deg, rgba(7,20,38,0.86), rgba(18,54,93,0.70));
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid rgba(255,255,255,0.72);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+  border: 1px solid color-mix(in srgb, var(--white-trim-soft) 72%, var(--uniform-gold) 28%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 14px 28px rgba(7,20,38,0.14);
 }
 
 .step-num {
@@ -515,8 +517,13 @@ html[data-theme="dark"] [style*="color: #888"] {
   font-size: 0.95rem;
 }
 
-.step strong { display: block; margin-bottom: 0.25rem; }
-.step p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.step strong { display: block; margin-bottom: 0.25rem; color: #f5f9ff; }
+.step p,
+html[data-theme="dark"] .step p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #c8d6e8;
+}
 
 /* ===========================
    Features grid
@@ -533,15 +540,18 @@ html[data-theme="dark"] [style*="color: #888"] {
   gap: 0.75rem;
   align-items: flex-start;
   padding: 0.75rem;
-  border-radius: 0.5rem;
-  background: rgba(255,255,255,0.58);
-  border: 1px solid rgba(255,255,255,0.72);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035)),
+    linear-gradient(135deg, rgba(7,20,38,0.88), rgba(18,54,93,0.72));
+  border: 1px solid color-mix(in srgb, var(--white-trim-soft) 72%, var(--uniform-gold) 28%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 12px 24px rgba(7,20,38,0.12);
 }
 
 .feature-item > span { font-size: 1.5rem; flex-shrink: 0; }
 .feature-item strong { font-size: 0.9rem; }
-.feature-item div { font-size: 0.82rem; color: #4c5a6d; line-height: 1.5; }
-.feature-item div strong { color: var(--ink); display: block; margin-bottom: 0.1rem; }
+.feature-item div { font-size: 0.82rem; color: #c8d6e8; line-height: 1.5; }
+.feature-item div strong { color: #f5f9ff; display: block; margin-bottom: 0.1rem; }
 
 /* ===========================
    Implementation grid
