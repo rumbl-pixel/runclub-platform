@@ -18,6 +18,7 @@
   var K = { students:'rc_students', activity:'rc_activity', sessions:'rc_sessions', events:'rc_events', challenges:'rc_challenges', timedRuns:'rc_timed', customAwards:'rc_custom_awards', scanAudit:'rc_scan_audit', scannerSettings:'rc_scanner_settings', offlineQueue:'rc_offline_queue', programSettings:'rc_program_settings', training:'rc_training', trainingClicks:'rc_training_clicks', trainingCompletions:'rc_training_completions', adjustments:'rc_adjustments' };
   var GUARDIAN_LINKS_KEY = 'rc_guardian_links';
   var GUARDIAN_ACCESS_LOG_KEY = 'rc_guardian_access_log';
+  var MEDICAL_NOTES_KEY = 'rc_medical_notes';
   var MILESTONE_NOTIFICATIONS_KEY = 'rc_milestone_notifications';
   var CHALLENGE_NOTIFICATIONS_KEY = 'rc_challenge_notifications';
   var CROSS_COUNTRY_COURSES_KEY = 'rc_cross_country_courses';
@@ -334,15 +335,25 @@
   // --- TABS ---
   var tabBtns = document.querySelectorAll('.tab-btn');
   var tabPanels = document.querySelectorAll('.tab-panel');
+  function activateAdminTab(tabName) {
+    var btn = Array.from(tabBtns).find(function(candidate) { return candidate.dataset.tab === tabName; });
+    var panel = document.getElementById('tab-' + tabName);
+    if (!btn || !panel) { return false; }
+    tabBtns.forEach(function(b){b.classList.remove('active');b.setAttribute('aria-selected','false');});
+    tabPanels.forEach(function(p){p.classList.remove('active');});
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected','true');
+    panel.classList.add('active');
+    return true;
+  }
   tabBtns.forEach(function(btn) {
     btn.addEventListener('click', function() {
-      tabBtns.forEach(function(b){b.classList.remove('active');b.setAttribute('aria-selected','false');});
-      tabPanels.forEach(function(p){p.classList.remove('active');});
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected','true');
-      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+      activateAdminTab(btn.dataset.tab);
     });
   });
+  var adminUrlParams = new URLSearchParams(window.location.search);
+  var requestedAdminTab = adminUrlParams.get('tab');
+  if (requestedAdminTab) { activateAdminTab(requestedAdminTab); }
   applyThemeSettings();
 
   // === SCANNER ===
@@ -446,7 +457,7 @@
       if(!result.ok){showResult(scanResultEl,{success:false,error:result.error||result.reason||'Local run session blocked.'});return;}
       currentSession=session;
     sessionScans=[];
-    sessionStateEl.style.background='#e6f0ff'; sessionStateEl.style.borderColor='#0c5aa8';
+    sessionStateEl.className='session-state session-state--open';
     sessionStateEl.textContent='Session OPEN - '+currentSession.type+' - '+currentSession.date+' - '+currentSession.device;
     scanInput.focus();
     });
@@ -461,7 +472,7 @@
       var sessions=load(K.sessions,[]);
       sessions.push(currentSession);
       save(K.sessions,sessions);
-      sessionStateEl.style.background='#f0fff4'; sessionStateEl.style.borderColor='#c6f0d4';
+      sessionStateEl.className='session-state session-state--closed';
       sessionStateEl.textContent='Session closed – '+sessionScans.length+' scans saved.';
       currentSession=null; sessionScans=[];
       renderSessionLog([]);
@@ -741,6 +752,12 @@
   var editStudentConsentStatusEl=document.getElementById('edit-student-consent-status');
   var editStudentHidePublicNameEl=document.getElementById('edit-student-hide-public-name');
   var editStudentShareCertificatesEl=document.getElementById('edit-student-share-certificates');
+  var editStudentMedicalAsthmaEl=document.getElementById('edit-student-medical-asthma');
+  var editStudentMedicalAnaphylaxisEl=document.getElementById('edit-student-medical-anaphylaxis');
+  var editStudentMedicalMedicationEl=document.getElementById('edit-student-medical-medication');
+  var editStudentMedicalEmergencyNoteEl=document.getElementById('edit-student-medical-emergency-note');
+  var editStudentMedicalHealthPlanEl=document.getElementById('edit-student-medical-health-plan');
+  var editStudentMedicalReviewedEl=document.getElementById('edit-student-medical-reviewed');
   var progressStudentEl=document.getElementById('progress-student');
   var progressTermEl=document.getElementById('progress-term');
   var studentProgressSummaryEl=document.getElementById('student-progress-summary');
@@ -790,7 +807,7 @@
   }
 
   function studentProfileUrl(student){
-    return 'student-profile.html?student=' + encodeURIComponent(student.barcode || student.id);
+    return 'student-profile.html?student=' + encodeURIComponent(student.barcode || student.id) + '&view=admin&from=admin';
   }
 
   function privacyDisplayName(student){
@@ -808,6 +825,42 @@
     if(status==='granted'){return 'Consent granted';}
     if(status==='declined'){return 'Consent declined';}
     return 'Consent pending';
+  }
+
+  function medicalNotes(){ return load(MEDICAL_NOTES_KEY,{}); }
+  function medicalNotesFor(studentId){ return medicalNotes()[studentId] || {}; }
+  function saveMedicalNotes(studentId, notes){
+    var rows=medicalNotes();
+    var clean={
+      asthma:String(notes.asthma||'').trim(),
+      anaphylaxis:String(notes.anaphylaxis||'').trim(),
+      medication:String(notes.medication||'').trim(),
+      emergency_note:String(notes.emergency_note||'').trim(),
+      health_plan_supplied:!!notes.health_plan_supplied,
+      reviewed_at:String(notes.reviewed_at||'').trim(),
+      updated_at:new Date().toISOString()
+    };
+    var hasText=clean.asthma||clean.anaphylaxis||clean.medication||clean.emergency_note||clean.reviewed_at||clean.health_plan_supplied;
+    if(hasText){ rows[studentId]=clean; } else { delete rows[studentId]; }
+    save(MEDICAL_NOTES_KEY,rows);
+  }
+
+  function saveMedicalNotesWithBackend(student, notes){
+    var guard=liveRosterGuard();
+    if(!guard.ok){return Promise.resolve({ok:false,blocked:true,error:guard.message||'Local medical notes blocked.'});}
+    if(guard.live&&student&&window.RunClubBackend&&window.RunClubBackend.backendDataAccess&&window.RunClubBackend.backendDataAccess.setStudentMedicalNotes){
+      return window.RunClubBackend.backendDataAccess.setStudentMedicalNotes(Object.assign({},notes,{
+        student_id:isUuid(student.id)?student.id:null,
+        barcode:student.barcode||student.id,
+        metadata:{source_screen:'admin-dashboard',student_name:student.name}
+      }));
+    }
+    return Promise.resolve({ok:true,local:true});
+  }
+
+  function deleteMedicalNotes(studentId){
+    var rows=medicalNotes();
+    if(rows[studentId]){ delete rows[studentId]; save(MEDICAL_NOTES_KEY,rows); }
   }
 
   function renderStudentList(){
@@ -1141,8 +1194,10 @@
 
   function populateTrainingStudents(){
     if(!trainingStudentListEl){return;}
+    var requestedStudent=(new URLSearchParams(window.location.search)).get('student')||'';
     trainingStudentListEl.innerHTML=getStudents().map(function(s){
-      return '<label class="ag-student-option"><input type="checkbox" class="training-student-check" value="'+escapeAttr(s.id)+'" /> '+escapeHtml(s.name)+' <span>'+escapeHtml(s.year)+' / '+escapeHtml(s.cls)+'</span></label>';
+      var selected=requestedStudent&&(String(s.id)===requestedStudent||String(s.barcode||'')===requestedStudent);
+      return '<label class="ag-student-option"><input type="checkbox" class="training-student-check" value="'+escapeAttr(s.id)+'" '+(selected?'checked':'')+' /> '+escapeHtml(s.name)+' <span>'+escapeHtml(s.year)+' / '+escapeHtml(s.cls)+'</span></label>';
     }).join('');
   }
 
@@ -1307,6 +1362,13 @@
     editStudentConsentStatusEl.value=student.consent_status||'pending';
     editStudentHidePublicNameEl.checked=!!student.hide_public_name;
     editStudentShareCertificatesEl.checked=!!student.share_certificates_publicly;
+    var medical=medicalNotesFor(student.id);
+    editStudentMedicalAsthmaEl.value=medical.asthma||'';
+    editStudentMedicalAnaphylaxisEl.value=medical.anaphylaxis||'';
+    editStudentMedicalMedicationEl.value=medical.medication||'';
+    editStudentMedicalEmergencyNoteEl.value=medical.emergency_note||'';
+    editStudentMedicalHealthPlanEl.checked=!!medical.health_plan_supplied;
+    editStudentMedicalReviewedEl.value=medical.reviewed_at||'';
     studentEditorModalEl.hidden=false;
     editStudentFirstEl.focus();
   }
@@ -1329,6 +1391,7 @@
         delete allGoals[studentId];
         localStorage.setItem('rc_goals',JSON.stringify(allGoals));
       } catch(e) {}
+      deleteMedicalNotes(studentId);
       refreshStudentViews();
       showResult(addStudentResultEl,{success:true,message:'Student removed.',student:{name:student.name,barcode:student.barcode}});
     });
@@ -1347,6 +1410,14 @@
     var consentStatus=editStudentConsentStatusEl.value||'pending';
     var hidePublicName=editStudentHidePublicNameEl.checked;
     var shareCertificatesPublicly=editStudentShareCertificatesEl.checked;
+    var medicalNotesPayload={
+      asthma:editStudentMedicalAsthmaEl.value,
+      anaphylaxis:editStudentMedicalAnaphylaxisEl.value,
+      medication:editStudentMedicalMedicationEl.value,
+      emergency_note:editStudentMedicalEmergencyNoteEl.value,
+      health_plan_supplied:editStudentMedicalHealthPlanEl.checked,
+      reviewed_at:editStudentMedicalReviewedEl.value
+    };
     if(!studentId||!first||!last||!year||!cls){return;}
     var students=getStudents();
     var updated=null;
@@ -1357,9 +1428,13 @@
     });
     saveStudentsWithBackend(students,updated).then(function(result){
       if(!result.ok){showResult(addStudentResultEl,{success:false,error:result.error||result.reason||'Local roster save blocked.'});return;}
-      closeStudentEditor();
-      refreshStudentViews();
-      if(updated){showResult(addStudentResultEl,{success:true,message:'Student updated.',student:{name:updated.name,year:updated.year,cls:updated.cls,barcode:updated.barcode}});}
+      saveMedicalNotesWithBackend(updated,medicalNotesPayload).then(function(medicalResult){
+        if(!medicalResult.ok){showResult(addStudentResultEl,{success:false,error:medicalResult.error||medicalResult.reason||'Local medical notes blocked.'});return;}
+        closeStudentEditor();
+        saveMedicalNotes(studentId,medicalNotesPayload);
+        refreshStudentViews();
+        if(updated){showResult(addStudentResultEl,{success:true,message:'Student updated.',student:{name:updated.name,year:updated.year,cls:updated.cls,barcode:updated.barcode}});}
+      });
     });
   });
 

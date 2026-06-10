@@ -4,11 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=22" />
+    <link rel="stylesheet" href="styles.css?v=35" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
     <script src="config.js"></script>
+    <script src="theme.js?v=2"></script>
   </head>
   <body class="page page-admin-dashboard">
     <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -51,7 +52,7 @@
         <div class="card">
           <h2>&#128247; Run Session Scanner</h2>
           <p style="color:#555;font-size:0.9rem;">Scan a student barcode or type an ID and press Enter. Bluetooth scanners work as keyboard input and auto-submit.</p>
-          <div id="session-state" style="margin-bottom:1rem;padding:0.5rem 0.75rem;border-radius:0.4rem;background:#f0fff4;border:1px solid #c6f0d4;font-size:0.85rem;">No session open</div>
+          <div id="session-state" class="session-state session-state--closed">No session open</div>
           <div class="form-grid">
             <label>Session type
               <select id="session-type">
@@ -315,6 +316,31 @@
                 <span>Allow public certificate / award sharing</span>
               </label>
             </div>
+            <fieldset class="medical-editor-fieldset">
+              <legend>Medical Safety Notes</legend>
+              <p style="color:#555;font-size:0.85rem;margin-top:0;">Admin-only safety reference for run club. Follow official school health care plans in an emergency.</p>
+              <div class="form-grid">
+                <label>Asthma
+                  <input type="text" id="edit-student-medical-asthma" placeholder="e.g. Asthma plan supplied, puffer in bag" autocomplete="off" />
+                </label>
+                <label>Anaphylaxis / allergies
+                  <input type="text" id="edit-student-medical-anaphylaxis" placeholder="e.g. Bee allergy, EpiPen with office" autocomplete="off" />
+                </label>
+                <label>Medication carried
+                  <input type="text" id="edit-student-medical-medication" placeholder="e.g. Ventolin, spacer" autocomplete="off" />
+                </label>
+                <label>Emergency action note
+                  <textarea id="edit-student-medical-emergency-note" rows="3" maxlength="360" placeholder="Short run-club action note for staff"></textarea>
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="edit-student-medical-health-plan" />
+                  <span>Parent has supplied school health plan</span>
+                </label>
+                <label>Last reviewed
+                  <input type="date" id="edit-student-medical-reviewed" />
+                </label>
+              </div>
+            </fieldset>
             <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem;">
               <button id="save-student-edit-btn" type="submit">Save changes</button>
               <button id="cancel-student-edit-btn" type="button" class="secondary">Cancel</button>
@@ -1000,14 +1026,15 @@
 
     <footer class="site-footer">
       <p>Gwynne Park Run Club &copy; 2026 &middot; <a href="privacy-policy.html">Privacy Policy</a></p>
+      <a class="feature-suggestion-btn" href="mailto:support@gwynneparkrunclub.com.au?subject=Gwynne%20Park%20Run%20Club%20Feature%20Suggestion">Feature Suggestion</a>
     </footer>
 
-    <script src="backend.js?v=20"></script>
+    <script src="backend.js?v=21"></script>
     <script src="scanning.js"></script>
     <script src="goals.js?v=4"></script>
     <script src="admin-goals.js?v=4"></script>
     <script src="assets/qrcode-generator.js"></script>
-    <script src="admin-dashboard.js?v=27"></script>
+    <script src="admin-dashboard.js?v=30"></script>
     <script src="pwa.js"></script>
   </body>
 </html>

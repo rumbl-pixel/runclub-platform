@@ -16,7 +16,8 @@
     leaderboardTotals: 'leaderboard_totals',
     studentProgressSummary: 'student_progress_summary',
     backupExports: 'backup_exports',
-    demoDataImports: 'demo_data_imports'
+    demoDataImports: 'demo_data_imports',
+    studentMedicalNotes: 'student_medical_notes'
   };
 
   function localLoad(key, fallback) {
@@ -471,6 +472,21 @@
         p_metadata: event.metadata || {}
       });
     },
+    setStudentMedicalNotes: function (entry) {
+      var c = config();
+      return callRpc('set_student_medical_notes', {
+        p_school_id: c.schoolId,
+        p_student_id: entry.student_id || null,
+        p_barcode: entry.barcode || '',
+        p_asthma: entry.asthma || '',
+        p_anaphylaxis: entry.anaphylaxis || '',
+        p_medication: entry.medication || '',
+        p_emergency_note: entry.emergency_note || '',
+        p_health_plan_supplied: entry.health_plan_supplied === true,
+        p_reviewed_at: entry.reviewed_at || null,
+        p_metadata: entry.metadata || {}
+      });
+    },
     leaderboardTotals: function () {
       if (!isConfigured()) { return Promise.resolve(localLoad('rc_students', [])); }
       return request('GET', TABLES.leaderboardTotals, null, 'school_id=eq.' + encodeURIComponent(config().schoolId) + '&order=total_laps.desc')
@@ -506,6 +522,8 @@
       goals: localLoad('rc_goals', {}),
       training: localLoad('rc_training', []),
       training_clicks: localLoad('rc_training_clicks', []),
+      training_completions: localLoad('rc_training_completions', []),
+      medical_notes: localLoad('rc_medical_notes', {}),
       adjustments: localLoad('rc_adjustments', [])
     };
   }

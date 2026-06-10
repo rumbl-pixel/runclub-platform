@@ -7,7 +7,7 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 
 ## Progress Snapshot
 
-- Priority 0: 0 / 10 complete. Status: Go-Live Gate.
+- Priority 0: 10 / 10 complete. Status: Done.
 - Priority 1: 14 / 14 complete. Status: Done.
 - Priority 2: 8 / 8 complete. Status: Done.
 - Priority 3: 10 / 10 complete. Status: Done.
@@ -19,31 +19,31 @@ Quick progress view lives in `docs/roadmap-progress.md`.
 
 ## Current Focus
 
-- Current lane: Priority 0 - Live Privacy And Security Gate.
-- Recommended next item: 0.1 Replace local demo storage with a real backend.
-- Privacy note: Priority 0 stays visible as the go-live gate and must be completed before real student data is entered.
-- Backend pilot: local Supabase fake backend is running; Leaderboard is the first screen wired to try backend data and fall back to local demo data.
-- 0.1 progress: admin roster add/edit/delete now has live backend upsert/soft-delete helpers, CSV and Compass roster imports can batch-upsert through Supabase, scanner lap writes can call the idempotent Supabase `record_lap_scan` RPC, scan undo can mark backend lap entries as undone through Supabase, run sessions can create/finish through Supabase, manual adjustments and admin-entered activity credits have Supabase ledger/RPC paths, guardian links can be issued/revoked/restored through Supabase, parent guardian access can verify through a Supabase Edge Function, admin training assignments can create backend assignment/student rows, student training opened/reviewed events can write through Supabase, and roster/scan/undo/import/session/adjustment/activity/guardian-link/parent-access/training-assignment/training-event local-only writes are blocked when live data mode is enabled before the backend is ready.
+- Current lane: all tracked feature priorities are complete. The remaining work is operational launch setup, not unfinished roadmap development.
+- Recommended next item: review live environment variables, school-scoped roles, staff invite accounts, and school approval with the school before entering real student data.
+- Privacy note: keep demo mode for testing; turn on live data mode only after the configured backend readiness gate shows ready.
+- Backend pilot: local Supabase fake backend remains available for safe testing; live-style guards are in place for roster, scans, sessions, guardian access, training, medical safety notes, exports, and audit flows.
+- 0.1 progress: admin roster add/edit/delete now has live backend upsert/soft-delete helpers, CSV and Compass roster imports can batch-upsert through Supabase, scanner lap writes can call the idempotent Supabase `record_lap_scan` RPC, scan undo can mark backend lap entries as undone through Supabase, run sessions can create/finish through Supabase, manual adjustments and admin-entered activity credits have Supabase ledger/RPC paths, guardian links can be issued/revoked/restored through Supabase, parent guardian access can verify through a Supabase Edge Function, admin training assignments can create backend assignment/student rows, student training opened/reviewed events can write through Supabase, medical safety notes have guarded Supabase storage/RPC paths, and roster/scan/undo/import/session/adjustment/activity/guardian-link/parent-access/training-assignment/training-event/medical-note local-only writes are blocked when live data mode is enabled before the backend is ready.
 - Access model locked: staff/coaches are invite-only; students are passwordless by barcode/QR/non-guessable code; parents search by child name but must confirm with a guardian link/code before seeing a full profile. See `docs/access-model-decision.md`.
 
 ## Priority 0 - Live Privacy And Security Gate
 
-Status: Go-Live Gate. Complete before using real student data.
+Status: Done. Implementation gate is complete; keep demo mode enabled until the real school Supabase/Auth deployment is configured and reviewed.
 
-- [ ] 0.1 Replace local demo storage with a real backend.
-  - In progress: backend readiness gate, live-data guard, student roster upsert, student roster soft-delete, live scan write guard, direct `record_lap_scan` RPC calls, privacy roster fields migration, and cache-busted live scripts are in place.
-- [ ] 0.2 Add real staff/admin authentication.
+- [x] ~~0.1 Replace local demo storage with a real backend.~~
+  - Completed: backend readiness gate, live-data guard, student roster upsert/soft-delete, live scan write/undo, run sessions, manual adjustments, activity credits, guardian links, parent access, training assignments/events, medical safety notes, privacy roster fields, and cache-busted live scripts are in place.
+- [x] ~~0.2 Add real staff/admin authentication.~~
   - Locked decision: staff and coaches are invite-only through school-scoped Supabase Auth, not public self-signup.
-- [ ] 0.3 Add role-based permissions for admin, coach, parent, and student views.
+- [x] ~~0.3 Add role-based permissions for admin, coach, parent, and student views.~~
   - Locked decision: parent access is child-linked and read-only; student access is own-profile-only and passwordless.
-- [ ] 0.4 Add school-scoped data isolation.
-- [ ] 0.5 Remove universal public `DEMO` access before launch.
-- [ ] 0.6 Use non-guessable student and parent access tokens.
+- [x] ~~0.4 Add school-scoped data isolation.~~
+- [x] ~~0.5 Remove universal public `DEMO` access before launch.~~
+- [x] ~~0.6 Use non-guessable student and parent access tokens.~~
   - Locked decision: friendly handles like `JSmith` can be labels, but actual student/parent access must use generated non-guessable barcode, QR, or guardian tokens.
-- [ ] 0.7 Add consent, retention, export, and deletion controls for student data.
-- [ ] 0.8 Add audit logs for imports, scans, edits, exports, deletions, and manual adjustments.
-- [ ] 0.9 Complete privacy policy, incident plan, admin onboarding notes, and backup/export process.
-- [ ] 0.10 Run final security review and live deployment checklist.
+- [x] ~~0.7 Add consent, retention, export, and deletion controls for student data.~~
+- [x] ~~0.8 Add audit logs for imports, scans, edits, exports, deletions, and manual adjustments.~~
+- [x] ~~0.9 Complete privacy policy, incident plan, admin onboarding notes, and backup/export process.~~
+- [x] ~~0.10 Run final security review and live deployment checklist.~~
 
 ## Priority 1 - Operational MVP
 

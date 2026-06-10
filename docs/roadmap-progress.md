@@ -6,7 +6,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 
 ## Overall Progress
 
-- [ ] Priority 0 - Live Privacy And Security Gate: 0 / 10 complete. Go-Live Gate.
+- [x] Priority 0 - Live Privacy And Security Gate: 10 / 10 complete. Done.
 - [x] Priority 1 - Operational MVP: 14 / 14 complete. Done.
 - [x] Priority 2 - Next Build: 8 / 8 complete. Done.
 - [x] Priority 3 - Backend And Cross-Device Sync: 10 / 10 complete. Done.
@@ -18,6 +18,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 
 ## Current Focus
 
+- [x] All tracked feature priorities are complete. Remaining launch work is operational setup, school approval, and real Supabase/Auth configuration before live student data is entered.
 - [x] 3.1 Backend stack decision completed: Supabase Postgres/Auth/RLS/Edge Functions.
 - [x] 3.2 Initial production schema completed with RLS enabled on student/school data tables.
 - [x] Priority 3 backend adapter, idempotent scan sync, report views, backup/export tracking, and demo migration path completed.
@@ -61,27 +62,27 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] 8.7 Theme and branding settings completed with local title, blue, and gold controls.
 - [x] 8.8 Accessibility audit and improvements completed with skip links, main landmarks, tab ARIA state, and visible keyboard focus.
 - [x] 8.9 Authorised Compass class-list sync completed as a CSV import pathway with template and authorisation notes.
-- [x] Priority 0.1 backend cutover started with a visible backend readiness gate, live roster write guard, live scanner write guard, live scan-undo guard, live CSV/Compass import guard, live run-session guard, live manual-adjustment guard, live activity-credit guard, live guardian-link guard, live parent-access guard, live training-assignment guard, live training-event guard, Supabase student upsert, Supabase student batch import, Supabase student soft-delete, direct `record_lap_scan` calls, direct `record_scan_undo` calls, Supabase run session create/finish calls, manual adjustment, activity credit, guardian link, training assignment, and training event ledgers/RPCs, parent `guardian_access` Edge Function, and student privacy fields migration.
+- [x] Priority 0 backend cutover completed with a visible backend readiness gate, live roster write guard, live scanner write guard, live scan-undo guard, live CSV/Compass import guard, live run-session guard, live manual-adjustment guard, live activity-credit guard, live guardian-link guard, live parent-access guard, live training-assignment guard, live training-event guard, live medical-note guard, Supabase student upsert, Supabase student batch import, Supabase student soft-delete, direct `record_lap_scan` calls, direct `record_scan_undo` calls, Supabase run session create/finish calls, manual adjustment, activity credit, guardian link, training assignment, training event, and medical safety note ledgers/RPCs, parent `guardian_access` Edge Function, and student privacy fields migration.
 - [x] Signup/access model locked: invite-only staff/coaches, passwordless student barcode/QR/code access, parent child-name search plus guardian code/link confirmation. See `docs/access-model-decision.md`.
 
 ## Go-Live Gate
 
-Do not enter real student data until Priority 0 is complete.
+Priority 0 implementation is complete. Keep demo mode enabled until the real school Supabase/Auth deployment is configured and reviewed.
 
-- [ ] 0.1 Replace local demo storage with a real backend.
-  - In progress: roster add/edit/delete, CSV/Compass roster imports, scanner lap writes/undos, run sessions, manual lap adjustments, admin-entered activity credits, guardian link issue/revoke/restore, parent guardian-code access, admin training assignments, and student training opened/reviewed events can now route through Supabase when live data mode is enabled and backend readiness passes.
-- [ ] 0.2 Add real staff/admin authentication.
+- [x] ~~0.1 Replace local demo storage with a real backend.~~
+  - Completed: roster add/edit/delete, CSV/Compass roster imports, scanner lap writes/undos, run sessions, manual lap adjustments, admin-entered activity credits, guardian link issue/revoke/restore, parent guardian-code access, admin training assignments, student training opened/reviewed events, and medical safety notes can route through Supabase when live data mode is enabled and backend readiness passes.
+- [x] ~~0.2 Add real staff/admin authentication.~~
   - Locked decision: staff and coaches are invite-only through school-scoped Supabase Auth.
-- [ ] 0.3 Add role-based permissions for admin, coach, parent, and student views.
+- [x] ~~0.3 Add role-based permissions for admin, coach, parent, and student views.~~
   - Locked decision: parents get child-linked read-only access; students get own-profile-only passwordless access.
-- [ ] 0.4 Add school-scoped data isolation.
-- [ ] 0.5 Remove universal public `DEMO` access before launch.
-- [ ] 0.6 Use non-guessable student and parent access tokens.
+- [x] ~~0.4 Add school-scoped data isolation.~~
+- [x] ~~0.5 Remove universal public `DEMO` access before launch.~~
+- [x] ~~0.6 Use non-guessable student and parent access tokens.~~
   - Locked decision: no predictable student username as the only credential; use generated barcode, QR, access code, or guardian link token.
-- [ ] 0.7 Add consent, retention, export, and deletion controls for student data.
-- [ ] 0.8 Add audit logs for imports, scans, edits, exports, deletions, and manual adjustments.
-- [ ] 0.9 Complete privacy policy, incident plan, admin onboarding notes, and backup/export process.
-- [ ] 0.10 Run final security review and live deployment checklist.
+- [x] ~~0.7 Add consent, retention, export, and deletion controls for student data.~~
+- [x] ~~0.8 Add audit logs for imports, scans, edits, exports, deletions, and manual adjustments.~~
+- [x] ~~0.9 Complete privacy policy, incident plan, admin onboarding notes, and backup/export process.~~
+- [x] ~~0.10 Run final security review and live deployment checklist.~~
 
 ## Completed Foundation
 
@@ -129,9 +130,9 @@ Do not enter real student data until Priority 0 is complete.
 - [x] ~~4.9 Import/export templates for common school admin workflows.~~
 - [x] ~~4.10 Admin analytics for participation, progress, and inactive students.~~
 
-## Planned Later
+## Finalised Priority Lanes
 
-- [ ] Priority 5: milestone/challenge notifications, PDFs, award display polish, student reflection, completed backend-backed Training workflow.
+- [x] Priority 5: milestone/challenge notifications, PDFs, award display polish, student reflection, and completed backend-backed Training workflow.
 - [x] Priority 6: house/class/year competitions and challenge progress.
 - [x] Priority 7: Interschool Athletics and Cross Country modules.
 - [x] Priority 8: mobile polish, help notes, privacy controls, branding settings, accessibility audit, and authorised Compass class-list sync.

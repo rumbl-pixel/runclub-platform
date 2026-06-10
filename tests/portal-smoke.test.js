@@ -19,6 +19,8 @@ function assertFile(file) {
 
 assertFile('config.js');
 assertFile('backend.js');
+assertFile('theme.js');
+assertFile('DESIGN.md');
 assertFile('parent.html');
 assertFile('parent.js');
 assertFile('leaderboard.html');
@@ -119,6 +121,8 @@ assert(/setGuardianLinkStatus/.test(backendJs), 'backend adapter should expose l
 assert(/verifyGuardianAccess/.test(backendJs), 'backend adapter should expose live guardian access verification');
 assert(/createTrainingAssignment/.test(backendJs), 'backend adapter should expose live training assignment creation');
 assert(/recordTrainingEvent/.test(backendJs), 'backend adapter should expose live training event records');
+assert(/setStudentMedicalNotes/.test(backendJs), 'backend adapter should expose live medical safety note writes');
+assert(/set_student_medical_notes/.test(backendJs), 'backend adapter should call the medical safety notes RPC');
 assert(/liveStyleSupabaseCheck/.test(backendJs), 'backend adapter should expose a live-style Supabase check');
 assert(/backendReadiness/.test(backendJs), 'backend adapter should expose a go-live backend readiness summary');
 assert(/requiresLiveBackend/.test(backendJs), 'backend adapter should expose a live backend guard for real student data');
@@ -146,8 +150,12 @@ assert(/student-barcode-card/.test(studentProfileHtml), 'student profile page sh
 assert(/print-student-barcode-btn/.test(studentProfileHtml), 'student profile page should let students print a credit-card-sized barcode card');
 assert(/assets\/qrcode-generator\.js/.test(studentProfileHtml), 'student profile should load the local QR generator');
 assert(/student-profile-tabs/.test(studentProfileHtml), 'student profile should expose profile tabs');
+assert(/admin-profile-tools/.test(studentProfileHtml), 'student profile should include admin-only profile tools');
+assert(/admin-profile-back-link/.test(studentProfileHtml), 'student profile should let admins return to the admin dashboard');
 assert(/tab-student-training/.test(studentProfileHtml), 'student profile should include a Training tab');
 assert(/student-training-list/.test(studentProfileHtml), 'student profile should render assigned training tasks');
+assert(/data-student-tab="medical"/.test(studentProfileHtml), 'student profile should include a Medical tab');
+assert(/student-medical-summary/.test(studentProfileHtml), 'student profile should render a medical safety summary');
 assert(/data-student-tab="timeline"/.test(studentProfileHtml), 'student profile should include a Timeline tab');
 assert(/student-timeline-summary/.test(studentProfileHtml), 'student profile should include timeline summary cards');
 assert(/student-timeline-list/.test(studentProfileHtml), 'student profile should include a progress timeline list');
@@ -167,6 +175,9 @@ assert(/student-profile\.html/.test(studentJs), 'student login should redirect t
 assert(/studentFromQuery/.test(studentJs), 'student profile should support admin-linked student query parameters');
 assert(/URLSearchParams\(window\.location\.search\)/.test(studentJs), 'student profile should read query parameters for direct admin links');
 assert(/saveStudentSession\(student\)/.test(studentJs), 'direct student profile links should preserve the selected student session');
+assert(/isAdminProfileView/.test(studentJs), 'student profile should detect admin profile view mode');
+assert(/runClubAdminSession/.test(studentJs), 'student profile should preserve admin sessions in admin profile view');
+assert(/admin-dashboard\.html\?tab=training/.test(studentJs), 'admin profile tools should link directly to admin training assignment');
 assert(/rc_training/.test(studentJs), 'student portal should read assigned training tasks');
 assert(/rc_training_clicks/.test(studentJs), 'student portal should track training link clicks');
 assert(/studentTimelineRows/.test(studentJs), 'student portal should build progress timeline rows');
@@ -183,11 +194,13 @@ assert(/Local training event blocked/.test(studentJs), 'student portal should bl
 assert(/TRAINING_COMPLETIONS_KEY/.test(studentJs), 'student portal should store training review completions separately');
 assert(/recordTrainingCompletion/.test(studentJs), 'student portal should let students mark assigned training as reviewed');
 assert(/training-reviewed-btn/.test(studentJs), 'student training cards should include a reviewed action');
+assert(/MEDICAL_NOTES_KEY/.test(studentJs), 'student profile should read medical safety notes from guarded storage');
+assert(/renderStudentMedical/.test(studentJs), 'student profile should render medical safety notes read-only');
 assert(/GOAL_REFLECTIONS_KEY/.test(studentJs), 'student portal should store goal reflections separately from activity logs');
 assert(/recordGoalReflection/.test(studentJs), 'student portal should save goal reflections');
 assert(/renderGoalReflections/.test(studentJs), 'student portal should render goal reflections');
 assert(!/rc_selfreports/.test(studentJs), 'student reflections should not reuse self-reported activity storage');
-assert(/student\.js\?v=14/.test(studentProfileHtml) && /student\.js\?v=14/.test(studentHtml), 'student pages should request the current training-completion-aware student script');
+assert(/student\.js\?v=16/.test(studentProfileHtml) && /student\.js\?v=16/.test(studentHtml), 'student pages should request the current admin-aware student script');
 
 const homeHtml = read('index.html');
 assert(!/href="kiosk\.html"|Scanner kiosk/.test(homeHtml), 'public home page should not link directly to the admin-only kiosk');
@@ -226,6 +239,8 @@ assert(/scanner-device-location/.test(adminDashboardHtml), 'admin scanner settin
 assert(/lap-distance-metres/.test(adminDashboardHtml), 'admin scanner settings should configure lap distance');
 assert(/default-session-type/.test(adminDashboardHtml), 'admin scanner settings should configure a default session type');
 assert(/session-type/.test(adminDashboardHtml) && /session-notes/.test(adminDashboardHtml), 'admin scanner should collect session type and notes');
+assert(/session-state session-state--closed/.test(adminDashboardHtml), 'admin scanner session status should use theme-aware state classes');
+assert(!/id="session-state"[^>]*background:#f0fff4/.test(adminDashboardHtml), 'admin scanner session status should not use hard-coded pale green inline styling');
 assert(/undo-admin-scan-btn/.test(adminDashboardHtml), 'admin scanner should include an undo last scan button');
 assert(/milestone-notification/.test(adminDashboardHtml), 'admin scanner should include a milestone notification panel');
 assert(/lb-medal-filter/.test(adminDashboardHtml), 'admin leaderboard should include a medal tier filter');
@@ -255,6 +270,12 @@ assert(/new-student-house/.test(adminDashboardHtml), 'admin add-student form sho
 assert(/new-student-team/.test(adminDashboardHtml), 'admin add-student form should optionally collect team');
 assert(/student-editor-modal/.test(adminDashboardHtml), 'admin students area should include an edit-student modal');
 assert(/edit-student-form/.test(adminDashboardHtml), 'admin students area should include an edit-student form');
+assert(/edit-student-medical-asthma/.test(adminDashboardHtml), 'admin student editor should collect asthma notes');
+assert(/edit-student-medical-anaphylaxis/.test(adminDashboardHtml), 'admin student editor should collect anaphylaxis/allergy notes');
+assert(/edit-student-medical-medication/.test(adminDashboardHtml), 'admin student editor should collect medication carried notes');
+assert(/edit-student-medical-emergency-note/.test(adminDashboardHtml), 'admin student editor should collect emergency action notes');
+assert(/edit-student-medical-health-plan/.test(adminDashboardHtml), 'admin student editor should record supplied school health plan status');
+assert(/edit-student-medical-reviewed/.test(adminDashboardHtml), 'admin student editor should record last medical review date');
 assert(/edit-student-house/.test(adminDashboardHtml), 'admin student editor should optionally edit house');
 assert(/edit-student-team/.test(adminDashboardHtml), 'admin student editor should optionally edit team');
 assert(/edit-student-pseudonym/.test(adminDashboardHtml), 'admin student editor should support privacy pseudonyms');
@@ -348,10 +369,14 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=27/.test(adminDashboardHtml), 'admin dashboard should request the current backend-gate dashboard script');
-assert(/backend\.js\?v=20/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
+assert(/admin-dashboard\.js\?v=30/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
+assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
+assert(/view=admin/.test(adminDashboardJs), 'admin student profile links should keep the profile in admin view mode');
+assert(/from=admin/.test(adminDashboardJs), 'admin student profile links should preserve admin return context');
+assert(/session-state--open/.test(adminDashboardJs), 'admin dashboard should mark open sessions with a theme-aware status class');
+assert(/session-state--closed/.test(adminDashboardJs), 'admin dashboard should mark closed sessions with a theme-aware status class');
 assert(/MEDAL_TIERS/.test(adminDashboardJs), 'admin dashboard should calculate medal tiers');
 assert(/renderOfflineQueue/.test(adminDashboardJs), 'admin dashboard should render offline queue batches');
 assert(/scannerSettings/.test(adminDashboardJs), 'admin dashboard should persist scanner settings');
@@ -507,6 +532,9 @@ assert(/Local training assignment blocked/.test(adminDashboardJs), 'admin dashbo
 assert(/renderTrainingStatus/.test(adminDashboardJs), 'admin dashboard should render training status');
 assert(/editStudentHouseEl/.test(adminDashboardJs), 'admin dashboard should persist optional student houses');
 assert(/editStudentTeamEl/.test(adminDashboardJs), 'admin dashboard should persist optional student teams');
+assert(/saveMedicalNotesWithBackend/.test(adminDashboardJs), 'admin dashboard should guard medical safety notes before saving sensitive data');
+assert(/backendDataAccess\.setStudentMedicalNotes/.test(adminDashboardJs), 'admin dashboard should route medical notes through the backend when live-ready');
+assert(/Local medical notes blocked/.test(adminDashboardJs), 'admin dashboard should block local-only medical notes in live data mode');
 assert(/saveActivityCreditWithBackend/.test(adminDashboardJs), 'admin dashboard should guard activity credits before changing student totals');
 assert(/backendDataAccess\.recordActivityCredit/.test(adminDashboardJs), 'admin dashboard should route activity credits through the backend when live-ready');
 assert(/Local activity credit blocked/.test(adminDashboardJs), 'admin dashboard should block local-only activity credits in live data mode');
@@ -531,7 +559,7 @@ const parentHtml = read('parent.html');
 assert(/id="parent-form"/.test(parentHtml), 'parent portal should expose a login form');
 assert(/DEMO/.test(parentHtml), 'parent portal should show a DEMO hint');
 assert(/parent\.js/.test(parentHtml), 'parent portal should load parent.js');
-assert(/backend\.js\?v=20/.test(parentHtml), 'parent portal should load the backend adapter before parent access checks');
+assert(/backend\.js\?v=21/.test(parentHtml), 'parent portal should load the backend adapter before parent access checks');
 assert(!/Log Home Activity|Home Activity|parent-activity-form/.test(parentHtml), 'parent portal should not include home activity logging');
 assert(/print-parent-certificate-btn/.test(parentHtml), 'parent portal should let parents print child award certificates');
 assert(/guardian-link-code/.test(parentHtml), 'parent portal should explain guardian link codes');
@@ -539,6 +567,7 @@ assert(/parent-link-summary/.test(parentHtml), 'parent portal should show parent
 assert(/parent-progress-summary/.test(parentHtml), 'parent portal should include a child progress summary');
 assert(/parent-recent-progress/.test(parentHtml), 'parent portal should include recent child progress rows');
 assert(/parent-training-view/.test(parentHtml), 'parent portal should include assigned training visibility');
+assert(/parent-medical-summary/.test(parentHtml), 'parent portal should show linked guardian medical safety notes');
 
 const parentJs = read('parent.js');
 assert(/DEMO/.test(parentJs), 'parent portal should handle DEMO bypass');
@@ -562,6 +591,8 @@ assert(/renderParentProgressSummary/.test(parentJs), 'parent portal should rende
 assert(/renderParentRecentProgress/.test(parentJs), 'parent portal should render recent progress rows');
 assert(/renderParentTraining/.test(parentJs), 'parent portal should render assigned training visibility');
 assert(/trainingCompletionFor/.test(parentJs), 'parent portal should show reviewed training status');
+assert(/MEDICAL_NOTES_KEY/.test(parentJs), 'parent portal should read guarded medical safety notes');
+assert(/renderParentMedical/.test(parentJs), 'parent portal should render medical notes only after linked access');
 
 const leaderboardHtml = read('leaderboard.html');
 assert(/Total Leaderboard/.test(leaderboardHtml), 'leaderboard page should include a whole-school total leaderboard');
@@ -600,34 +631,65 @@ assert(/hide_public_name/.test(leaderboardJs), 'leaderboard should respect hidde
 assert(/consent_status/.test(leaderboardJs), 'leaderboard should respect consent status fields');
 
 const styles = read('styles.css');
+const designMd = read('DESIGN.md');
+assert(/Obsidian Glass/.test(designMd), 'DESIGN.md should define the obsidian glass design direction');
+assert(/navy/i.test(designMd) && /white trim/i.test(designMd), 'DESIGN.md should capture navy glass and white trim guidance');
+assert(/--obsidian-navy:\s*#071426/.test(styles), 'site theme should expose the obsidian navy token');
+assert(/--glass-surface:/.test(styles), 'site theme should expose glass surface tokens');
+assert(/backdrop-filter:\s*blur/.test(styles), 'site surfaces should use glass blur where supported');
+assert(/scroll-behavior:\s*smooth/.test(styles), 'site should use smooth scrolling movement');
+assert(/overscroll-behavior/.test(styles), 'site should tune scroll containment for app-like movement');
+assert(/position:\s*sticky/.test(styles), 'site header should use sticky glass motion');
+assert(/content-visibility:\s*auto/.test(styles), 'cards should be tuned for long scrolling screens');
+assert(/@keyframes\s+revealIn/.test(styles), 'site should include section reveal motion');
+assert(/prefers-reduced-motion:\s*reduce/.test(styles), 'motion layer should include a reduced-motion fallback');
+assert(/@media \(max-width: 900px\)[\s\S]*\.content[\s\S]*max-width:\s*min\(100%,\s*760px\)/.test(styles), 'tablet layouts should tune content rhythm for iPads');
 assert(/--school-blue:\s*#003880/.test(styles), 'site theme should use the Gwynne Park school blue token');
-assert(/--uniform-gold:\s*#c99722/.test(styles), 'site theme should use the uniform gold accent token');
+assert(/--uniform-gold:\s*#c99722/.test(styles), 'site theme should restore a restrained Gwynne Park gold accent token');
+assert(/--gold-glass-wash:/.test(styles), 'site theme should expose a soft gold glass wash for subtle page-wide accents');
+assert(/\.site-header::after[\s\S]*var\(--uniform-gold\)/.test(styles), 'sticky header should carry a very small gold trim');
+assert(/\.card::before[\s\S]*var\(--gold-glass-wash\)/.test(styles), 'cards should carry the subtle gold tint site-wide');
 assert(/leaderboard-grid[\s\S]*minmax\(min\(100%,\s*520px\),\s*1fr\)/.test(styles), 'leaderboard grid should use wide responsive columns to prevent table clipping');
 assert(/leaderboard-grid\s*>\s*div[\s\S]*overflow-x:\s*auto/.test(styles), 'leaderboard sections should handle table overflow inside each panel');
+assert(/#house-leaderboard,[\s\S]*#team-leaderboard,[\s\S]*#class-leaderboard,[\s\S]*#year-level-leaderboard[\s\S]*overflow-x:\s*auto/.test(styles), 'top-level leaderboard tables should handle mobile column overflow inside their panels');
 assert(/leaderboard-table[\s\S]*min-width:\s*500px/.test(styles), 'leaderboard tables should keep readable column widths');
 assert(/#student-progress-history,[\s\S]*#leaderboard-table,[\s\S]*#certificates-list,[\s\S]*#audit-trail-list[\s\S]*overflow-x:\s*auto/.test(styles), 'admin table containers should prevent column clipping');
 assert(/offline-scan-table[\s\S]*min-width:\s*560px/.test(styles), 'offline scan tables should keep readable column widths');
 assert(/@media \(max-width: 480px\)[\s\S]*offline-scan-table[\s\S]*min-width:\s*0/.test(styles), 'offline scan tables should compact on narrow mobile screens');
 assert(/report-mini table[\s\S]*min-width:\s*420px/.test(styles), 'report summary tables should keep readable column widths');
 assert(/award-card-grid/.test(styles) && /award-card--earned/.test(styles), 'styles should include polished award card layouts');
-assert(/@media \(max-width: 900px\)[\s\S]*\.main-nav[\s\S]*width:\s*100%[\s\S]*\.tabs[\s\S]*overflow-x:\s*auto/.test(styles), 'tablet layouts should wrap nav and allow horizontal tab scrolling');
+assert(/@media \(max-width: 900px\)[\s\S]*\.main-nav[\s\S]*width:\s*100%[\s\S]*\.tabs[\s\S]*flex-wrap:\s*wrap/.test(styles), 'tablet layouts should wrap nav and admin tabs instead of forcing cramped horizontal tab rows');
+assert(/@media \(max-width: 640px\)[\s\S]*\.tab-btn[\s\S]*flex:\s*1 1 calc\(50% - 0\.4rem\)/.test(styles), 'mobile admin tabs should fit into balanced two-column rows');
 assert(/@media \(max-width: 640px\)[\s\S]*\.content[\s\S]*padding:\s*0\.75rem[\s\S]*\.card[\s\S]*padding:\s*1rem/.test(styles), 'mobile layouts should tighten content and card spacing');
 assert(/@media \(max-width: 640px\)[\s\S]*\.main-nav a,[\s\S]*\.main-nav button[\s\S]*flex:\s*1 1 calc\(50% - 0\.5rem\)/.test(styles), 'mobile nav buttons should fit in two-column rows');
 assert(/@media \(max-width: 640px\)[\s\S]*button,[\s\S]*\.btn-primary,[\s\S]*\.secondary[\s\S]*min-height:\s*44px/.test(styles), 'mobile buttons should use comfortable tap targets');
 assert(/@media \(max-width: 640px\)[\s\S]*\.progress-history-table,[\s\S]*\.training-status-table[\s\S]*min-width:\s*520px/.test(styles), 'mobile data tables should keep readable widths inside scroll containers');
 assert(/resource-card-grid[\s\S]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*260px\),\s*1fr\)\)/.test(styles), 'resource cards should use responsive columns');
-assert(/resource-card[\s\S]*border-left:\s*4px solid var\(--uniform-gold\)/.test(styles), 'resource cards should use the school gold accent');
+assert(/resource-card[\s\S]*border-left:\s*4px solid var\(--uniform-gold\)/.test(styles), 'resource cards should use the restrained gold accent');
 assert(/privacy-badge/.test(styles), 'styles should include privacy badge styling');
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=22/.test(leaderboardHtml), 'leaderboard page should request the completed Priority 8 stylesheet version');
-assert(/admin-dashboard\.js\?v=27/.test(adminDashboardHtml), 'admin dashboard should request the current backend-gate dashboard script');
+assert(/styles\.css\?v=35/.test(leaderboardHtml), 'leaderboard page should request the gold-tinted motion, medical, and dark contrast stylesheet version');
+assert(/theme\.js\?v=2/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
+assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
+assert(/theme-toggle/.test(styles), 'site styles should include the top light/dark mode switch');
+assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview[\s\S]*background:\s*#fff[\s\S]*color:\s*#102a43/.test(styles), 'dark mode should keep printable barcode card text readable on the white card');
+assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview strong,[\s\S]*\.barcode-card-name,[\s\S]*\.barcode-code[\s\S]*color:\s*#0b1f38/.test(styles), 'dark mode should force barcode card name and code to dark ink');
+assert(/html\[data-theme="dark"\]\s+\[style\*="color:#555"\]/.test(styles), 'dark mode should correct older inline helper text colours');
+const themeJs = read('theme.js');
+assert(/gp_run_club_theme/.test(themeJs), 'theme switch should persist the selected mode locally');
+assert(/data-theme-toggle/.test(themeJs), 'theme switch should inject a header toggle control');
+assert(/page-kiosk/.test(themeJs), 'theme switch should stay out of the locked kiosk surface');
+assert(/feature-suggestion-btn/.test(adminDashboardHtml), 'admin dashboard footer should include a feature suggestion button');
+assert(/Feature Suggestion/.test(adminDashboardHtml), 'admin dashboard footer should label the feature suggestion button clearly');
+assert(/feature-suggestion-btn/.test(styles), 'site footer should style the feature suggestion button');
+assert(/admin-dashboard\.js\?v=30/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
 assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v45/.test(serviceWorker), 'service worker cache should be bumped for the Priority 0 backend gate update');
+assert(/gwynne-park-run-club-v60/.test(serviceWorker), 'service worker cache should be bumped for the motion, medical, and Priority 0 update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assertFile('tests/backend-live-style.test.js');
 assertFile('tests/scanning-live-mode.test.js');
@@ -644,6 +706,8 @@ assert(/Priority 5: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap s
 assert(/Priority 6: 8 \/ 8 complete\. Status: Done/.test(features), 'roadmap should show Priority 6 done');
 assert(/Priority 7: 11 \/ 11 complete\. Status: Done/.test(features), 'roadmap should show Priority 7 done');
 assert(/Priority 8: 9 \/ 9 complete\. Status: Done/.test(features), 'roadmap should show Priority 8 complete');
+assert(/Priority 0: 10 \/ 10 complete\. Status: Done/.test(features), 'roadmap should show Priority 0 complete after the live privacy gate pass');
+assert(/~~0\.10 Run final security review and live deployment checklist\.~~/.test(features), 'roadmap should mark final Priority 0 review complete');
 assert(/## Priority 8 - Polish, Help, And Long-Term Enhancements[\s\S]*Status: Done\./.test(features), 'Priority 8 section should be marked done');
 assert(/~~3\.1 Choose backend stack and deployment target\.~~/.test(features), 'roadmap should mark backend stack decision complete');
 assert(/~~3\.2 Create database schema/.test(features), 'roadmap should mark initial backend schema complete');
@@ -703,6 +767,9 @@ assert(/Priority 5 - Parent And Student Experience: 10 \/ 10 complete\. Done/.te
 assert(/Priority 6 - Competitions And Challenges: 8 \/ 8 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 6 done');
 assert(/Priority 7 - Interschool Athletics And Cross Country: 11 \/ 11 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 7 done');
 assert(/Priority 8 - Polish, Help, And Long-Term Enhancements: 9 \/ 9 complete\. Done/.test(roadmapProgress), 'quick roadmap should show Priority 8 complete');
+assert(/All tracked feature priorities are complete/.test(roadmapProgress), 'quick roadmap should clearly show every tracked priority is finalised');
+assert(/Finalised Priority Lanes[\s\S]*Priority 5: milestone\/challenge notifications/.test(roadmapProgress), 'quick roadmap should not leave Priority 5 in planned-later state');
+assert(!/Planned Later[\s\S]*\[ \] Priority 5/.test(roadmapProgress), 'quick roadmap should not show Priority 5 as unfinished');
 assert(/5\.7 Student progress PDFs per term completed/.test(roadmapProgress), 'quick roadmap should mention student progress PDFs');
 assert(/5\.8 Improved award and certificate display completed/.test(roadmapProgress), 'quick roadmap should mention award display polish');
 assert(/5\.9 Student-friendly goal reflection completed/.test(roadmapProgress), 'quick roadmap should mention student reflection');
@@ -740,6 +807,7 @@ assertFile('supabase/migrations/202606100004_priority0_activity_credits.sql');
 assertFile('supabase/migrations/202606100005_priority0_guardian_links.sql');
 assertFile('supabase/migrations/202606100006_priority0_training_assignments.sql');
 assertFile('supabase/migrations/202606100007_priority0_training_events.sql');
+assertFile('supabase/migrations/202606100008_priority0_medical_safety_notes.sql');
 const initialSchema = read('supabase/migrations/202606080001_initial_schema.sql');
 const syncSchema = read('supabase/migrations/202606080002_priority3_sync_jobs.sql');
 const priority0StudentSchema = read('supabase/migrations/202606100001_priority0_student_privacy_fields.sql');
@@ -749,6 +817,7 @@ const priority0ActivitySchema = read('supabase/migrations/202606100004_priority0
 const priority0GuardianSchema = read('supabase/migrations/202606100005_priority0_guardian_links.sql');
 const priority0TrainingSchema = read('supabase/migrations/202606100006_priority0_training_assignments.sql');
 const priority0TrainingEventsSchema = read('supabase/migrations/202606100007_priority0_training_events.sql');
+const priority0MedicalSchema = read('supabase/migrations/202606100008_priority0_medical_safety_notes.sql');
 ['pseudonym','consent_status','hide_public_name','share_certificates_publicly','house','team'].forEach((column) => {
   assert(new RegExp(`add column if not exists ${column}`).test(priority0StudentSchema), `Priority 0 student schema should add ${column}`);
 });
@@ -771,6 +840,10 @@ assert(/training-assignment/.test(priority0TrainingSchema), 'training assignment
 assert(/record_training_event/.test(priority0TrainingEventsSchema), 'Priority 0 schema should add a training event RPC');
 assert(/training_link_events/.test(priority0TrainingEventsSchema), 'training event RPC should persist link-open events');
 assert(/training-event/.test(priority0TrainingEventsSchema), 'training event RPC should record traceable audit metadata');
+assert(/create table if not exists public\.student_medical_notes/.test(priority0MedicalSchema), 'Priority 0 schema should add guarded student medical notes');
+assert(/set_student_medical_notes/.test(priority0MedicalSchema), 'Priority 0 schema should add a medical notes RPC');
+assert(/asthma/.test(priority0MedicalSchema) && /anaphylaxis/.test(priority0MedicalSchema) && /health_plan_supplied/.test(priority0MedicalSchema), 'medical notes schema should include practical run-club safety fields');
+assert(/medical-note/.test(priority0MedicalSchema), 'medical notes RPC should record traceable audit metadata');
 [
   'schools',
   'school_users',

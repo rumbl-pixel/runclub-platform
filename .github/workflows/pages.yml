@@ -1,0 +1,85 @@
+name: Deploy beta site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests
+        run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Assemble root app
+        run: npm run build
+
+      - name: Prepare beta site artifact
+        shell: bash
+        run: |
+          rm -rf dist
+          mkdir -p dist/assets
+          cp *.html dist/
+          cp *.css dist/
+          cp *.js dist/
+          cp manifest.webmanifest dist/
+          cp assets/app-icon-192.png dist/assets/
+          cp assets/app-icon-512.png dist/assets/
+          cp assets/gwynne-park-logo.png dist/assets/
+          cp assets/gwynne-park-logo.svg dist/assets/
+          cp assets/qrcode-generator.js dist/assets/
+          touch dist/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

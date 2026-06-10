@@ -9,6 +9,7 @@
   var TRAINING_KEY = 'rc_training';
   var TRAINING_CLICKS_KEY = 'rc_training_clicks';
   var TRAINING_COMPLETIONS_KEY = 'rc_training_completions';
+  var MEDICAL_NOTES_KEY = 'rc_medical_notes';
   var currentStudent = null;
   var currentAccess = null;
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
@@ -286,6 +287,33 @@
     }).join('');
   }
 
+  function medicalNotesFor(student) {
+    var rows = load(MEDICAL_NOTES_KEY, {});
+    return rows && student ? rows[student.id] || null : null;
+  }
+
+  function medicalLine(label, value) {
+    return value ? '<div class="medical-note-row"><strong>' + escapeHtml(label) + '</strong><span>' + escapeHtml(value) + '</span></div>' : '';
+  }
+
+  function renderParentMedical(student) {
+    var el = document.getElementById('parent-medical-summary');
+    if (!el || !student) { return; }
+    var notes = medicalNotesFor(student);
+    if (!notes || !Object.keys(notes).some(function (key) { return !!notes[key]; })) {
+      el.innerHTML = '<p style="color:#888;font-size:0.85rem;">No run club medical safety notes are currently recorded for this child.</p>';
+      return;
+    }
+    el.innerHTML = '<div class="medical-note-list">' +
+      medicalLine('Asthma', notes.asthma) +
+      medicalLine('Anaphylaxis / allergies', notes.anaphylaxis) +
+      medicalLine('Medication carried', notes.medication) +
+      medicalLine('Emergency action note', notes.emergency_note) +
+      '<div class="medical-note-row"><strong>School health plan</strong><span>' + (notes.health_plan_supplied ? 'Parent supplied to school' : 'Not marked as supplied') + '</span></div>' +
+      medicalLine('Last reviewed', notes.reviewed_at) +
+      '</div><p class="medical-note-disclaimer">For run club safety reference only. Follow official school health care plans in emergencies.</p>';
+  }
+
   function render(student) {
     currentStudent = student;
     renderLinkSummary(currentAccess || { accessType: 'barcode' });
@@ -295,6 +323,7 @@
     renderAwards(student);
     renderGoals(student);
     renderParentTraining(student);
+    renderParentMedical(student);
     document.getElementById('parent-result').hidden = false;
   }
 

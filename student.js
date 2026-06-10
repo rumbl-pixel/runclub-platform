@@ -13,6 +13,7 @@
   var TRAINING_COMPLETIONS_KEY = 'rc_training_completions';
   var SCAN_AUDIT_KEY = 'rc_scan_audit';
   var GOAL_REFLECTIONS_KEY = 'rc_goal_reflections';
+  var MEDICAL_NOTES_KEY = 'rc_medical_notes';
 
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
   var MEDAL_TIERS = [
@@ -31,6 +32,23 @@
     } catch (_) {
       return null;
     }
+  }
+
+  function getAdminSession() {
+    try {
+      return JSON.parse(localStorage.getItem('runClubAdminSession'));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function queryParams() {
+    return new URLSearchParams(window.location.search);
+  }
+
+  function isAdminProfileView() {
+    var params = queryParams();
+    return params.get('view') === 'admin' && !!getAdminSession();
   }
 
   function saveStudentSession(student) {
@@ -65,7 +83,7 @@
   }
 
   function studentFromQuery() {
-    var params = new URLSearchParams(window.location.search);
+    var params = queryParams();
     var code = params.get('student') || params.get('studentId') || params.get('barcode');
     if (!code) { return null; }
     return findStudent(code);
@@ -159,6 +177,49 @@
     document.getElementById('print-student-barcode-btn').onclick = function () {
       printStudentBarcodeCard(student);
     };
+  }
+
+  function medicalNotesFor(student) {
+    var rows = loadLocal(MEDICAL_NOTES_KEY, {});
+    return rows && student ? rows[student.id] || null : null;
+  }
+
+  function medicalLine(label, value) {
+    return value ? '<div class="medical-note-row"><strong>' + escapeHtml(label) + '</strong><span>' + escapeHtml(value) + '</span></div>' : '';
+  }
+
+  function renderStudentMedical(student) {
+    var el = document.getElementById('student-medical-summary');
+    if (!el || !student) { return; }
+    var notes = medicalNotesFor(student);
+    if (!notes || !Object.keys(notes).some(function (key) { return !!notes[key]; })) {
+      el.innerHTML = '<p style="color:#888;font-size:0.85rem;">No run club medical safety notes are currently recorded. Ask a parent or teacher if this needs updating.</p>';
+      return;
+    }
+    var html = '<div class="medical-note-list">' +
+      medicalLine('Asthma', notes.asthma) +
+      medicalLine('Anaphylaxis / allergies', notes.anaphylaxis) +
+      medicalLine('Medication carried', notes.medication) +
+      medicalLine('Emergency action note', notes.emergency_note) +
+      '<div class="medical-note-row"><strong>School health plan</strong><span>' + (notes.health_plan_supplied ? 'Parent supplied to school' : 'Not marked as supplied') + '</span></div>' +
+      medicalLine('Last reviewed', notes.reviewed_at) +
+      '</div><p class="medical-note-disclaimer">For run club safety reference only. Staff should follow official school health care plans in emergencies.</p>';
+    el.innerHTML = html;
+  }
+
+  function renderAdminProfileTools(student) {
+    var tools = document.getElementById('admin-profile-tools');
+    if (!tools || !student) { return; }
+    if (!isAdminProfileView()) {
+      tools.hidden = true;
+      return;
+    }
+    var studentCode = encodeURIComponent(student.id || student.barcode);
+    var backLink = document.getElementById('admin-profile-back-link');
+    var trainingLink = document.getElementById('admin-profile-training-link');
+    if (backLink) { backLink.href = 'admin-dashboard.html?tab=students&student=' + studentCode; }
+    if (trainingLink) { trainingLink.href = 'admin-dashboard.html?tab=training&student=' + studentCode; }
+    tools.hidden = false;
   }
 
   function currentTermLabel() {
@@ -301,6 +362,8 @@
     renderGoalReflections();
     renderStudentTimeline();
     renderTraining();
+    renderStudentMedical(s);
+    renderAdminProfileTools(s);
   }
 
   function trainingAssignmentsFor(studentId) {
@@ -761,12 +824,13 @@
   }
 
   if (resultCard) {
+    var adminView = isAdminProfileView();
     var student = studentFromQuery() || sessionStudent();
     if (!student) {
       window.location.href = 'student.html';
       return;
     }
-    saveStudentSession(student);
+    if (!adminView) { saveStudentSession(student); }
     currentStudent = student;
     wireStudentTabs();
     renderAthlete(student);
@@ -775,7 +839,13 @@
 
     var logoutBtn = document.getElementById('student-logout-btn');
     if (logoutBtn) {
+      if (adminView) { logoutBtn.textContent = 'Log out admin'; }
       logoutBtn.addEventListener('click', function () {
+        if (isAdminProfileView()) {
+          localStorage.removeItem('runClubAdminSession');
+          window.location.href = 'admin.html';
+          return;
+        }
         clearStudentSession();
         window.location.href = 'student.html';
       });
