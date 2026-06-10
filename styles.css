@@ -1955,20 +1955,25 @@ html[data-theme="dark"] .reflection-item p {
   min-height: 40px;
   margin-top: 0.65rem;
   padding: 0.45rem 1rem;
-  border: 1px solid var(--gold-glass-line);
+  border: 1px solid color-mix(in srgb, var(--uniform-gold) 54%, rgba(255,255,255,0.58) 46%);
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.92), var(--uniform-gold-wash));
+  background:
+    linear-gradient(180deg, rgba(255,248,221,0.98), rgba(242,216,145,0.86));
   color: var(--obsidian-navy);
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 10px 24px rgba(7,20,38,0.08);
+  box-shadow: 0 10px 24px rgba(7,20,38,0.08), inset 0 1px 0 rgba(255,255,255,0.72);
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .site-footer .feature-suggestion-btn:hover {
-  background: linear-gradient(180deg, #ffe7a3, rgba(201,151,34,0.38));
+  background:
+    linear-gradient(180deg, rgba(255,239,184,1), rgba(225,188,84,0.92));
+  border-color: color-mix(in srgb, var(--uniform-gold) 72%, rgba(255,255,255,0.35) 28%);
   color: var(--obsidian-navy);
   text-decoration: none;
   transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(7,20,38,0.12), inset 0 1px 0 rgba(255,255,255,0.64);
 }
 
 /* ===========================

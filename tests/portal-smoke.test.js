@@ -693,7 +693,7 @@ assert(/privacy-badge/.test(styles), 'styles should include privacy badge stylin
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=43/.test(leaderboardHtml), 'leaderboard page should request the gold-tinted motion, medical, and dark contrast stylesheet version');
+assert(/styles\.css\?v=44/.test(leaderboardHtml), 'leaderboard page should request the gold-tinted motion, medical, and dark contrast stylesheet version');
 assert(/theme\.js\?v=6/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/theme-toggle/.test(styles), 'site styles should include the top light/dark mode switch');
@@ -712,12 +712,13 @@ assert(/page-kiosk/.test(themeJs), 'theme switch should stay out of the locked k
 assert(/feature-suggestion-btn/.test(adminDashboardHtml), 'admin dashboard footer should include a feature suggestion button');
 assert(/Feature Suggestion/.test(adminDashboardHtml), 'admin dashboard footer should label the feature suggestion button clearly');
 assert(/feature-suggestion-btn/.test(styles), 'site footer should style the feature suggestion button');
+assert(/\.feature-suggestion-btn[\s\S]*rgba\(255,248,221,0\.98\)[\s\S]*rgba\(242,216,145,0\.86\)/.test(styles), 'feature suggestion button should use a pale gold base colour');
 assert(/admin-dashboard\.js\?v=30/.test(adminDashboardHtml), 'admin dashboard should request the current admin-profile-aware dashboard script');
 assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v69/.test(serviceWorker), 'service worker cache should be bumped for the compact menu motion fix');
+assert(/gwynne-park-run-club-v70/.test(serviceWorker), 'service worker cache should be bumped for the pale gold feature suggestion button');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assertFile('tests/backend-live-style.test.js');
 assertFile('tests/scanning-live-mode.test.js');
