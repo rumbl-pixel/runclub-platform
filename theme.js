@@ -61,7 +61,8 @@
     }
 
     function updateCompactHeader() {
-      var compact = window.scrollY > 72;
+      var currentlyCompact = document.body.classList.contains('mobile-header-compact');
+      var compact = currentlyCompact ? window.scrollY > 24 : window.scrollY > 96;
       document.body.classList.toggle('mobile-header-compact', compact);
       if (!compact && document.body.classList.contains('mobile-nav-open')) {
         document.body.classList.remove('mobile-nav-open');
