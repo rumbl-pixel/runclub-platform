@@ -403,13 +403,24 @@ body.mobile-header-compact .main-nav button {
 }
 
 .stat-chip {
-  padding: 0.35rem 0.75rem;
+  padding: 0.4rem 0.78rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.68), var(--uniform-gold-wash));
-  border: 1px solid color-mix(in srgb, rgba(7,20,38,0.12) 74%, var(--uniform-gold) 26%);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.035)),
+    linear-gradient(135deg, rgba(7,20,38,0.94), rgba(18,54,93,0.88));
+  border: 1px solid color-mix(in srgb, var(--gold-glass-line) 72%, rgba(255,255,255,0.28) 28%);
   font-size: 0.82rem;
-  color: var(--obsidian-navy);
-  font-weight: 500;
+  color: #edf4ff;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 22px rgba(7,20,38,0.16);
+  backdrop-filter: blur(14px);
+}
+
+.stat-chip:hover {
+  background:
+    linear-gradient(180deg, rgba(201,151,34,0.18), rgba(255,255,255,0.045)),
+    linear-gradient(135deg, rgba(11,31,56,0.96), rgba(23,90,151,0.88));
+  border-color: var(--uniform-gold);
 }
 
 /* ===========================
