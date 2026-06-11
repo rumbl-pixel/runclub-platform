@@ -209,11 +209,13 @@ assert(/recordTrainingCompletion/.test(studentJs), 'student portal should let st
 assert(/training-reviewed-btn/.test(studentJs), 'student training cards should include a reviewed action');
 assert(/MEDICAL_NOTES_KEY/.test(studentJs), 'student profile should read medical safety notes from guarded storage');
 assert(/renderStudentMedical/.test(studentJs), 'student profile should render medical safety notes read-only');
+assert(/STUDENT_NOTIFICATIONS_KEY/.test(studentJs), 'student profile should read coach reminder notifications');
+assert(/renderStudentNotifications/.test(studentJs), 'student profile should render coach reminder notifications');
 assert(/GOAL_REFLECTIONS_KEY/.test(studentJs), 'student portal should store goal reflections separately from activity logs');
 assert(/recordGoalReflection/.test(studentJs), 'student portal should save goal reflections');
 assert(/renderGoalReflections/.test(studentJs), 'student portal should render goal reflections');
 assert(!/rc_selfreports/.test(studentJs), 'student reflections should not reuse self-reported activity storage');
-assert(/student\.js\?v=18/.test(studentProfileHtml) && /student\.js\?v=18/.test(studentHtml), 'student pages should request the current collected-badges student script');
+assert(/student\.js\?v=19/.test(studentProfileHtml) && /student\.js\?v=19/.test(studentHtml), 'student pages should request the current coach-notifications student script');
 
 const homeHtml = read('index.html');
 assert(!/href="kiosk\.html"|Scanner kiosk/.test(homeHtml), 'public home page should not link directly to the admin-only kiosk');
@@ -377,8 +379,12 @@ assert(/data-tab="training"/.test(adminDashboardHtml), 'admin dashboard should i
 assert(/data-tab="resources"/.test(adminDashboardHtml), 'admin dashboard should include a Resources tab');
 assert(/data-tab="future-intelligence"/.test(adminDashboardHtml), 'admin dashboard should include a bookmarked Coach Tools tab');
 assert(/future-intelligence-skeleton/.test(adminDashboardHtml), 'admin Coach Tools tab should include the future intelligence skeleton target');
-assert(/Coach Notes Skeleton/.test(adminDashboardHtml), 'admin Coach Tools tab should include a coach notes skeleton');
+assert(/coach-tool-modal/.test(adminDashboardHtml), 'admin Coach Tools tab should include a layered coach tool modal');
+assert(/coach-tool-note-form/.test(adminDashboardHtml), 'admin Coach Tools modal should include direct note entry');
+assert(/coach-note-list/.test(adminDashboardHtml), 'admin Coach Tools tab should render saved coach notes');
+assert(/Mini Coach AI placeholder/.test(adminDashboardHtml), 'admin Coach Tools modal should include a Mini Coach placeholder panel');
 assert(/Mini Coach Bookmark/.test(studentProfileHtml), 'student training tab should include the Mini Coach bookmark skeleton');
+assert(/student-notifications/.test(studentProfileHtml), 'student profile should include coach reminder notifications');
 assert(/program-resource-hub/.test(adminDashboardHtml), 'admin resources should include a program resource hub');
 assert(/lesson-plan-section/.test(adminDashboardHtml), 'admin resources should include a lesson-plan section');
 assert(/resource-card-grid/.test(adminDashboardHtml), 'admin resources should use a resource card grid');
@@ -396,7 +402,7 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=34/.test(adminDashboardHtml), 'admin dashboard should request the current Interschool team selector dashboard script');
+assert(/admin-dashboard\.js\?v=35/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
@@ -512,6 +518,13 @@ assert(/createCustomAward/.test(adminDashboardJs), 'admin dashboard should creat
 assert(/CHALLENGE_NOTIFICATIONS_KEY/.test(adminDashboardJs), 'admin dashboard should store challenge notifications');
 assert(/recordChallengeNotification/.test(adminDashboardJs), 'admin dashboard should record challenge notifications');
 assert(/renderChallengeNotifications/.test(adminDashboardJs), 'admin dashboard should render challenge notifications');
+assert(/COACH_NOTES_KEY/.test(adminDashboardJs), 'admin Coach Tools should store staff-only notes locally');
+assert(/STUDENT_NOTIFICATIONS_KEY/.test(adminDashboardJs), 'admin Coach Tools should store student profile notifications');
+assert(/renderCoachToolModal/.test(adminDashboardJs), 'admin Coach Tools should open clickable tool modals');
+assert(/needsAttentionRows/.test(adminDashboardJs), 'admin Coach Tools should calculate needs-attention rows');
+assert(/closeAwardRows/.test(adminDashboardJs), 'admin Coach Tools should calculate close-to-award rows');
+assert(/trainingNotOpenedRows/.test(adminDashboardJs), 'admin Coach Tools should calculate unopened training rows');
+assert(/notifyCloseAwardStudent/.test(adminDashboardJs), 'admin Coach Tools should push close-to-award student notifications');
 assert(/challengeRuleFromForm/.test(adminDashboardJs), 'admin dashboard should build structured challenge rules from the form');
 assert(/challengeRuleLabel/.test(adminDashboardJs), 'admin dashboard should render human-readable challenge rules');
 assert(/rule_type/.test(adminDashboardJs) && /metric/.test(adminDashboardJs) && /target/.test(adminDashboardJs) && /scope/.test(adminDashboardJs), 'admin challenges should persist structured rule fields');
@@ -732,8 +745,8 @@ assert(/privacy-badge/.test(styles), 'styles should include privacy badge stylin
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=57/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
-assert(/styles\.css\?v=57/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/styles\.css\?v=58/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
+assert(/styles\.css\?v=58/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
@@ -745,6 +758,9 @@ assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview[\s\S]*background:\s*#
 assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview strong,[\s\S]*\.barcode-card-name,[\s\S]*\.barcode-code[\s\S]*color:\s*#0b1f38/.test(styles), 'dark mode should force barcode card name and code to dark ink');
 assert(/html\[data-theme="dark"\]\s+\[style\*="color:#555"\]/.test(styles), 'dark mode should correct older inline helper text colours');
 assert(/\.future-skeleton-grid/.test(styles), 'site styles should include future coach skeleton grid styling');
+assert(/\.coach-tool-card/.test(styles), 'site styles should include clickable coach tool card styling');
+assert(/\.coach-tool-modal/.test(styles), 'site styles should include coach tool modal styling');
+assert(/\.student-notification-card/.test(styles), 'site styles should include student notification card styling');
 assert(/html\[data-theme="dark"\] \.future-skeleton-card[\s\S]*rgba\(7,20,38,0\.66\)/.test(styles), 'future coach skeleton cards should stay readable in dark mode');
 assert(/\.athletics-mode-toggle/.test(styles), 'styles should include the Interschool Athletics pill toggle');
 assert(/\.athletics-mode-panel/.test(styles), 'styles should include the expandable athletics mode panel');
@@ -778,12 +794,12 @@ const privacyPolicyHtml = read('privacy-policy.html');
 assert(/Access boundaries/.test(privacyPolicyHtml), 'privacy policy should explain access boundaries');
 assert(/Parents can see only their own linked child or children/.test(privacyPolicyHtml), 'privacy policy should describe parent-only child access');
 assert(/advertising trackers/.test(privacyPolicyHtml), 'privacy policy should rule out advertising trackers');
-assert(/admin-dashboard\.js\?v=34/.test(adminDashboardHtml), 'admin dashboard should request the current Interschool team selector dashboard script');
+assert(/admin-dashboard\.js\?v=35/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v85/.test(serviceWorker), 'service worker cache should be bumped for support link update');
+assert(/gwynne-park-run-club-v86/.test(serviceWorker), 'service worker cache should be bumped for support link update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');

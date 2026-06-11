@@ -21,6 +21,8 @@
   var MEDICAL_NOTES_KEY = 'rc_medical_notes';
   var MILESTONE_NOTIFICATIONS_KEY = 'rc_milestone_notifications';
   var CHALLENGE_NOTIFICATIONS_KEY = 'rc_challenge_notifications';
+  var COACH_NOTES_KEY = 'rc_coach_notes';
+  var STUDENT_NOTIFICATIONS_KEY = 'rc_student_notifications';
   var CROSS_COUNTRY_COURSES_KEY = 'rc_cross_country_courses';
   var ATHLETICS_RESULTS_KEY = 'rc_athletics_results';
   var ATHLETICS_TEAM_SELECTIONS_KEY = 'rc_athletics_team_selections';
@@ -2810,35 +2812,205 @@
     return CERTIFICATE_MILESTONES.find(function(m){return km<m.km;}) || null;
   }
 
-  function renderFutureIntelligenceSkeleton(){
-    var target=document.getElementById('future-intelligence-skeleton');
-    if(!target){return;}
-    var students=getStudents();
-    var inactive=students.filter(function(s){return !(s.laps||0);}).slice(0,3);
-    var nearAward=students.map(function(s){
+  var coachToolModalEl=document.getElementById('coach-tool-modal');
+  var coachToolTitleEl=document.getElementById('coach-tool-modal-title');
+  var coachToolSubtitleEl=document.getElementById('coach-tool-modal-subtitle');
+  var coachToolAiCopyEl=document.getElementById('coach-tool-ai-copy');
+  var coachToolActionsEl=document.getElementById('coach-tool-actions');
+  var coachToolListEl=document.getElementById('coach-tool-list');
+  var coachToolNoteFormEl=document.getElementById('coach-tool-note-form');
+  var coachToolNoteScopeEl=document.getElementById('coach-tool-note-scope');
+  var coachToolNoteTextEl=document.getElementById('coach-tool-note-text');
+  var coachToolResultEl=document.getElementById('coach-tool-result');
+  var coachNoteListEl=document.getElementById('coach-note-list');
+  var activeCoachTool='needs-attention';
+
+  function coachNotes(){return load(COACH_NOTES_KEY,[]);}
+  function saveCoachNotes(rows){save(COACH_NOTES_KEY,rows.slice(-400));}
+  function studentNotifications(){return load(STUDENT_NOTIFICATIONS_KEY,[]);}
+  function saveStudentNotifications(rows){save(STUDENT_NOTIFICATIONS_KEY,rows.slice(-500));}
+
+  function saveCoachNote(scope,note){
+    var text=String(note||'').trim();
+    if(!text){return null;}
+    var row={id:'coach-note-'+Date.now(),tool:activeCoachTool,scope:scope||activeCoachTool,note:text,created_at:new Date().toISOString(),staff:session.email||'coach'};
+    var rows=coachNotes(); rows.push(row); saveCoachNotes(rows); return row;
+  }
+
+  function pushStudentNotification(student,type,title,message,meta){
+    var rows=studentNotifications();
+    rows.push({id:'student-note-'+Date.now()+'-'+Math.floor(Math.random()*1000),student_id:student.id,type:type,title:title,message:message,meta:meta||{},created_at:new Date().toISOString(),read:false});
+    saveStudentNotifications(rows);
+  }
+
+  function closeAwardRows(limit){
+    return getStudents().map(function(s){
       var next=nextCertificateFor(s);
       if(!next){return null;}
       var kmLeft=Math.max(0,next.km-totalKm(s));
       var lapsLeft=Math.ceil(kmLeft/(programSettings().lapDistanceKm||0.25));
-      return {student:s,next:next,lapsLeft:lapsLeft};
-    }).filter(function(row){return row&&row.lapsLeft<=8;}).sort(function(a,b){return a.lapsLeft-b.lapsLeft;}).slice(0,3);
-    var unopened=load(K.training,[]).reduce(function(total,task){
-      return total+(task.student_ids||[]).filter(function(studentId){
-        return !load(K.trainingClicks,[]).some(function(click){return click.training_id===task.id&&click.student_id===studentId;});
-      }).length;
-    },0);
-    var pbCount=athleticsResults().filter(function(row){return row.personal_best;}).length;
-    var classRows=groupedSummary('cls').sort(function(a,b){return b.km-a.km;});
-    var inactiveText=inactive.length?inactive.map(function(s){return escapeHtml(s.name);}).join(', '):'No obvious inactive students in demo data.';
-    var awardText=nearAward.length?nearAward.map(function(row){return escapeHtml(row.student.name)+' needs '+row.lapsLeft+' lap'+(row.lapsLeft===1?'':'s')+' for '+escapeHtml(row.next.name);}).join('<br>'):'No near-award runners flagged yet.';
-    target.innerHTML=
-      '<article class="future-skeleton-card"><span>Mini Coach AI</span><h3>Smart Suggestions</h3><p>Later: assess timeline, goals, PBs, and training history to suggest realistic next steps.</p><small>Bookmark: needs live data rules and staff review before advice appears.</small></article>'+
-      '<article class="future-skeleton-card"><span>Needs Attention</span><h3>'+inactive.length+' flagged</h3><p>'+inactiveText+'</p><small>Future action: filter by attendance gap, injury note, or missed sessions.</small></article>'+
-      '<article class="future-skeleton-card"><span>Close To Award</span><h3>'+nearAward.length+' runners nearby</h3><p>'+awardText+'</p><small>Future action: one-tap celebration or encouragement note.</small></article>'+
-      '<article class="future-skeleton-card"><span>Training Not Opened</span><h3>'+unopened+' pending views</h3><p>Shows assigned training that has not been opened by students yet.</p><small>Future action: class reminder list and parent-safe summary.</small></article>'+
-      '<article class="future-skeleton-card"><span>Personal Bests</span><h3>'+pbCount+' PB markers</h3><p>Later: PB cards across run club, athletics, cross country, jumps, and throws.</p><small>Future action: trend line and next realistic target.</small></article>'+
-      '<article class="future-skeleton-card"><span>Class Trends</span><h3>'+escapeHtml(classRows[0]?classRows[0].group:'No class yet')+'</h3><p>Later: compare participation, growth, and award readiness by class.</p><small>Future action: Next Best Action cards for admin.</small></article>'+
-      '<article class="future-skeleton-card future-skeleton-card--wide"><span>Celebration Wall</span><h3>Future showcase</h3><p>A moderated display for PBs, milestones, effort shout-outs, and team wins without exposing private student information.</p><small>Bookmark: needs privacy settings, approved display names, and staff moderation.</small></article>';
+      return {student:s,next:next,lapsLeft:lapsLeft,kmLeft:kmLeft};
+    }).filter(function(row){return row&&row.lapsLeft<=8;}).sort(function(a,b){return a.lapsLeft-b.lapsLeft;}).slice(0,limit||999);
+  }
+
+  function trainingNotOpenedRows(limit){
+    var students=getStudents();
+    var clicks=load(K.trainingClicks,[]);
+    var rows=[];
+    load(K.training,[]).forEach(function(task){
+      (task.student_ids||[]).forEach(function(studentId){
+        if(clicks.some(function(click){return click.training_id===task.id&&click.student_id===studentId;})){return;}
+        var student=students.find(function(s){return s.id===studentId;});
+        if(student){rows.push({student:student,task:task});}
+      });
+    });
+    return rows.slice(0,limit||999);
+  }
+
+  function needsAttentionRows(limit){
+    var unopenedMap={};
+    trainingNotOpenedRows().forEach(function(row){unopenedMap[row.student.id]=(unopenedMap[row.student.id]||0)+1;});
+    return getStudents().map(function(s){
+      var reasons=[];
+      if(!(s.laps||0)){reasons.push('No laps recorded yet');}
+      if((s.laps||0)>0&&(s.laps||0)<5){reasons.push('Still below first 5-lap badge');}
+      if(unopenedMap[s.id]){reasons.push(unopenedMap[s.id]+' training task'+(unopenedMap[s.id]===1?'':'s')+' not opened');}
+      return reasons.length?{student:s,reasons:reasons}:null;
+    }).filter(Boolean).slice(0,limit||999);
+  }
+
+  function personalBestRows(limit){
+    return athleticsResults().filter(function(row){return row.personal_best;}).slice().reverse().slice(0,limit||999);
+  }
+
+  function classTrendRows(limit){
+    return groupedSummary('cls').sort(function(a,b){return b.km-a.km;}).slice(0,limit||999);
+  }
+
+  function celebrationRows(limit){
+    var rows=[];
+    certificateRows().slice(0,8).forEach(function(row){rows.push({title:row.milestone,detail:row.student+' - '+row.class+' - '+row.total_km+' km'});});
+    personalBestRows(8).forEach(function(row){rows.push({title:'PB: '+row.event_name,detail:row.student_name+' - '+resultDisplay(row)});});
+    return rows.slice(0,limit||999);
+  }
+
+  function coachToolConfig(tool){
+    var configs={
+      'needs-attention':{title:'Needs Attention',subtitle:'Flagged students and practical staff follow-up.',ai:'Later Mini Coach can explain likely causes and suggest a simple next action.'},
+      'close-award':{title:'Close To Award',subtitle:'Students within 8 laps of the next milestone.',ai:'Later Mini Coach can suggest encouragement wording and realistic next-session targets.'},
+      'training-not-opened':{title:'Training Not Opened',subtitle:'Assigned tasks students have not opened yet.',ai:'Later Mini Coach can group reminders by class and suggest parent-safe wording.'},
+      'personal-bests':{title:'Personal Bests',subtitle:'Recent PB markers from athletics and carnival results.',ai:'Later Mini Coach can suggest safe next PB targets after staff review.'},
+      'class-trends':{title:'Class Trends',subtitle:'Class-level participation and progress snapshot.',ai:'Later Mini Coach can identify the next best class action.'},
+      'celebration-wall':{title:'Celebration Wall',subtitle:'Candidate achievements for staff-moderated celebration.',ai:'Later Mini Coach can draft celebration blurbs without exposing private details.'}
+    };
+    return configs[tool]||configs['needs-attention'];
+  }
+
+  function coachToolRows(tool){
+    if(tool==='needs-attention'){return needsAttentionRows();}
+    if(tool==='close-award'){return closeAwardRows();}
+    if(tool==='training-not-opened'){return trainingNotOpenedRows();}
+    if(tool==='personal-bests'){return personalBestRows();}
+    if(tool==='class-trends'){return classTrendRows();}
+    if(tool==='celebration-wall'){return celebrationRows();}
+    return [];
+  }
+
+  function coachToolRowHtml(tool,row){
+    if(tool==='needs-attention'){
+      return '<article class="coach-tool-row"><div><strong>'+escapeHtml(row.student.name)+'</strong><span>'+escapeHtml(row.student.year+' / '+row.student.cls)+'</span><p>'+row.reasons.map(escapeHtml).join(' | ')+'</p></div><button type="button" class="secondary coach-note-target" data-scope="'+escapeAttr(row.student.id)+'">Note</button></article>';
+    }
+    if(tool==='close-award'){
+      return '<article class="coach-tool-row"><div><strong>'+escapeHtml(row.student.name)+'</strong><span>'+row.lapsLeft+' lap'+(row.lapsLeft===1?'':'s')+' to '+escapeHtml(row.next.name)+'</span><p>'+row.student.laps+' laps currently recorded.</p></div><button type="button" class="secondary coach-notify-award" data-student="'+escapeAttr(row.student.id)+'">Notify</button></article>';
+    }
+    if(tool==='training-not-opened'){
+      return '<article class="coach-tool-row"><div><strong>'+escapeHtml(row.student.name)+'</strong><span>'+escapeHtml(row.task.title)+'</span><p>Due '+escapeHtml(row.task.due_date||'not set')+' - '+escapeHtml(row.student.cls)+'</p></div><button type="button" class="secondary coach-note-target" data-scope="'+escapeAttr(row.student.id)+'">Note</button></article>';
+    }
+    if(tool==='personal-bests'){
+      return '<article class="coach-tool-row"><div><strong>'+escapeHtml(row.student_name)+'</strong><span>'+escapeHtml(row.event_name)+' - '+escapeHtml(resultDisplay(row))+'</span><p>'+new Date(row.date).toLocaleDateString()+'</p></div><button type="button" class="secondary coach-note-target" data-scope="'+escapeAttr(row.student_id)+'">Note</button></article>';
+    }
+    if(tool==='class-trends'){
+      return '<article class="coach-tool-row"><div><strong>'+escapeHtml(row.group)+'</strong><span>'+row.students+' students - '+row.laps+' laps - '+row.km+' km</span><p>'+row.certificates+' certificates ready.</p></div><button type="button" class="secondary coach-note-target" data-scope="class:'+escapeAttr(row.group)+'">Note</button></article>';
+    }
+    return '<article class="coach-tool-row"><div><strong>'+escapeHtml(row.title)+'</strong><span>'+escapeHtml(row.detail)+'</span><p>Staff review before sharing.</p></div><button type="button" class="secondary coach-note-target" data-scope="'+escapeAttr(row.title)+'">Note</button></article>';
+  }
+
+  function renderCoachNotes(){
+    if(!coachNoteListEl){return;}
+    var rows=coachNotes().slice().reverse().slice(0,8);
+    coachNoteListEl.innerHTML=rows.length?rows.map(function(row){
+      return '<div class="coach-note-item"><strong>'+escapeHtml(row.scope)+'</strong><span>'+escapeHtml(row.tool)+' - '+new Date(row.created_at).toLocaleString()+'</span><p>'+escapeHtml(row.note)+'</p></div>';
+    }).join(''):'<p class="muted-copy">No coach notes saved yet.</p>';
+  }
+
+  function renderCoachToolModal(tool){
+    activeCoachTool=tool;
+    var config=coachToolConfig(tool);
+    var rows=coachToolRows(tool);
+    coachToolTitleEl.textContent=config.title;
+    coachToolSubtitleEl.textContent=config.subtitle;
+    coachToolAiCopyEl.textContent=config.ai;
+    coachToolNoteScopeEl.value=tool;
+    coachToolNoteTextEl.value='';
+    coachToolResultEl.hidden=true;
+    coachToolActionsEl.innerHTML=tool==='close-award'&&rows.length?'<button type="button" class="secondary" id="notify-all-close-awards-btn">Notify all close-to-award students</button>':'';
+    coachToolListEl.innerHTML=rows.length?rows.map(function(row){return coachToolRowHtml(tool,row);}).join(''):'<p class="empty-note">Nothing to review here yet.</p>';
+    Array.prototype.forEach.call(coachToolListEl.querySelectorAll('.coach-note-target'),function(btn){
+      btn.addEventListener('click',function(){coachToolNoteScopeEl.value=btn.dataset.scope;coachToolNoteTextEl.focus();});
+    });
+    Array.prototype.forEach.call(coachToolListEl.querySelectorAll('.coach-notify-award'),function(btn){
+      btn.addEventListener('click',function(){notifyCloseAwardStudent(btn.dataset.student);});
+    });
+    var notifyAll=document.getElementById('notify-all-close-awards-btn');
+    if(notifyAll){notifyAll.addEventListener('click',function(){closeAwardRows().forEach(function(row){notifyCloseAwardStudent(row.student.id,true);});showResult(coachToolResultEl,{success:true,message:'Close-to-award notifications queued.',students:closeAwardRows().length});});}
+    coachToolModalEl.hidden=false;
+  }
+
+  function notifyCloseAwardStudent(studentId,quiet){
+    var row=closeAwardRows().find(function(item){return item.student.id===studentId;});
+    if(!row){return;}
+    pushStudentNotification(row.student,'close-award','Close to your next award','You are '+row.lapsLeft+' lap'+(row.lapsLeft===1?'':'s')+' from '+row.next.name+'.',{laps_left:row.lapsLeft,award:row.next.name});
+    if(!quiet){showResult(coachToolResultEl,{success:true,message:'Student notification queued.',student:row.student.name,award:row.next.name});}
+  }
+
+  function closeCoachToolModal(){coachToolModalEl.hidden=true;}
+
+  function renderFutureIntelligenceSkeleton(){
+    var target=document.getElementById('future-intelligence-skeleton');
+    if(!target){return;}
+    var cards=[
+      {tool:'mini-coach',label:'Mini Coach AI',title:'Smart Suggestions',body:'Skeleton only: future assistant can review timelines, goals, PBs, and training history.',foot:'Bookmark: staff-reviewed advice only.'},
+      {tool:'needs-attention',label:'Needs Attention',title:needsAttentionRows().length+' flagged',body:'Open flagged students with practical follow-up reasons.',foot:'Click to review and add notes.'},
+      {tool:'close-award',label:'Close To Award',title:closeAwardRows().length+' runners nearby',body:'Review students within 8 laps of the next milestone.',foot:'Click to notify student profiles.'},
+      {tool:'training-not-opened',label:'Training Not Opened',title:trainingNotOpenedRows().length+' pending views',body:'See assigned tasks that have not been opened.',foot:'Click for reminder notes.'},
+      {tool:'personal-bests',label:'Personal Bests',title:personalBestRows().length+' PB markers',body:'Review recent PBs across athletics and carnival results.',foot:'Click for celebration or next-step notes.'},
+      {tool:'class-trends',label:'Class Trends',title:(classTrendRows(1)[0]&&classTrendRows(1)[0].group)||'No class yet',body:'Compare participation, progress, and award readiness by class.',foot:'Click for class-level notes.'},
+      {tool:'celebration-wall',label:'Celebration Wall',title:'Review candidates',body:'Moderated list of awards and PBs worth celebrating.',foot:'Click to prepare staff-reviewed shout-outs.',wide:true}
+    ];
+    target.innerHTML=cards.map(function(card){
+      var content='<span>'+escapeHtml(card.label)+'</span><h3>'+escapeHtml(card.title)+'</h3><p>'+escapeHtml(card.body)+'</p><small>'+escapeHtml(card.foot)+'</small>';
+      if(card.tool==='mini-coach'){return '<article class="future-skeleton-card">'+content+'</article>';}
+      return '<button type="button" class="future-skeleton-card coach-tool-card '+(card.wide?'future-skeleton-card--wide':'')+'" data-coach-tool="'+escapeAttr(card.tool)+'">'+content+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(target.querySelectorAll('[data-coach-tool]'),function(card){
+      card.addEventListener('click',function(){renderCoachToolModal(card.dataset.coachTool);});
+    });
+    renderCoachNotes();
+  }
+
+  if(coachToolModalEl){
+    document.getElementById('close-coach-tool-modal-btn').addEventListener('click',closeCoachToolModal);
+    coachToolModalEl.addEventListener('click',function(e){if(e.target===coachToolModalEl){closeCoachToolModal();}});
+  }
+  if(coachToolNoteFormEl){
+    coachToolNoteFormEl.addEventListener('submit',function(e){
+      e.preventDefault();
+      var row=saveCoachNote(coachToolNoteScopeEl.value,coachToolNoteTextEl.value);
+      if(!row){showResult(coachToolResultEl,{success:false,error:'Type a note before saving.'});return;}
+      coachToolNoteTextEl.value='';
+      renderCoachNotes();
+      showResult(coachToolResultEl,{success:true,message:'Coach note saved.',scope:row.scope});
+    });
   }
 
   function renderAuditTrail(){

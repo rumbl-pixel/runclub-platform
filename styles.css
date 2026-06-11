@@ -604,6 +604,21 @@ html[data-theme="dark"] [style*="color: #888"] {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.42);
 }
 
+.coach-tool-card {
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.coach-tool-card:hover,
+.coach-tool-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(201,151,34,0.58);
+  box-shadow: 0 12px 24px rgba(7,20,38,0.12), inset 0 1px 0 rgba(255,255,255,0.46);
+}
+
 .future-skeleton-card--wide {
   grid-column: 1 / -1;
 }
@@ -641,6 +656,104 @@ html[data-theme="dark"] [style*="color: #888"] {
   gap: 0.25rem;
 }
 
+.coach-note-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+}
+
+.coach-note-item,
+.coach-tool-row,
+.student-notification-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.66);
+}
+
+.coach-note-item span,
+.coach-tool-row span,
+.coach-tool-row p,
+.student-notification-card p,
+.student-notification-card small {
+  color: var(--muted);
+}
+
+.coach-tool-modal {
+  width: min(100%, 820px);
+}
+
+.mini-coach-panel {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px dashed rgba(201,151,34,0.58);
+  border-radius: 8px;
+  background: rgba(255,248,221,0.52);
+}
+
+.mini-coach-panel span {
+  color: var(--muted);
+}
+
+.coach-tool-actions {
+  margin-top: 0.75rem;
+}
+
+.coach-tool-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+  max-height: min(42vh, 420px);
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.coach-tool-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.coach-tool-row strong,
+.coach-tool-row span {
+  display: block;
+}
+
+.coach-tool-row p {
+  margin: 0.25rem 0 0;
+}
+
+.coach-tool-note-form {
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+}
+
+.student-notifications {
+  margin: 0.85rem 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.student-notification-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(201,151,34,0.42);
+  background: rgba(255,248,221,0.74);
+}
+
+.student-notification-head span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
 html[data-theme="dark"] .bookmark-pill,
 html[data-theme="dark"] .future-skeleton-card span {
   background: rgba(242,216,145,0.9);
@@ -658,6 +771,38 @@ html[data-theme="dark"] .coach-note-placeholder {
 html[data-theme="dark"] .future-skeleton-card h3,
 html[data-theme="dark"] .coach-note-placeholder strong {
   color: #edf4ff;
+}
+
+html[data-theme="dark"] .coach-note-item,
+html[data-theme="dark"] .coach-tool-row,
+html[data-theme="dark"] .student-notification-card,
+html[data-theme="dark"] .student-notification-head {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.16);
+}
+
+html[data-theme="dark"] .mini-coach-panel {
+  background: rgba(242,216,145,0.10);
+  border-color: rgba(242,216,145,0.32);
+}
+
+html[data-theme="dark"] .coach-note-item strong,
+html[data-theme="dark"] .coach-tool-row strong,
+html[data-theme="dark"] .student-notification-card strong,
+html[data-theme="dark"] .student-notification-head strong,
+html[data-theme="dark"] .mini-coach-panel strong {
+  color: #f5f9ff;
+}
+
+@media (max-width: 640px) {
+  .coach-tool-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .coach-tool-row button {
+    width: 100%;
+  }
 }
 
 /* ===========================

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=57" />
+    <link rel="stylesheet" href="styles.css?v=58" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -941,21 +941,48 @@
         <div class="card future-bookmark-card">
           <div class="section-heading-row">
             <div>
-              <h2>Coach Tools Bookmarks</h2>
-              <p class="muted-copy">Skeletons for the next smart coaching layer. These cards are visible bookmarks only; they do not make automated decisions or create student records yet.</p>
+              <h2>Coach Tools</h2>
+              <p class="muted-copy">Staff-only tools for quick follow-up lists, award nudges, training checks, PB reviews, class trends, and celebration candidates.</p>
             </div>
-            <span class="bookmark-pill">Parked for later build</span>
+            <span class="bookmark-pill">Coach workspace</span>
           </div>
           <div id="future-intelligence-skeleton" class="future-skeleton-grid" aria-live="polite"></div>
         </div>
 
         <div class="card">
-          <h2>Coach Notes Skeleton</h2>
-          <p class="muted-copy">Later this will hold private staff notes, follow-up flags, and parent-safe summary language. For now, keep real coaching notes outside the demo until live permissions are final.</p>
+          <h2>Coach Notes</h2>
+          <p class="muted-copy">Notes saved here are staff-only local demo notes. Keep sensitive real student details out until live permissions and backend rules are final.</p>
           <div class="coach-note-placeholder">
-            <strong>Future note flow</strong>
-            <span>Pick student -> add staff-only note -> choose follow-up date -> optional training link.</span>
+            <strong>Private follow-up flow</strong>
+            <span>Open a Coach Tools tile, pick a student or class, add a note, then review it here.</span>
           </div>
+          <div id="coach-note-list" class="coach-note-list"></div>
+        </div>
+      </div>
+
+      <div class="student-editor-overlay" id="coach-tool-modal" hidden>
+        <div class="student-editor-modal coach-tool-modal" role="dialog" aria-modal="true" aria-labelledby="coach-tool-modal-title">
+          <div class="modal-title-row">
+            <div>
+              <h2 id="coach-tool-modal-title" style="margin:0;">Coach Tool</h2>
+              <p id="coach-tool-modal-subtitle" class="modal-subtitle"></p>
+            </div>
+            <button id="close-coach-tool-modal-btn" type="button" class="modal-close-btn" aria-label="Close coach tool">×</button>
+          </div>
+          <div class="mini-coach-panel">
+            <strong>Mini Coach AI placeholder</strong>
+            <span id="coach-tool-ai-copy">Later this space can summarise the list and suggest next steps for staff review.</span>
+          </div>
+          <div id="coach-tool-actions" class="coach-tool-actions"></div>
+          <div id="coach-tool-list" class="coach-tool-list"></div>
+          <form id="coach-tool-note-form" class="compact-form coach-tool-note-form">
+            <input type="hidden" id="coach-tool-note-scope" />
+            <label>Save coach note
+              <textarea id="coach-tool-note-text" rows="3" maxlength="360" placeholder="Type a staff-only follow-up note..."></textarea>
+            </label>
+            <button type="submit">Save note</button>
+          </form>
+          <pre id="coach-tool-result" hidden></pre>
         </div>
       </div>
 
@@ -1094,7 +1121,7 @@
     <script src="goals.js?v=4"></script>
     <script src="admin-goals.js?v=4"></script>
     <script src="assets/qrcode-generator.js"></script>
-    <script src="admin-dashboard.js?v=34"></script>
+    <script src="admin-dashboard.js?v=35"></script>
     <script src="pwa.js"></script>
   </body>
 </html>

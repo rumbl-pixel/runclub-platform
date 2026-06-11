@@ -14,6 +14,7 @@
   var SCAN_AUDIT_KEY = 'rc_scan_audit';
   var GOAL_REFLECTIONS_KEY = 'rc_goal_reflections';
   var MEDICAL_NOTES_KEY = 'rc_medical_notes';
+  var STUDENT_NOTIFICATIONS_KEY = 'rc_student_notifications';
 
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
   var MEDAL_TIERS = [
@@ -74,6 +75,24 @@
 
   function saveLocal(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function renderStudentNotifications(student) {
+    var el = document.getElementById('student-notifications');
+    if (!el) { return; }
+    var rows = loadLocal(STUDENT_NOTIFICATIONS_KEY, []).filter(function (row) {
+      return row.student_id === student.id;
+    }).slice().reverse().slice(0, 4);
+    if (!rows.length) {
+      el.hidden = true;
+      el.innerHTML = '';
+      return;
+    }
+    el.hidden = false;
+    el.innerHTML = '<div class="student-notification-head"><strong>Coach reminders</strong><span>New notes from your run club team</span></div>' +
+      rows.map(function (row) {
+        return '<div class="student-notification-card"><strong>' + escapeHtml(row.title || 'Coach reminder') + '</strong><p>' + escapeHtml(row.message || '') + '</p><small>' + new Date(row.created_at).toLocaleDateString() + '</small></div>';
+      }).join('');
   }
 
   function sessionStudent() {
@@ -382,6 +401,7 @@
     awardsEl.innerHTML = awardCardsHtml(awardDisplayRows(s));
 
     document.getElementById('result-card').hidden = false;
+    renderStudentNotifications(s);
     renderStudentBarcode(s);
     wireStudentTermReport(s);
     renderMedalProgress(s);
