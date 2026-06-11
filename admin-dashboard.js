@@ -1149,7 +1149,10 @@
   renderStudentProgress();
   progressStudentEl.addEventListener('change',renderStudentProgress);
   progressTermEl.addEventListener('change',renderStudentProgress);
-  document.getElementById('refresh-progress-btn').addEventListener('click',renderStudentProgress);
+  document.getElementById('refresh-progress-btn').addEventListener('click',function(){
+    if(!confirm('Refresh Student Progress History now? This rebuilds the visible progress history for the selected student.')){return;}
+    renderStudentProgress();
+  });
   document.getElementById('export-progress-csv-btn').addEventListener('click',exportStudentProgressCsv);
 
   // === TRAINING ===

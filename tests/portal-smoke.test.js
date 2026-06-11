@@ -407,7 +407,7 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=39/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
+assert(/admin-dashboard\.js\?v=40/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
@@ -570,6 +570,7 @@ assert(/certificateRows/.test(adminDashboardJs), 'admin dashboard should build c
 assert(/renderReportSummaries/.test(adminDashboardJs), 'admin dashboard should render richer report summary panels');
 assert(/studentProgressRows/.test(adminDashboardJs), 'admin dashboard should build per-student progress rows');
 assert(/renderStudentProgress/.test(adminDashboardJs), 'admin dashboard should render per-student progress history');
+assert(/Refresh Student Progress History now\?/.test(adminDashboardJs), 'student progress refresh should ask for confirmation before rebuilding the history view');
 assert(/exportStudentProgressCsv/.test(adminDashboardJs), 'admin dashboard should export per-student progress CSV');
 assert(/renderSummaryDashboards/.test(adminDashboardJs), 'admin dashboard should render Priority 4 summary dashboards');
 assert(/fullStudentHistoryRows/.test(adminDashboardJs), 'admin dashboard should build full student history rows');
@@ -825,12 +826,12 @@ const privacyPolicyHtml = read('privacy-policy.html');
 assert(/Access boundaries/.test(privacyPolicyHtml), 'privacy policy should explain access boundaries');
 assert(/Parents can see only their own linked child or children/.test(privacyPolicyHtml), 'privacy policy should describe parent-only child access');
 assert(/advertising trackers/.test(privacyPolicyHtml), 'privacy policy should rule out advertising trackers');
-assert(/admin-dashboard\.js\?v=39/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
+assert(/admin-dashboard\.js\?v=40/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=5/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=5/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v93/.test(serviceWorker), 'service worker cache should be bumped for support link update');
+assert(/gwynne-park-run-club-v94/.test(serviceWorker), 'service worker cache should be bumped for support link update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');
