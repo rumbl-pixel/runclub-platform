@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=53" />
+    <link rel="stylesheet" href="styles.css?v=54" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -235,6 +235,30 @@
               <div id="athletics-consent-summary" class="athletics-consent-summary"></div>
               <div id="interschool-athletics-events" class="athletics-event-list"></div>
             </div>
+          </div>
+        </div>
+
+        <div class="student-editor-overlay" id="athletics-event-modal" hidden>
+          <div class="student-editor-modal athletics-team-modal" role="dialog" aria-modal="true" aria-labelledby="athletics-event-modal-title">
+            <div class="modal-title-row">
+              <div>
+                <h2 id="athletics-event-modal-title" style="margin:0;">Interschool Team</h2>
+                <p id="athletics-event-modal-subtitle" class="modal-subtitle"></p>
+              </div>
+              <button id="close-athletics-event-modal-btn" type="button" class="modal-close-btn" aria-label="Close interschool team selector">×</button>
+            </div>
+            <div class="athletics-team-toolbar">
+              <label>Search opted-in students
+                <input type="search" id="athletics-team-search" placeholder="Search name, class, year, house..." autocomplete="off" />
+              </label>
+              <div id="athletics-team-summary" class="athletics-team-summary"></div>
+            </div>
+            <div id="athletics-team-student-list" class="athletics-team-student-list"></div>
+            <div class="modal-actions">
+              <button type="button" id="save-athletics-team-btn">Save team</button>
+              <button type="button" id="cancel-athletics-team-btn" class="secondary">Cancel</button>
+            </div>
+            <pre id="athletics-team-result" hidden></pre>
           </div>
         </div>
 
@@ -1070,7 +1094,7 @@
     <script src="goals.js?v=4"></script>
     <script src="admin-goals.js?v=4"></script>
     <script src="assets/qrcode-generator.js"></script>
-    <script src="admin-dashboard.js?v=33"></script>
+    <script src="admin-dashboard.js?v=34"></script>
     <script src="pwa.js"></script>
   </body>
 </html>
