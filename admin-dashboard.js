@@ -195,6 +195,26 @@
   // --- Helpers ---
   function showResult(el,payload) { el.hidden=false; el.textContent=JSON.stringify(payload,null,2); }
 
+  function openAdminModalAt(overlay, trigger){
+    if(!overlay){return;}
+    var top=48;
+    if(trigger&&trigger.getBoundingClientRect){
+      var rect=trigger.getBoundingClientRect();
+      var maxTop=Math.max(16, window.innerHeight-180);
+      top=Math.min(Math.max(16, rect.top-24), maxTop);
+    }
+    overlay.style.setProperty('--modal-top', top+'px');
+    overlay.hidden=false;
+    document.body.classList.add('admin-modal-open');
+  }
+
+  function closeAdminModal(overlay){
+    if(overlay){overlay.hidden=true;}
+    if(!document.querySelector('.student-editor-overlay:not([hidden])')){
+      document.body.classList.remove('admin-modal-open');
+    }
+  }
+
   function recordMilestoneNotification(student, milestone, source) {
     var rows = load(MILESTONE_NOTIFICATIONS_KEY, []);
     var record = {
@@ -894,7 +914,7 @@
       var editBtn=document.createElement('button');
       editBtn.textContent='Edit';
       editBtn.className='link-btn';
-      editBtn.addEventListener('click',function(){ openStudentEditor(s.id); });
+      editBtn.addEventListener('click',function(e){ openStudentEditor(s.id,e.currentTarget); });
       var removeBtn=document.createElement('button');
       removeBtn.textContent='Remove';
       removeBtn.className='link-btn danger-link';
@@ -1344,7 +1364,7 @@
     printProgramResourcesBtn.addEventListener('click',printProgramResources);
   }
 
-  function openStudentEditor(studentId){
+  function openStudentEditor(studentId,trigger){
     var student=getStudents().find(function(s){return s.id===studentId;});
     if(!student){return;}
     editStudentIdEl.value=student.id;
@@ -1364,12 +1384,12 @@
     editStudentMedicalEmergencyNoteEl.value=medical.emergency_note||'';
     editStudentMedicalHealthPlanEl.checked=!!medical.health_plan_supplied;
     editStudentMedicalReviewedEl.value=medical.reviewed_at||'';
-    studentEditorModalEl.hidden=false;
+    openAdminModalAt(studentEditorModalEl,trigger);
     editStudentFirstEl.focus();
   }
 
   function closeStudentEditor(){
-    studentEditorModalEl.hidden=true;
+    closeAdminModal(studentEditorModalEl);
     editStudentFormEl.reset();
   }
 
@@ -1501,7 +1521,7 @@
       }).join('')+'</div></div>';
     }).join('');
     Array.prototype.forEach.call(interschoolAthleticsEventsEl.querySelectorAll('[data-athletics-event]'),function(btn){
-      btn.addEventListener('click',function(){openAthleticsTeamModal(btn.dataset.athleticsEvent);});
+      btn.addEventListener('click',function(e){openAthleticsTeamModal(btn.dataset.athleticsEvent,e.currentTarget);});
     });
   }
 
@@ -1656,7 +1676,7 @@
     }).join('');
   }
 
-  function openAthleticsTeamModal(eventId){
+  function openAthleticsTeamModal(eventId,trigger){
     var goalEvent=athleticsGoalEventById(eventId);
     currentAthleticsTeamEvent={
       id:eventId,
@@ -1676,12 +1696,12 @@
     if(athleticsTeamSearchEl){athleticsTeamSearchEl.value='';}
     if(athleticsTeamResultEl){athleticsTeamResultEl.hidden=true;}
     renderAthleticsTeamModal();
-    if(athleticsEventModalEl){athleticsEventModalEl.hidden=false;}
+    openAdminModalAt(athleticsEventModalEl,trigger);
     if(athleticsTeamSearchEl){athleticsTeamSearchEl.focus();}
   }
 
   function closeAthleticsTeamModal(){
-    if(athleticsEventModalEl){athleticsEventModalEl.hidden=true;}
+    closeAdminModal(athleticsEventModalEl);
     currentAthleticsTeamEvent=null;
   }
 
@@ -1773,8 +1793,8 @@
     });
     athleticsConsentSummaryEl.innerHTML=
       '<div class="athletics-consent-head">'+
-        '<div><strong>Athletics consent checklist</strong><span>Tick once when a student has returned permission for athletics training and interschool selection.</span></div>'+
-        '<button type="button" id="open-athletics-consent-modal-btn" class="secondary athletics-consent-open-btn">Open checklist</button>'+
+        '<div><strong>Athletics consent summary</strong><span>The full checklist now opens in a compact pop-up so the page stays tidy with large rosters.</span></div>'+
+        '<button type="button" id="open-athletics-consent-modal-btn" class="secondary athletics-consent-open-btn">Manage consent</button>'+
       '</div>'+
       '<div class="athletics-consent-counts">'+
         '<span class="privacy-badge privacy-badge--granted">Athletics consent: '+counts.granted+' approved</span>'+
@@ -1783,7 +1803,7 @@
       '</div>'+
       (followUp.length?'<p>Follow up: '+followUp.slice(0,6).map(function(student){return escapeHtml(student.name);}).join(', ')+'</p>':'<p>All listed students have athletics consent ticked.</p>');
     var openBtn=document.getElementById('open-athletics-consent-modal-btn');
-    if(openBtn){openBtn.addEventListener('click',openAthleticsConsentModal);}
+    if(openBtn){openBtn.addEventListener('click',function(e){openAthleticsConsentModal(e.currentTarget);});}
   }
 
   function renderAthleticsConsentList(){
@@ -1804,13 +1824,13 @@
     });
   }
 
-  function openAthleticsConsentModal(){
+  function openAthleticsConsentModal(trigger){
     renderAthleticsConsentList();
-    if(athleticsConsentModalEl){athleticsConsentModalEl.hidden=false;}
+    openAdminModalAt(athleticsConsentModalEl,trigger);
   }
 
   function closeAthleticsConsentModal(){
-    if(athleticsConsentModalEl){athleticsConsentModalEl.hidden=true;}
+    closeAdminModal(athleticsConsentModalEl);
   }
 
   function setStudentAthleticsConsent(studentId,granted){
@@ -3199,7 +3219,7 @@
     });
     var notifyAll=document.getElementById('notify-all-close-awards-btn');
     if(notifyAll){notifyAll.addEventListener('click',function(){closeAwardRows().forEach(function(row){notifyCloseAwardStudent(row.student.id,true);});showResult(coachToolResultEl,{success:true,message:'Close-to-award notifications queued.',students:closeAwardRows().length});});}
-    coachToolModalEl.hidden=false;
+    openAdminModalAt(coachToolModalEl,renderCoachToolModal.trigger);
   }
 
   function notifyCloseAwardStudent(studentId,quiet){
@@ -3209,7 +3229,7 @@
     if(!quiet){showResult(coachToolResultEl,{success:true,message:'Student notification queued.',student:row.student.name,award:row.next.name});}
   }
 
-  function closeCoachToolModal(){coachToolModalEl.hidden=true;}
+  function closeCoachToolModal(){closeAdminModal(coachToolModalEl);}
 
   function renderFutureIntelligenceSkeleton(){
     var target=document.getElementById('future-intelligence-skeleton');
@@ -3229,7 +3249,7 @@
       return '<button type="button" class="future-skeleton-card coach-tool-card '+(card.wide?'future-skeleton-card--wide':'')+'" data-coach-tool="'+escapeAttr(card.tool)+'">'+content+'</button>';
     }).join('');
     Array.prototype.forEach.call(target.querySelectorAll('[data-coach-tool]'),function(card){
-      card.addEventListener('click',function(){renderCoachToolModal(card.dataset.coachTool);});
+      card.addEventListener('click',function(e){renderCoachToolModal.trigger=e.currentTarget;renderCoachToolModal(card.dataset.coachTool);renderCoachToolModal.trigger=null;});
     });
     renderCoachNotes();
   }

@@ -408,7 +408,7 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=43/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
+assert(/admin-dashboard\.js\?v=44/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
@@ -515,6 +515,7 @@ assert(/studentConsentStatus/.test(adminDashboardJs), 'admin dashboard should ca
 assert(/athletics-consent-summary/.test(adminDashboardHtml), 'admin athletics mode should include the main consent checklist surface');
 assert(/athletics-consent-modal/.test(adminDashboardHtml), 'admin athletics consent checklist should open in a modal');
 assert(/open-athletics-consent-modal-btn/.test(adminDashboardJs), 'admin athletics consent summary should use an open-checklist button');
+assert(/Athletics consent summary/.test(adminDashboardJs) && /Manage consent/.test(adminDashboardJs), 'admin athletics consent surface should be a compact summary with a modal action');
 assert(/renderAthleticsConsentList/.test(adminDashboardJs), 'admin athletics consent modal should render the dense student checklist');
 assert(/athletics-consent-check/.test(adminDashboardJs), 'admin athletics mode should render a checkbox consent list');
 assert(/renderAthleticsConsentSummary/.test(adminDashboardJs), 'admin athletics mode should render athletics consent checklist status');
@@ -784,8 +785,12 @@ assert(/\.athletics-consent-option[\s\S]*min-height:\s*34px/.test(styles), 'athl
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=65/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
-assert(/styles\.css\?v=65/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/openAdminModalAt/.test(adminDashboardJs), 'admin dashboard should position pop-up modals near their trigger in the visible viewport');
+assert(/admin-modal-open/.test(adminDashboardJs) && /admin-modal-open/.test(styles), 'admin pop-up modals should lock background scroll while open');
+assert(/\.student-editor-overlay[\s\S]*align-items:\s*flex-start[\s\S]*overflow:\s*auto/.test(styles), 'shared admin modal overlays should anchor inside the visible screen instead of jumping to the page top');
+assert(/\.student-editor-modal[\s\S]*max-height:\s*calc\(100vh - var\(--modal-top,\s*48px\) - 1rem\)[\s\S]*margin-top:\s*var\(--modal-top,\s*48px\)/.test(styles), 'shared admin modals should use trigger-based vertical placement');
+assert(/styles\.css\?v=66/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
+assert(/styles\.css\?v=66/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
@@ -841,14 +846,14 @@ const privacyPolicyHtml = read('privacy-policy.html');
 assert(/Access boundaries/.test(privacyPolicyHtml), 'privacy policy should explain access boundaries');
 assert(/Parents can see only their own linked child or children/.test(privacyPolicyHtml), 'privacy policy should describe parent-only child access');
 assert(/advertising trackers/.test(privacyPolicyHtml), 'privacy policy should rule out advertising trackers');
-assert(/admin-dashboard\.js\?v=43/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
+assert(/admin-dashboard\.js\?v=44/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/student\.js\?v=20/.test(studentProfileHtml), 'student profile should request the current student portal script');
 assert(/goals\.js\?v=5/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/student\.js\?v=20/.test(studentHtml), 'student login should request the current student portal script');
 assert(/goals\.js\?v=5/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v97/.test(serviceWorker), 'service worker cache should be bumped for support link update');
+assert(/gwynne-park-run-club-v98/.test(serviceWorker), 'service worker cache should be bumped for support link update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');
