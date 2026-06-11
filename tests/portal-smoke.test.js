@@ -745,14 +745,16 @@ assert(/privacy-badge/.test(styles), 'styles should include privacy badge stylin
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=58/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
-assert(/styles\.css\?v=58/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/styles\.css\?v=59/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
+assert(/styles\.css\?v=59/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
 assert(/html\[data-theme="dark"\] #student-list \.student-name-link,[\s\S]*html\[data-theme="dark"\] #student-list \.link-btn[\s\S]*color:\s*#9fc7f7/.test(styles), 'dark mode should soften admin student roster links');
 assert(/html\[data-theme="dark"\] #student-list \.student-name-link:hover,[\s\S]*color:\s*#f2d891/.test(styles), 'dark mode student roster links should use a restrained gold hover');
 assert(/html\[data-theme="dark"\] \.athletics-event-chip[\s\S]*rgba\(255,248,221,0\.98\)[\s\S]*color:\s*#071426/.test(styles), 'dark mode should keep athletics event chips readable on dark cards');
+assert(/html\[data-theme="dark"\] #tab-awards \.award-badge[\s\S]*color:\s*#f7fbff !important/.test(styles), 'dark mode should keep admin Awards badges readable');
+assert(/html\[data-theme="dark"\] #tab-awards #certificates-list th[\s\S]*background:\s*rgba\(242,216,145,0\.14\) !important/.test(styles), 'dark mode should keep admin Awards certificate tables readable');
 assert(/theme-toggle/.test(styles), 'site styles should include the top light/dark mode switch');
 assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview[\s\S]*background:\s*#fff[\s\S]*color:\s*#102a43/.test(styles), 'dark mode should keep printable barcode card text readable on the white card');
 assert(/html\[data-theme="dark"\]\s+\.barcode-card-preview strong,[\s\S]*\.barcode-card-name,[\s\S]*\.barcode-code[\s\S]*color:\s*#0b1f38/.test(styles), 'dark mode should force barcode card name and code to dark ink');
@@ -799,7 +801,7 @@ assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should reques
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v86/.test(serviceWorker), 'service worker cache should be bumped for support link update');
+assert(/gwynne-park-run-club-v87/.test(serviceWorker), 'service worker cache should be bumped for support link update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');

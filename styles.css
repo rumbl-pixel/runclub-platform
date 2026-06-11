@@ -1404,6 +1404,71 @@ html[data-theme="dark"] .collected-badge-empty {
   margin: 0.2rem;
 }
 
+html[data-theme="dark"] #tab-awards .card > p,
+html[data-theme="dark"] #tab-awards p[style*="color:#555"],
+html[data-theme="dark"] #tab-awards p[style*="color:#888"],
+html[data-theme="dark"] #tab-awards span[style*="color:#64748b"],
+html[data-theme="dark"] #tab-awards .training-meta {
+  color: #c9d8ea !important;
+}
+
+html[data-theme="dark"] #tab-awards h2,
+html[data-theme="dark"] #tab-awards h3,
+html[data-theme="dark"] #tab-awards label,
+html[data-theme="dark"] #tab-awards strong,
+html[data-theme="dark"] #tab-awards th,
+html[data-theme="dark"] #tab-awards td {
+  color: #edf4ff;
+}
+
+html[data-theme="dark"] #tab-awards .award-badge {
+  color: #f7fbff !important;
+  border-color: rgba(242,216,145,0.58) !important;
+  background:
+    linear-gradient(180deg, rgba(242,216,145,0.20), rgba(201,151,34,0.12)),
+    rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+html[data-theme="dark"] #tab-awards #custom-awards-list li,
+html[data-theme="dark"] #tab-awards #challenges-list li {
+  border-bottom-color: rgba(255,255,255,0.16) !important;
+}
+
+html[data-theme="dark"] #tab-awards #certificates-list table,
+html[data-theme="dark"] #tab-awards #challenge-award-list table {
+  color: #edf4ff;
+}
+
+html[data-theme="dark"] #tab-awards #certificates-list thead tr,
+html[data-theme="dark"] #tab-awards #certificates-list th,
+html[data-theme="dark"] #tab-awards #challenge-award-list th,
+html[data-theme="dark"] #tab-awards .training-status-table th {
+  background: rgba(242,216,145,0.14) !important;
+  color: #f7fbff;
+}
+
+html[data-theme="dark"] #tab-awards #certificates-list td,
+html[data-theme="dark"] #tab-awards #certificates-list th,
+html[data-theme="dark"] #tab-awards #challenge-award-list td,
+html[data-theme="dark"] #tab-awards #challenge-award-list th,
+html[data-theme="dark"] #tab-awards .training-status-table td,
+html[data-theme="dark"] #tab-awards .training-status-table th {
+  border-bottom-color: rgba(255,255,255,0.16);
+}
+
+html[data-theme="dark"] #tab-awards .challenge-progress-card {
+  background:
+    linear-gradient(135deg, rgba(242,216,145,0.10), transparent 42%),
+    rgba(7,20,38,0.42);
+  border-color: rgba(255,255,255,0.16);
+  border-left-color: rgba(242,216,145,0.72);
+}
+
+html[data-theme="dark"] #tab-awards .challenge-progress-head {
+  color: #f5f9ff;
+}
+
 .collected-badge-shelf {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
