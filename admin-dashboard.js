@@ -481,20 +481,26 @@
   function handleScan(){
     var barcode=scanInput.value.trim().toUpperCase();
     if(!barcode)return;
-    var result=window.RunClubScan.logLap(barcode,{source:'admin-dashboard',scanner_id:scannerId(),session_id:currentSession?(currentSession.backend_id||currentSession.id):null,duplicateWindowMs:duplicateWindowMs()});
+    var activeSessionType=currentSession?currentSession.type:sessionTypeEl.value;
+    var result=window.RunClubScan.logLap(barcode,{source:'admin-dashboard',scanner_id:scannerId(),session_id:currentSession?(currentSession.backend_id||currentSession.id):null,session_type:activeSessionType,duplicateWindowMs:duplicateWindowMs()});
     if(!result.success){
       showResult(scanResultEl,{success:false,duplicate:result.duplicate===true,error:result.error||'Scan error'});
     } else {
-      var scan={barcode:barcode,name:result.student.name,laps:result.student.laps,time:new Date().toISOString(),scanner_id:scannerId(),session_type:currentSession?currentSession.type:sessionTypeEl.value,idempotency_key:result.idempotency_key};
+      var scan={barcode:barcode,name:result.student.name,laps:result.student.laps,time:new Date().toISOString(),scanner_id:scannerId(),session_type:activeSessionType,idempotency_key:result.idempotency_key,attendance_only:result.attendance_only===true};
       sessionScans.push(scan);
-      lastAdminScan={student_id:result.student.id,name:result.student.name,barcode:barcode,idempotency_key:result.idempotency_key};
-      undoAdminScanBtn.hidden=false;
+      if(result.attendance_only){
+        lastAdminScan=null;
+        undoAdminScanBtn.hidden=true;
+      } else {
+        lastAdminScan={student_id:result.student.id,name:result.student.name,barcode:barcode,idempotency_key:result.idempotency_key};
+        undoAdminScanBtn.hidden=false;
+      }
       if(result.milestone){
         renderMilestoneNotification(recordMilestoneNotification(result.student,result.milestone,'admin-dashboard'));
       } else {
         renderMilestoneNotification(null);
       }
-      showResult(scanResultEl,{success:true,message:'Lap logged ✓',milestone:result.milestone||null,student:{id:result.student.id,name:result.student.name,total_laps:result.student.laps,km:result.student.km.toFixed(2)}});
+      showResult(scanResultEl,{success:true,message:result.attendance_only?'Attendance recorded - Run Club laps unchanged':'Lap logged ✓',milestone:result.milestone||null,student:{id:result.student.id,name:result.student.name,total_laps:result.student.laps,km:result.student.km.toFixed(2)}});
       renderSessionLog(sessionScans);
       renderStudentList();
       renderLeaderboard();
@@ -548,7 +554,7 @@
     if(!scans.length){sessionLogEl.innerHTML='<p style="color:#888;font-size:0.85rem;">No scans yet this session.</p>';return;}
     var html='<p style="font-size:0.82rem;color:#555;">'+scans.length+' scan(s) this session:</p><ul style="padding:0;list-style:none;margin:0;">';
     scans.slice().reverse().slice(0,20).forEach(function(s){
-      html+='<li style="padding:0.3rem 0;border-bottom:1px solid #f0f0f0;font-size:0.82rem;">'+s.name+' – lap #'+s.laps+' – <span style="color:#888;">'+s.time.slice(11,19)+'</span></li>';
+      html+='<li style="padding:0.3rem 0;border-bottom:1px solid #f0f0f0;font-size:0.82rem;">'+s.name+' – '+(s.attendance_only?'attendance only':'lap #'+s.laps)+' – <span style="color:#888;">'+s.time.slice(11,19)+'</span></li>';
     });
     html+='</ul>';
     sessionLogEl.innerHTML=html;
@@ -1095,7 +1101,7 @@
     if(!student){return [];}
     var rows=[];
     load(K.scanAudit,[]).forEach(function(row){
-      if(row.student_id===studentId&&row.success&&!row.undo&&inSelectedTerm(row.time)){
+      if(row.student_id===studentId&&row.success&&!row.undo&&!row.attendance_only&&inSelectedTerm(row.time)){
         rows.push({date:row.time,type:'Lap scan',detail:row.source||'scanner',amount:'1 lap',km:+programSettings().lapDistanceKm.toFixed(2),status:'Logged'});
       }
       if(row.student_id===studentId&&row.undo&&inSelectedTerm(row.time)){
@@ -2878,7 +2884,7 @@
 
   function sessionAttendanceRows(){
     var students=getStudents();
-    var audit=load(K.scanAudit,[]).filter(function(row){return row.success&&!row.undo;});
+    var audit=load(K.scanAudit,[]).filter(function(row){return row.success&&!row.undo&&!row.attendance_only;});
     var sessions=load(K.sessions,[]);
     var rows=sessions.map(function(session){
       var started=session.start||session.started_at||session.date||session.created||new Date().toISOString();

@@ -543,7 +543,7 @@
   function studentTimelineRows(student) {
     var attendanceByDay = {};
     loadLocal(SCAN_AUDIT_KEY, []).forEach(function (row) {
-      if (row.student_id === student.id && row.success) {
+      if (row.student_id === student.id && row.success && !row.attendance_only) {
         var isoDate = row.time || new Date().toISOString();
         var dayKey = isoDate.slice(0, 10);
         if (!attendanceByDay[dayKey]) {

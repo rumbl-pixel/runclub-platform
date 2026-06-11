@@ -91,6 +91,11 @@
   function minutesToKm(min) { return (min || 0) / 20; } // Marathon Kids: 20 min = 1 km
   function totalKm(s) { return lapsToKm(s.laps) + minutesToKm(s.minutes); }
 
+  function runClubLapSession(sessionType) {
+    var label = String(sessionType || programSettings().defaultSessionType || 'Run Club').toLowerCase();
+    return !/(interschool|athletics|training)/.test(label);
+  }
+
   // --- Awards (milestone thresholds shared everywhere) ---
   var MILESTONES = [5, 10, 25, 50, 100, 200, 500];
   function milestoneThresholds() { return programSettings().awardThresholds; }
@@ -172,12 +177,15 @@
       return { success: false, error: 'Code not recognised: ' + barcode, barcode: barcode };
     }
 
-    student.laps += 1;
+    var scoringLap = options.countLap === false ? false : runClubLapSession(options.session_type || options.sessionType);
+    if (scoringLap) { student.laps += 1; }
     saveStudents(students);
-    auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: true, duplicate: false, student_id: student.id, student_name: student.name, laps_after: student.laps, idempotency_key: idem, time: scanTime });
+    auditScan({ barcode: barcode, scanner_id: scannerId, source: options.source || 'scanner', success: true, duplicate: false, student_id: student.id, student_name: student.name, laps_after: student.laps, lap_delta: scoringLap ? 1 : 0, attendance_only: !scoringLap, session_type: options.session_type || options.sessionType || programSettings().defaultSessionType, idempotency_key: idem, time: scanTime });
 
     var backendStatus = 'local-only';
-    if (liveGuard.live && global.RunClubBackend && global.RunClubBackend.backendDataAccess && global.RunClubBackend.backendDataAccess.recordLapScan) {
+    if (!scoringLap) {
+      backendStatus = 'attendance-only';
+    } else if (liveGuard.live && global.RunClubBackend && global.RunClubBackend.backendDataAccess && global.RunClubBackend.backendDataAccess.recordLapScan) {
       backendStatus = 'live-write-started';
       global.RunClubBackend.backendDataAccess.recordLapScan({
         school_id: global.RunClubBackend.config().schoolId,
@@ -224,7 +232,8 @@
       },
       idempotency_key: idem,
       backend_status: backendStatus,
-      milestone: milestoneJustReached(student.laps)
+      attendance_only: !scoringLap,
+      milestone: scoringLap ? milestoneJustReached(student.laps) : null
     };
   }
 
@@ -267,6 +276,7 @@
     lapsToKm: lapsToKm,
     minutesToKm: minutesToKm,
     totalKm: totalKm,
+    runClubLapSession: runClubLapSession,
     programSettings: programSettings,
     lapDistanceKm: lapDistanceKm,
     milestoneThresholds: milestoneThresholds,

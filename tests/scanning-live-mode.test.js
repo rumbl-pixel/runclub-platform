@@ -92,5 +92,25 @@ function assert(condition, message) {
   assert(rpcBody.p_source === 'admin-dashboard', 'RPC scan should include scan source');
   assert(rpcBody.p_idempotency_key === result.idempotency_key, 'RPC scan should use the generated idempotency key');
 
+  const attendanceCalls = [];
+  const attendanceWindow = createRuntime({}, (url, options) => {
+    attendanceCalls.push({ url, options });
+    return Promise.resolve(response(200, {}));
+  });
+  const attendanceStudentBefore = attendanceWindow.RunClubScan.getStudents().find((student) => student.id === 'STUDENT1');
+  const attendanceOnly = attendanceWindow.RunClubScan.logLap('STUDENT1', {
+    duplicateWindowMs: 0,
+    source: 'admin-dashboard',
+    scanner_id: 'Oval iPad',
+    session_id: 'session-athletics-1',
+    session_type: 'Interschool Athletics Training'
+  });
+  const attendanceStudentAfter = attendanceWindow.RunClubScan.getStudents().find((student) => student.id === 'STUDENT1');
+  assert(attendanceOnly.success === true, 'interschool training scans should still record attendance');
+  assert(attendanceOnly.attendance_only === true, 'interschool training scans should be marked attendance-only');
+  assert(attendanceOnly.backend_status === 'attendance-only', 'interschool training scans should not write lap entries');
+  assert(attendanceStudentAfter.laps === attendanceStudentBefore.laps, 'interschool training scans should not change Run Club lap totals');
+  assert(!attendanceCalls.some((call) => call.url.includes('/rest/v1/rpc/record_lap_scan')), 'attendance-only scans should not call the lap scan RPC');
+
   console.log('scanning live-mode checks passed');
 })();

@@ -533,25 +533,25 @@ styles.css?v=65
 If `admin-dashboard.js` changed, replace:
 
 ```text
-admin-dashboard.js?v=40
+admin-dashboard.js?v=41
 ```
 
 with:
 
 ```text
-admin-dashboard.js?v=41
+admin-dashboard.js?v=42
 ```
 
 Replace the service worker cache:
 
 ```js
-var CACHE_NAME = 'gwynne-park-run-club-v94';
+var CACHE_NAME = 'gwynne-park-run-club-v95';
 ```
 
 with:
 
 ```js
-var CACHE_NAME = 'gwynne-park-run-club-v95';
+var CACHE_NAME = 'gwynne-park-run-club-v96';
 ```
 
 Update matching test assertions.
@@ -562,7 +562,7 @@ Run:
 
 ```powershell
 npm test
-rg -n "styles\\.css\\?v=64|admin-dashboard\\.js\\?v=40|gwynne-park-run-club-v94" -S .
+rg -n "styles\\.css\\?v=64|admin-dashboard\\.js\\?v=41|gwynne-park-run-club-v95" -S .
 ```
 
 Expected: tests pass and stale scan returns no matches.

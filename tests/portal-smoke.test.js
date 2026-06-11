@@ -188,6 +188,7 @@ assert(/rc_training_clicks/.test(studentJs), 'student portal should track traini
 assert(/studentTimelineRows/.test(studentJs), 'student portal should build progress timeline rows');
 assert(/renderStudentTimeline/.test(studentJs), 'student portal should render the progress timeline');
 assert(/attendanceByDay/.test(studentJs), 'student progress timeline should group scanner attendance by day');
+assert(/!row\.attendance_only/.test(studentJs), 'student progress timeline should exclude attendance-only interschool scans from Run Club laps');
 assert(/Days attended/.test(studentJs) && /Timeline laps/.test(studentJs), 'student progress timeline should summarise attendance days and laps');
 assert(/Run club attendance/.test(studentJs), 'student progress timeline should label attendance records clearly');
 assert(!/type:\s*'training'[\s\S]{0,180}title:\s*task\.title/.test(studentJs), 'student progress timeline should not include assigned training cards');
@@ -215,7 +216,7 @@ assert(/GOAL_REFLECTIONS_KEY/.test(studentJs), 'student portal should store goal
 assert(/recordGoalReflection/.test(studentJs), 'student portal should save goal reflections');
 assert(/renderGoalReflections/.test(studentJs), 'student portal should render goal reflections');
 assert(!/rc_selfreports/.test(studentJs), 'student reflections should not reuse self-reported activity storage');
-assert(/student\.js\?v=19/.test(studentProfileHtml) && /student\.js\?v=19/.test(studentHtml), 'student pages should request the current coach-notifications student script');
+assert(/student\.js\?v=20/.test(studentProfileHtml) && /student\.js\?v=20/.test(studentHtml), 'student pages should request the current coach-notifications student script');
 
 const homeHtml = read('index.html');
 assert(!/href="kiosk\.html"|Scanner kiosk/.test(homeHtml), 'public home page should not link directly to the admin-only kiosk');
@@ -407,7 +408,7 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=40/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
+assert(/admin-dashboard\.js\?v=41/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
@@ -623,6 +624,12 @@ assert(/rc_athletics_results/.test(interschoolTeamJs), 'interschool team script 
 assert(/programSettings/.test(scanningJs), 'shared scanning should expose program settings');
 assert(/lapDistanceKm/.test(scanningJs), 'shared scanning should use configurable lap distance');
 assert(/milestoneThresholds/.test(scanningJs), 'shared scanning should expose configurable milestone thresholds');
+assert(/runClubLapSession/.test(scanningJs), 'shared scanning should distinguish Run Club scoring laps from interschool attendance');
+assert(/attendance_only:\s*!scoringLap/.test(scanningJs), 'shared scanning should mark interschool training scans as attendance-only');
+assert(/backendStatus = 'attendance-only'/.test(scanningJs), 'shared scanning should not write attendance-only scans as lap entries');
+assert(/Attendance recorded - Run Club laps unchanged/.test(adminDashboardJs), 'admin scanner should tell coaches interschool attendance does not add Run Club laps');
+assert(/s\.attendance_only\?'attendance only':'lap #'\+s\.laps/.test(adminDashboardJs), 'admin session log should label attendance-only scans separately from lap scans');
+assert(/if\(result\.attendance_only\)[\s\S]{0,90}undoAdminScanBtn\.hidden=true/.test(adminDashboardJs), 'admin scanner should not arm lap undo for attendance-only scans');
 
 const adminGoalsJs = read('admin-goals.js');
 const goalsJs = read('goals.js');
@@ -826,12 +833,14 @@ const privacyPolicyHtml = read('privacy-policy.html');
 assert(/Access boundaries/.test(privacyPolicyHtml), 'privacy policy should explain access boundaries');
 assert(/Parents can see only their own linked child or children/.test(privacyPolicyHtml), 'privacy policy should describe parent-only child access');
 assert(/advertising trackers/.test(privacyPolicyHtml), 'privacy policy should rule out advertising trackers');
-assert(/admin-dashboard\.js\?v=40/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
+assert(/admin-dashboard\.js\?v=41/.test(adminDashboardHtml), 'admin dashboard should request the current Coach Tools dashboard script');
 assert(/goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
+assert(/student\.js\?v=20/.test(studentProfileHtml), 'student profile should request the current student portal script');
 assert(/goals\.js\?v=5/.test(studentProfileHtml), 'student profile should request a fresh goals script');
+assert(/student\.js\?v=20/.test(studentHtml), 'student login should request the current student portal script');
 assert(/goals\.js\?v=5/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v94/.test(serviceWorker), 'service worker cache should be bumped for support link update');
+assert(/gwynne-park-run-club-v95/.test(serviceWorker), 'service worker cache should be bumped for support link update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');
