@@ -57,8 +57,12 @@ assert(Array.isArray(Goals.INTERSCHOOL_ATHLETICS_EVENTS), 'interschool athletics
 assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Tunnel Ball'), 'event catalogue should include tunnel ball');
 assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Leader Ball'), 'event catalogue should include leader ball');
 assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Pass Ball'), 'event catalogue should include pass ball');
-assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === '800m'), 'event catalogue should include 800m as a common longer primary event');
-assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Flag Relay'), 'event catalogue should include flag relay');
+assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Junior 100m'), 'event catalogue should include junior middle-distance 100m');
+assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Intermediate 200m'), 'event catalogue should include intermediate middle-distance 200m');
+assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Senior 400m'), 'event catalogue should include senior middle-distance 400m');
+assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Baton Relay'), 'event catalogue should include baton relay');
+assert(Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Vortex Throw'), 'event catalogue should include vortex throw');
+assert(!Goals.INTERSCHOOL_ATHLETICS_EVENTS.some((event) => event.name === 'Flag Relay' || event.name === '800m'), 'event catalogue should remove retired relay and 800m defaults');
 
 Goals.setInterschoolAthleticsMode(true);
 visibleMetrics = Goals.visibleMetrics();

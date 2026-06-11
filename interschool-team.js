@@ -4,24 +4,18 @@
   var ATHLETICS_RESULTS_KEY = 'rc_athletics_results';
 
   var EVENT_OPTIONS = [
-    { id: 'sprint-50', name: '50m', group: 'Sprints', years: 'Junior', measure: 'time' },
-    { id: 'sprint-75', name: '75m', group: 'Sprints', years: 'Junior / Intermediate', measure: 'time' },
-    { id: 'sprint-100', name: '100m', group: 'Sprints', years: 'Intermediate / Senior', measure: 'time' },
-    { id: 'sprint-200', name: '200m', group: 'Middle Distance', years: 'Intermediate / Senior', measure: 'time' },
-    { id: 'middle-400', name: '400m', group: 'Middle Distance', years: 'Intermediate / Senior', measure: 'time' },
-    { id: 'middle-800', name: '800m', group: 'Middle Distance', years: 'Senior / selected', measure: 'time' },
+    { id: 'junior-50m', name: 'Junior 50m', group: 'Sprints', years: 'Junior', measure: 'time' },
+    { id: 'intermediate-75m', name: 'Intermediate 75m', group: 'Sprints', years: 'Intermediate', measure: 'time' },
+    { id: 'senior-100m', name: 'Senior 100m', group: 'Sprints', years: 'Senior', measure: 'time' },
+    { id: 'junior-100m', name: 'Junior 100m', group: 'Middle Distance', years: 'Junior', measure: 'time' },
+    { id: 'intermediate-200m', name: 'Intermediate 200m', group: 'Middle Distance', years: 'Intermediate', measure: 'time' },
+    { id: 'senior-400m', name: 'Senior 400m', group: 'Middle Distance', years: 'Senior', measure: 'time' },
     { id: 'tunnel-ball', name: 'Tunnel Ball', group: 'Ball Games', years: 'All', measure: 'team-time' },
     { id: 'leader-ball', name: 'Leader Ball', group: 'Ball Games', years: 'All', measure: 'team-time' },
     { id: 'pass-ball', name: 'Pass Ball', group: 'Ball Games', years: 'All', measure: 'team-time' },
-    { id: 'flag-relay', name: 'Flag Relay', group: 'Relays', years: 'All', measure: 'team-time' },
-    { id: 'baton-relay', name: 'Baton Relay', group: 'Relays', years: 'Intermediate / Senior', measure: 'team-time' },
+    { id: 'baton-relay', name: 'Baton Relay', group: 'Relays', years: 'All', measure: 'team-time' },
     { id: 'long-jump', name: 'Long Jump', group: 'Jumps', years: 'All', measure: 'distance' },
-    { id: 'high-jump', name: 'High Jump', group: 'Jumps', years: 'Selected / Senior', measure: 'height' },
-    { id: 'triple-jump', name: 'Triple Jump', group: 'Jumps', years: 'Selected / Senior', measure: 'distance' },
-    { id: 'distance-throw', name: 'Distance Throw', group: 'Throws', years: 'All', measure: 'distance' },
-    { id: 'shot-put', name: 'Shot Put', group: 'Throws', years: 'Intermediate / Senior', measure: 'distance' },
-    { id: 'discus', name: 'Discus', group: 'Throws', years: 'Selected / Senior', measure: 'distance' },
-    { id: 'turbo-jav', name: 'Javelin / Turbo Jav / Teeball Throw', group: 'Throws', years: 'Selected / modified', measure: 'distance' }
+    { id: 'vortex-throw', name: 'Vortex Throw', group: 'Throws', years: 'All', measure: 'distance' }
   ];
 
   function load(key, fallback) {

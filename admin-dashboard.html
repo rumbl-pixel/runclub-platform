@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=62" />
+    <link rel="stylesheet" href="styles.css?v=63" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -232,6 +232,10 @@
             </label>
             <p style="color:#555;font-size:0.9rem;">When off, goal options stay focused on Laps, Lap Time, and Distance. Turn this on to open the interschool team planner for sprints, middle distance, ball games, relays, jumps, and throws.</p>
             <div id="athletics-mode-panel" class="athletics-mode-panel" hidden>
+              <div class="athletics-panel-actions">
+                <button type="button" id="toggle-athletics-team-overview-btn" class="secondary">Edit team lists</button>
+              </div>
+              <div id="athletics-team-overview" class="athletics-team-overview" hidden></div>
               <div id="athletics-consent-summary" class="athletics-consent-summary"></div>
               <div id="interschool-athletics-events" class="athletics-event-list"></div>
             </div>
@@ -248,6 +252,13 @@
               <button id="close-athletics-event-modal-btn" type="button" class="modal-close-btn" aria-label="Close interschool team selector">×</button>
             </div>
             <div class="athletics-team-toolbar">
+              <label id="athletics-division-filter-label" hidden>Division
+                <select id="athletics-division-filter">
+                  <option value="Junior">Junior</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Senior">Senior</option>
+                </select>
+              </label>
               <label>Search opted-in students
                 <input type="search" id="athletics-team-search" placeholder="Search name, class, year, house..." autocomplete="off" />
               </label>
@@ -263,7 +274,21 @@
         </div>
 
         <div class="card" id="cross-country-card">
-          <h2>Cross Country Courses</h2>
+          <div class="cross-country-header">
+            <div>
+              <h2>Cross Country Courses</h2>
+              <p style="color:#555;font-size:0.9rem;">Show this section when it is Cross Country season, then hide it again outside that window.</p>
+            </div>
+            <label class="athletics-mode-toggle cross-country-toggle">
+              <input type="checkbox" id="cross-country-visible-toggle" />
+              <span class="athletics-mode-slider" aria-hidden="true"></span>
+              <span class="athletics-mode-label">
+                <strong>Show Cross Country</strong>
+                <small id="cross-country-visible-state">Hidden</small>
+              </span>
+            </label>
+          </div>
+          <div id="cross-country-course-panel" hidden>
           <form id="cross-country-course-form" class="compact-form">
             <div class="form-grid">
               <label>Course name
@@ -294,6 +319,7 @@
           </form>
           <pre id="cross-country-result" hidden></pre>
           <div id="cross-country-course-list" style="margin-top:1rem;"></div>
+          </div>
         </div>
       </div>
 
@@ -1117,10 +1143,10 @@
 
     <script src="backend.js?v=21"></script>
     <script src="scanning.js"></script>
-    <script src="goals.js?v=4"></script>
-    <script src="admin-goals.js?v=4"></script>
+    <script src="goals.js?v=5"></script>
+    <script src="admin-goals.js?v=5"></script>
     <script src="assets/qrcode-generator.js"></script>
-    <script src="admin-dashboard.js?v=36"></script>
+    <script src="admin-dashboard.js?v=37"></script>
     <script src="pwa.js"></script>
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="jmancini" data-description="Support me on Buy me a coffee!" data-message="Thank you for visiting and using this little side project. I am keeping this as a completely free project though if you feel the need, you're welcome to buy me a coffee :)" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
   </body>

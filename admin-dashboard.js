@@ -26,28 +26,23 @@
   var CROSS_COUNTRY_COURSES_KEY = 'rc_cross_country_courses';
   var ATHLETICS_RESULTS_KEY = 'rc_athletics_results';
   var ATHLETICS_TEAM_SELECTIONS_KEY = 'rc_athletics_team_selections';
+  var CROSS_COUNTRY_VISIBLE_KEY = 'rc_cross_country_visible';
   var BUILDER_WORKOUTS_KEY = 'rc_builder_workouts';
   var THEME_SETTINGS_KEY = 'rc_theme_settings';
 
   var ATHLETICS_EVENT_OPTIONS = [
     {id:'xc',name:'Cross Country',category:'cross-country',measure:'time',points:true},
-    {id:'sprint-50',name:'50m Sprint',category:'sprint',measure:'time',points:true},
-    {id:'sprint-75',name:'75m Sprint',category:'sprint',measure:'time',points:true},
-    {id:'sprint-100',name:'100m Sprint',category:'sprint',measure:'time',points:true},
-    {id:'sprint-200',name:'200m',category:'sprint',measure:'time',points:true},
-    {id:'middle-400',name:'400m',category:'distance',measure:'time',points:true},
-    {id:'middle-800',name:'800m',category:'distance',measure:'time',points:true},
+    {id:'junior-50m',name:'Junior 50m',category:'sprint',measure:'time',points:true,division:'Junior'},
+    {id:'intermediate-75m',name:'Intermediate 75m',category:'sprint',measure:'time',points:true,division:'Intermediate'},
+    {id:'senior-100m',name:'Senior 100m',category:'sprint',measure:'time',points:true,division:'Senior'},
+    {id:'junior-100m',name:'Junior 100m',category:'distance',measure:'time',points:true,division:'Junior'},
+    {id:'intermediate-200m',name:'Intermediate 200m',category:'distance',measure:'time',points:true,division:'Intermediate'},
+    {id:'senior-400m',name:'Senior 400m',category:'distance',measure:'time',points:true,division:'Senior'},
     {id:'long-jump',name:'Long Jump',category:'jump',measure:'distance',points:true},
-    {id:'high-jump',name:'High Jump',category:'jump',measure:'distance',points:true},
-    {id:'triple-jump',name:'Triple Jump',category:'jump',measure:'distance',points:true},
-    {id:'distance-throw',name:'Distance Throw',category:'throw',measure:'distance',points:true},
-    {id:'shot-put',name:'Shot Put',category:'throw',measure:'distance',points:true},
-    {id:'discus',name:'Discus',category:'throw',measure:'distance',points:true},
-    {id:'turbo-jav',name:'Javelin / Turbo Jav / Teeball Throw',category:'throw',measure:'distance',points:true},
+    {id:'vortex-throw',name:'Vortex Throw',category:'throw',measure:'distance',points:true},
     {id:'tunnel-ball',name:'Tunnel Ball',category:'ball-game',measure:'points',points:true},
     {id:'leader-ball',name:'Leader Ball',category:'ball-game',measure:'points',points:true},
     {id:'pass-ball',name:'Pass Ball',category:'ball-game',measure:'points',points:true},
-    {id:'flag-relay',name:'Flag Relay',category:'relay',measure:'time',points:true},
     {id:'baton-relay',name:'Baton Relay',category:'relay',measure:'time',points:true}
   ];
 
@@ -1493,7 +1488,7 @@
     interschoolAthleticsEventsEl.innerHTML=Object.keys(groups).map(function(group){
       return '<div class="athletics-event-group"><strong>'+escapeHtml(group)+'</strong><div>'+groups[group].map(function(event){
         var eventId=athleticsEventIdForName(event.name);
-        var selected=(athleticsTeamSelections()[eventId]||[]).length;
+        var selected=athleticsSelectedCountForEvent(eventId,event);
         return '<button type="button" class="athletics-event-chip" data-athletics-event="'+escapeAttr(eventId)+'">'+escapeHtml(event.name)+' <small>'+escapeHtml(event.years)+' · '+selected+' selected</small></button>';
       }).join('')+'</div></div>';
     }).join('');
@@ -1505,13 +1500,13 @@
   function athleticsEventIdForName(name){
     var normal=String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     var mapped={
-      '50m':'sprint-50',
-      '75m':'sprint-75',
-      '100m':'sprint-100',
-      '200m':'sprint-200',
-      '400m':'middle-400',
-      '800m':'middle-800',
-      'javelin-turbo-jav-teeball-throw':'turbo-jav'
+      'junior-50m':'junior-50m',
+      'intermediate-75m':'intermediate-75m',
+      'senior-100m':'senior-100m',
+      'junior-100m':'junior-100m',
+      'intermediate-200m':'intermediate-200m',
+      'senior-400m':'senior-400m',
+      'vortex-throw':'vortex-throw'
     };
     return mapped[normal]||normal;
   }
@@ -1525,9 +1520,68 @@
     save(ATHLETICS_TEAM_SELECTIONS_KEY,rows);
   }
 
+  function athleticsSelectedCountForEvent(eventId,event){
+    var selections=athleticsTeamSelections();
+    if(isBallGameEvent(event)){
+      return ['Junior','Intermediate','Senior'].reduce(function(total,division){
+        var rows=selections[athleticsTeamSelectionKey(eventId,division)]||[];
+        return total+(Array.isArray(rows)?rows.length:0);
+      },0);
+    }
+    var rows=selections[eventId]||[];
+    return Array.isArray(rows)?rows.length:0;
+  }
+
   function athleticsGoalEventById(eventId){
     var events=window.RunClubGoals.INTERSCHOOL_ATHLETICS_EVENTS||[];
     return events.find(function(event){return athleticsEventIdForName(event.name)===eventId;})||null;
+  }
+
+  function yearNumber(student){
+    var match=String(student.year||'').match(/\d+/);
+    return match?Number(match[0]):0;
+  }
+
+  function divisionForStudent(student){
+    var year=yearNumber(student);
+    if(year<=2){return 'Junior';}
+    if(year<=4){return 'Intermediate';}
+    return 'Senior';
+  }
+
+  function divisionsForEvent(event){
+    var years=String(event&&event.years||'All');
+    if(/Junior/i.test(years)&&!/Intermediate|Senior/i.test(years)){return ['Junior'];}
+    if(/Intermediate/i.test(years)&&!/Junior|Senior/i.test(years)){return ['Intermediate'];}
+    if(/Senior/i.test(years)&&!/Junior|Intermediate/i.test(years)){return ['Senior'];}
+    return ['Junior','Intermediate','Senior'];
+  }
+
+  function isBallGameEvent(event){
+    return event&&event.group==='Ball Games';
+  }
+
+  function selectedDivisionForCurrentEvent(){
+    if(!currentAthleticsTeamEvent){return '';}
+    if(isBallGameEvent(currentAthleticsTeamEvent)){
+      return document.getElementById('athletics-division-filter').value||'Junior';
+    }
+    var divisions=divisionsForEvent(currentAthleticsTeamEvent);
+    return divisions.length===1?divisions[0]:'';
+  }
+
+  function athleticsTeamSelectionKey(eventId,division){
+    var goalEvent=athleticsGoalEventById(eventId);
+    if(isBallGameEvent(goalEvent||currentAthleticsTeamEvent)){
+      return eventId+'-'+String(division||'Junior').toLowerCase();
+    }
+    return eventId;
+  }
+
+  function studentEligibleForAthleticsEvent(student,event,division){
+    var studentDivision=divisionForStudent(student);
+    if(division){return studentDivision===division;}
+    return divisionsForEvent(event).indexOf(studentDivision)!==-1;
   }
 
   function studentOptedIntoAthletics(student){
@@ -1539,10 +1593,15 @@
   }
 
   function selectedAthleticsTeamIds(eventId){
-    var rows=athleticsTeamSelections()[eventId]||[];
+    var event=currentAthleticsTeamEvent||athleticsGoalEventById(eventId);
+    var division=event&&isBallGameEvent(event)?selectedDivisionForCurrentEvent():'';
+    var selectionKey=athleticsTeamSelectionKey(eventId,division);
+    var rows=athleticsTeamSelections()[selectionKey]||[];
     if(!Array.isArray(rows)){return [];}
     var optedIn={};
-    getStudents().filter(studentOptedIntoAthletics).forEach(function(student){optedIn[student.id]=true;});
+    getStudents().filter(function(student){
+      return studentOptedIntoAthletics(student)&&studentEligibleForAthleticsEvent(student,event,division);
+    }).forEach(function(student){optedIn[student.id]=true;});
     return rows.filter(function(studentId){return optedIn[studentId];});
   }
 
@@ -1550,10 +1609,13 @@
     if(!currentAthleticsTeamEvent||!athleticsTeamStudentListEl){return;}
     var event=currentAthleticsTeamEvent;
     var q=(athleticsTeamSearchEl&&athleticsTeamSearchEl.value||'').toLowerCase().trim();
+    var division=selectedDivisionForCurrentEvent();
     var selected=selectedAthleticsTeamIds(event.id);
     var selectedMap={};
     selected.forEach(function(id){selectedMap[id]=true;});
-    var optedIn=getStudents().filter(studentOptedIntoAthletics);
+    var optedIn=getStudents().filter(function(student){
+      return studentOptedIntoAthletics(student)&&studentEligibleForAthleticsEvent(student,event,division);
+    });
     var filtered=optedIn.filter(function(student){
       return !q||athleticsStudentSearchText(student).includes(q);
     }).sort(function(a,b){
@@ -1562,11 +1624,11 @@
     if(athleticsTeamSummaryEl){
       athleticsTeamSummaryEl.innerHTML=
         '<span>'+selected.length+' selected</span>'+
-        '<span>'+optedIn.length+' opted in</span>'+
+        '<span>'+optedIn.length+' eligible and opted in</span>'+
         '<span>'+filtered.length+' shown</span>';
     }
     if(!optedIn.length){
-      athleticsTeamStudentListEl.innerHTML='<p class="empty-note">No students are marked as consent granted yet. Edit a student and set Athletics carnival consent to Granted before selecting an interschool team.</p>';
+      athleticsTeamStudentListEl.innerHTML='<p class="empty-note">No students in this division are marked as consent granted yet. Edit a student and set Athletics carnival consent to Granted before selecting an interschool team.</p>';
       return;
     }
     if(!filtered.length){
@@ -1591,8 +1653,14 @@
       group:goalEvent?goalEvent.group:athleticsEventById(eventId).category,
       years:goalEvent?goalEvent.years:'All'
     };
+    var divisionLabel=document.getElementById('athletics-division-filter-label');
+    var divisionSelect=document.getElementById('athletics-division-filter');
+    if(divisionLabel&&divisionSelect){
+      divisionLabel.hidden=!isBallGameEvent(currentAthleticsTeamEvent);
+      if(!divisionSelect.value){divisionSelect.value='Junior';}
+    }
     if(athleticsEventModalTitleEl){athleticsEventModalTitleEl.textContent=currentAthleticsTeamEvent.name+' Team';}
-    if(athleticsEventModalSubtitleEl){athleticsEventModalSubtitleEl.textContent=currentAthleticsTeamEvent.group+' · Recommended: '+currentAthleticsTeamEvent.years+' · Showing school-wide opted-in athletes only.';}
+    if(athleticsEventModalSubtitleEl){athleticsEventModalSubtitleEl.textContent=currentAthleticsTeamEvent.group+' · Eligible: '+currentAthleticsTeamEvent.years+' · Showing eligible opted-in athletes only.';}
     if(athleticsTeamSearchEl){athleticsTeamSearchEl.value='';}
     if(athleticsTeamResultEl){athleticsTeamResultEl.hidden=true;}
     renderAthleticsTeamModal();
@@ -1609,11 +1677,73 @@
     if(!currentAthleticsTeamEvent){return;}
     var rows=athleticsTeamSelections();
     var selected=Array.prototype.map.call(document.querySelectorAll('.athletics-team-student-check:checked'),function(input){return input.value;});
-    rows[currentAthleticsTeamEvent.id]=selected;
+    rows[athleticsTeamSelectionKey(currentAthleticsTeamEvent.id,selectedDivisionForCurrentEvent())]=selected;
     saveAthleticsTeamSelections(rows);
     showResult(athleticsTeamResultEl,{success:true,message:'Interschool team saved.',event:currentAthleticsTeamEvent.name,selected_students:selected.length});
     renderInterschoolAthleticsEvents();
+    renderAthleticsTeamOverview();
     renderAthleticsTeamModal();
+  }
+
+  function eventFromSelectionKey(key){
+    var eventId=String(key||'').replace(/-(junior|intermediate|senior)$/,'');
+    var event=athleticsGoalEventById(eventId)||athleticsEventById(eventId);
+    var divisionMatch=String(key||'').match(/-(junior|intermediate|senior)$/);
+    return {event:event,division:divisionMatch?divisionMatch[1].replace(/^./,function(c){return c.toUpperCase();}):''};
+  }
+
+  function eventBestRows(){
+    var leaders={};
+    athleticsResults().forEach(function(row){
+      var event=athleticsEventById(row.event_id);
+      if(!leaders[row.event_id]||isBetterResult(row.result_number,leaders[row.event_id].result_number,event.measure)){
+        leaders[row.event_id]=row;
+      }
+    });
+    return leaders;
+  }
+
+  function studentPbForEvent(studentId,eventId){
+    return bestResultFor(studentId,eventId);
+  }
+
+  function renderAthleticsTeamOverview(){
+    var overview=document.getElementById('athletics-team-overview');
+    if(!overview){return;}
+    var selections=athleticsTeamSelections();
+    var students=getStudents();
+    var studentMap={};
+    students.forEach(function(student){studentMap[student.id]=student;});
+    var leaders=eventBestRows();
+    var byStudent={};
+    Object.keys(selections).forEach(function(key){
+      var detail=eventFromSelectionKey(key);
+      (Array.isArray(selections[key])?selections[key]:[]).forEach(function(studentId){
+        var student=studentMap[studentId];
+        if(!student){return;}
+        if(!byStudent[studentId]){byStudent[studentId]={student:student,events:[]};}
+        byStudent[studentId].events.push({key:key,event:detail.event,division:detail.division,pb:studentPbForEvent(studentId,detail.event.id),leader:leaders[detail.event.id]&&leaders[detail.event.id].student_id===studentId});
+      });
+    });
+    var rows=Object.keys(byStudent).map(function(id){return byStudent[id];}).sort(function(a,b){return a.student.name.localeCompare(b.student.name);});
+    if(!rows.length){
+      overview.innerHTML='<p class="empty-note">No interschool team selections saved yet. Open an event below and tick students into their team.</p>';
+      return;
+    }
+    overview.innerHTML='<div class="athletics-team-overview-grid">'+rows.map(function(row){
+      return '<article class="athletics-team-overview-card">'+
+        '<strong>'+escapeHtml(row.student.name)+'</strong>'+
+        '<span>'+escapeHtml(row.student.year+' · '+row.student.cls+' · '+divisionForStudent(row.student))+'</span>'+
+        '<div class="athletics-team-event-tags">'+row.events.map(function(item){
+          var label=item.event.name+(item.division?' · '+item.division:'');
+          return '<span class="'+(item.leader?'athletics-team-event-tag athletics-team-event-tag--leader':'athletics-team-event-tag')+'">'+escapeHtml(label)+'</span>';
+        }).join('')+'</div>'+
+        '<div class="athletics-pb-popover"><strong>PBs</strong>'+row.events.map(function(item){
+          var label=item.event.name+(item.division?' · '+item.division:'');
+          return '<span>'+escapeHtml(label)+': '+(item.pb?escapeHtml(resultDisplay(item.pb)):'No result yet')+(item.leader?' · leading':'')+'</span>';
+        }).join('')+'</div>'+
+      '</article>';
+    }).join('')+'</div>';
   }
 
   function renderAthleticsConsentSummary(){
@@ -1656,6 +1786,20 @@
   if(athleticsTeamSearchEl){
     athleticsTeamSearchEl.addEventListener('input',renderAthleticsTeamModal);
   }
+  var athleticsDivisionFilterEl=document.getElementById('athletics-division-filter');
+  if(athleticsDivisionFilterEl){
+    athleticsDivisionFilterEl.addEventListener('change',renderAthleticsTeamModal);
+  }
+  var toggleAthleticsTeamOverviewBtn=document.getElementById('toggle-athletics-team-overview-btn');
+  if(toggleAthleticsTeamOverviewBtn){
+    toggleAthleticsTeamOverviewBtn.addEventListener('click',function(){
+      var overview=document.getElementById('athletics-team-overview');
+      if(!overview){return;}
+      overview.hidden=!overview.hidden;
+      toggleAthleticsTeamOverviewBtn.textContent=overview.hidden?'Edit team lists':'Hide team lists';
+      if(!overview.hidden){renderAthleticsTeamOverview();}
+    });
+  }
   document.getElementById('close-athletics-event-modal-btn').addEventListener('click',closeAthleticsTeamModal);
   document.getElementById('cancel-athletics-team-btn').addEventListener('click',closeAthleticsTeamModal);
   document.getElementById('save-athletics-team-btn').addEventListener('click',saveCurrentAthleticsTeam);
@@ -1664,10 +1808,29 @@
   });
   renderInterschoolAthleticsEvents();
   renderAthleticsConsentSummary();
+  renderAthleticsTeamOverview();
   renderAthleticsModeState();
 
   function crossCountryCourses(){
     return load(CROSS_COUNTRY_COURSES_KEY,[]);
+  }
+
+  function isCrossCountryVisible(){
+    return load(CROSS_COUNTRY_VISIBLE_KEY,false)===true;
+  }
+
+  function setCrossCountryVisible(enabled){
+    save(CROSS_COUNTRY_VISIBLE_KEY,enabled===true);
+  }
+
+  function renderCrossCountryVisibility(){
+    var toggle=document.getElementById('cross-country-visible-toggle');
+    var panel=document.getElementById('cross-country-course-panel');
+    var state=document.getElementById('cross-country-visible-state');
+    var visible=isCrossCountryVisible();
+    if(toggle){toggle.checked=visible;}
+    if(panel){panel.hidden=!visible;}
+    if(state){state.textContent=visible?'Shown':'Hidden';}
   }
 
   function saveCrossCountryCourses(courses){
@@ -1728,7 +1891,15 @@
   }
 
   if(crossCountryCourseFormEl){
+    var crossCountryVisibleToggleEl=document.getElementById('cross-country-visible-toggle');
+    if(crossCountryVisibleToggleEl){
+      crossCountryVisibleToggleEl.addEventListener('change',function(){
+        setCrossCountryVisible(crossCountryVisibleToggleEl.checked);
+        renderCrossCountryVisibility();
+      });
+    }
     crossCountryCourseFormEl.addEventListener('submit',createCrossCountryCourse);
+    renderCrossCountryVisibility();
     renderCrossCountryCourses();
   }
 

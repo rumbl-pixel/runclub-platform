@@ -48,7 +48,7 @@ This is the quick-read roadmap. `FEATURES.md` remains the full source of truth.
 - [x] 7.2 Cross Country module completed with admin course setup for year/division distances and route notes.
 - [x] 7.3 PB tracking completed with per-student event bests and new-PB detection.
 - [x] 7.4 Sprint time results completed for 50m, 75m, 100m, and 200m events.
-- [x] 7.5 Distance event time results completed for 400m, 800m, and cross country timing.
+- [x] 7.5 Distance event time results completed for Junior 100m, Intermediate 200m, Senior 400m, and cross country timing.
 - [x] 7.6 Jump, throw, and length results completed for jump and throw event values.
 - [x] 7.7 Field-event attempt tracking completed with three attempt fields per result.
 - [x] 7.8 Age champion scoring completed with year-group points summaries.

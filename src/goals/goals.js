@@ -14,24 +14,18 @@
   var SETTINGS_STORE = 'rc_goal_settings';
   var BASE_METRICS = ['laps', 'time', 'distance'];
   var INTERSCHOOL_ATHLETICS_EVENTS = [
-    { group: 'Sprints', name: '50m', metric: 'time', years: 'Junior' },
-    { group: 'Sprints', name: '75m', metric: 'time', years: 'Junior / Intermediate' },
-    { group: 'Sprints', name: '100m', metric: 'time', years: 'Intermediate / Senior' },
-    { group: 'Middle Distance', name: '200m', metric: 'time', years: 'Intermediate / Senior' },
-    { group: 'Middle Distance', name: '400m', metric: 'time', years: 'Intermediate / Senior' },
-    { group: 'Middle Distance', name: '800m', metric: 'time', years: 'Senior / selected' },
+    { group: 'Sprints', name: 'Junior 50m', metric: 'time', years: 'Junior' },
+    { group: 'Sprints', name: 'Intermediate 75m', metric: 'time', years: 'Intermediate' },
+    { group: 'Sprints', name: 'Senior 100m', metric: 'time', years: 'Senior' },
+    { group: 'Middle Distance', name: 'Junior 100m', metric: 'time', years: 'Junior' },
+    { group: 'Middle Distance', name: 'Intermediate 200m', metric: 'time', years: 'Intermediate' },
+    { group: 'Middle Distance', name: 'Senior 400m', metric: 'time', years: 'Senior' },
     { group: 'Ball Games', name: 'Tunnel Ball', metric: 'team-time', years: 'All' },
     { group: 'Ball Games', name: 'Leader Ball', metric: 'team-time', years: 'All' },
     { group: 'Ball Games', name: 'Pass Ball', metric: 'team-time', years: 'All' },
-    { group: 'Relays', name: 'Flag Relay', metric: 'team-time', years: 'All' },
-    { group: 'Relays', name: 'Baton Relay', metric: 'team-time', years: 'Intermediate / Senior' },
+    { group: 'Relays', name: 'Baton Relay', metric: 'team-time', years: 'All' },
     { group: 'Jumps', name: 'Long Jump', metric: 'distance', years: 'All' },
-    { group: 'Jumps', name: 'High Jump', metric: 'height', years: 'Selected / Senior' },
-    { group: 'Jumps', name: 'Triple Jump', metric: 'distance', years: 'Selected / Senior' },
-    { group: 'Throws', name: 'Distance Throw', metric: 'distance', years: 'All' },
-    { group: 'Throws', name: 'Shot Put', metric: 'distance', years: 'Intermediate / Senior' },
-    { group: 'Throws', name: 'Discus', metric: 'distance', years: 'Selected / Senior' },
-    { group: 'Throws', name: 'Javelin / Turbo Jav / Teeball Throw', metric: 'distance', years: 'Selected / modified' }
+    { group: 'Throws', name: 'Vortex Throw', metric: 'distance', years: 'All' }
   ];
 
   // --- Metric catalogue -----------------------------------------------------
