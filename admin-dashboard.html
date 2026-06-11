@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gwynne Park Run Club - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=64" />
+    <link rel="stylesheet" href="styles.css?v=65" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
@@ -270,6 +270,19 @@
               <button type="button" id="cancel-athletics-team-btn" class="secondary">Cancel</button>
             </div>
             <pre id="athletics-team-result" hidden></pre>
+          </div>
+        </div>
+
+        <div class="student-editor-overlay" id="athletics-consent-modal" hidden>
+          <div class="student-editor-modal athletics-consent-modal" role="dialog" aria-modal="true" aria-labelledby="athletics-consent-modal-title">
+            <div class="modal-title-row">
+              <div>
+                <h2 id="athletics-consent-modal-title" style="margin:0;">Athletics Consent Checklist</h2>
+                <p class="modal-subtitle">Tick students once their athletics training and interschool selection permission has been returned.</p>
+              </div>
+              <button id="close-athletics-consent-modal-btn" type="button" class="modal-close-btn" aria-label="Close athletics consent checklist">×</button>
+            </div>
+            <div id="athletics-consent-list" class="athletics-consent-list"></div>
           </div>
         </div>
 
@@ -1139,7 +1152,7 @@
     <script src="goals.js?v=5"></script>
     <script src="admin-goals.js?v=5"></script>
     <script src="assets/qrcode-generator.js"></script>
-    <script src="admin-dashboard.js?v=42"></script>
+    <script src="admin-dashboard.js?v=43"></script>
     <script src="pwa.js"></script>
     <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="jmancini" data-description="Support me on Buy me a coffee!" data-message="Thank you for visiting and using this little side project. I am keeping this as a completely free project though if you feel the need, you're welcome to buy me a coffee :)" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
   </body>

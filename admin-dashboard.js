@@ -1467,6 +1467,8 @@
   var athleticsModeStateEl=document.getElementById('athletics-mode-state');
   var interschoolAthleticsEventsEl=document.getElementById('interschool-athletics-events');
   var athleticsConsentSummaryEl=document.getElementById('athletics-consent-summary');
+  var athleticsConsentModalEl=document.getElementById('athletics-consent-modal');
+  var athleticsConsentListEl=document.getElementById('athletics-consent-list');
   var athleticsEventModalEl=document.getElementById('athletics-event-modal');
   var athleticsEventModalTitleEl=document.getElementById('athletics-event-modal-title');
   var athleticsEventModalSubtitleEl=document.getElementById('athletics-event-modal-subtitle');
@@ -1772,24 +1774,43 @@
     athleticsConsentSummaryEl.innerHTML=
       '<div class="athletics-consent-head">'+
         '<div><strong>Athletics consent checklist</strong><span>Tick once when a student has returned permission for athletics training and interschool selection.</span></div>'+
+        '<button type="button" id="open-athletics-consent-modal-btn" class="secondary athletics-consent-open-btn">Open checklist</button>'+
       '</div>'+
       '<div class="athletics-consent-counts">'+
         '<span class="privacy-badge privacy-badge--granted">Athletics consent: '+counts.granted+' approved</span>'+
         '<span class="privacy-badge">Not returned: '+(counts.pending+counts.declined)+'</span>'+
         '<span class="privacy-badge privacy-badge--declined">Declined: '+counts.declined+'</span>'+
       '</div>'+
-      '<div class="athletics-consent-list">'+students.map(function(student){
-        var granted=String(student.consent_status||'pending').toLowerCase()==='granted';
-        var meta=[student.year,student.cls,divisionForStudent(student)].filter(Boolean).join(' · ');
-        return '<label class="athletics-consent-option">'+
-          '<input type="checkbox" class="athletics-consent-check" data-student-id="'+escapeAttr(student.id)+'"'+(granted?' checked':'')+' />'+
-          '<span><strong>'+escapeHtml(student.name)+'</strong><small>'+escapeHtml(meta)+'</small></span>'+
-        '</label>';
-      }).join('')+'</div>'+
       (followUp.length?'<p>Follow up: '+followUp.slice(0,6).map(function(student){return escapeHtml(student.name);}).join(', ')+'</p>':'<p>All listed students have athletics consent ticked.</p>');
-    Array.prototype.forEach.call(athleticsConsentSummaryEl.querySelectorAll('.athletics-consent-check'),function(input){
+    var openBtn=document.getElementById('open-athletics-consent-modal-btn');
+    if(openBtn){openBtn.addEventListener('click',openAthleticsConsentModal);}
+  }
+
+  function renderAthleticsConsentList(){
+    if(!athleticsConsentListEl){return;}
+    var students=getStudents().slice().sort(function(a,b){
+      return String(a.year||'').localeCompare(String(b.year||''))||String(a.cls||'').localeCompare(String(b.cls||''))||String(a.name||'').localeCompare(String(b.name||''));
+    });
+    athleticsConsentListEl.innerHTML=students.map(function(student){
+      var granted=String(student.consent_status||'pending').toLowerCase()==='granted';
+      var meta=[student.id,student.year,student.cls,divisionForStudent(student)].filter(Boolean).join(' · ');
+      return '<label class="athletics-consent-option">'+
+        '<input type="checkbox" class="athletics-consent-check" data-student-id="'+escapeAttr(student.id)+'"'+(granted?' checked':'')+' />'+
+        '<span><strong>'+escapeHtml(student.name)+'</strong><small>'+escapeHtml(meta)+'</small></span>'+
+      '</label>';
+    }).join('');
+    Array.prototype.forEach.call(athleticsConsentListEl.querySelectorAll('.athletics-consent-check'),function(input){
       input.addEventListener('change',function(){setStudentAthleticsConsent(input.dataset.studentId,input.checked);});
     });
+  }
+
+  function openAthleticsConsentModal(){
+    renderAthleticsConsentList();
+    if(athleticsConsentModalEl){athleticsConsentModalEl.hidden=false;}
+  }
+
+  function closeAthleticsConsentModal(){
+    if(athleticsConsentModalEl){athleticsConsentModalEl.hidden=true;}
   }
 
   function setStudentAthleticsConsent(studentId,granted){
@@ -1801,6 +1822,7 @@
     });
     saveStudents(students);
     renderAthleticsConsentSummary();
+    renderAthleticsConsentList();
   }
 
   interschoolAthleticsModeEl.checked=window.RunClubGoals.isInterschoolAthleticsMode();
@@ -1840,6 +1862,10 @@
   document.getElementById('save-athletics-team-btn').addEventListener('click',saveCurrentAthleticsTeam);
   athleticsEventModalEl.addEventListener('click',function(e){
     if(e.target===athleticsEventModalEl){closeAthleticsTeamModal();}
+  });
+  document.getElementById('close-athletics-consent-modal-btn').addEventListener('click',closeAthleticsConsentModal);
+  athleticsConsentModalEl.addEventListener('click',function(e){
+    if(e.target===athleticsConsentModalEl){closeAthleticsConsentModal();}
   });
   renderInterschoolAthleticsEvents();
   renderAthleticsConsentSummary();

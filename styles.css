@@ -1816,6 +1816,7 @@ html[data-theme="dark"] .privacy-badge--declined {
 .athletics-consent-head {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.65rem;
 }
@@ -1835,26 +1836,29 @@ html[data-theme="dark"] .privacy-badge--declined {
 }
 
 .athletics-consent-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  max-height: min(66vh, 620px);
+  overflow: auto;
+  padding-right: 0.2rem;
 }
 
 .athletics-consent-option {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 22px minmax(0, 1fr);
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.58rem 0.68rem;
-  border: 1px solid rgba(7,20,38,0.12);
-  border-radius: 8px;
-  background: rgba(255,255,255,0.64);
+  gap: 0.45rem;
+  min-height: 34px;
+  padding: 0.28rem 0.5rem;
+  border-bottom: 1px solid rgba(7,20,38,0.10);
+  border-radius: 0;
+  background: transparent;
 }
 
 .athletics-consent-option input {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .athletics-consent-option span,
@@ -1865,16 +1869,20 @@ html[data-theme="dark"] .privacy-badge--declined {
 
 .athletics-consent-option strong {
   color: var(--obsidian-navy-3);
+  font-size: 0.9rem;
+  line-height: 1.15;
 }
 
 .athletics-consent-option small {
   color: var(--muted);
   font-weight: 800;
+  font-size: 0.74rem;
+  line-height: 1.1;
 }
 
 .athletics-consent-option:has(input:checked) {
-  border-color: rgba(201,151,34,0.56);
-  background: rgba(255,248,221,0.82);
+  border-color: rgba(201,151,34,0.34);
+  background: rgba(255,248,221,0.46);
 }
 
 .athletics-consent-summary p {
@@ -1894,13 +1902,21 @@ html[data-theme="dark"] .athletics-consent-option strong {
 }
 
 html[data-theme="dark"] .athletics-consent-option {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.14);
+  background: transparent;
+  border-color: rgba(255,255,255,0.10);
 }
 
 html[data-theme="dark"] .athletics-consent-option:has(input:checked) {
   background: rgba(201,151,34,0.16);
   border-color: rgba(242,216,145,0.52);
+}
+
+.athletics-consent-modal {
+  max-width: 720px;
+}
+
+.athletics-consent-open-btn {
+  white-space: nowrap;
 }
 
 .athletics-mode-shell {
