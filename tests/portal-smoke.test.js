@@ -719,8 +719,8 @@ assert(/privacy-badge/.test(styles), 'styles should include privacy badge stylin
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=50/.test(leaderboardHtml), 'leaderboard page should request the Interschool Athletics tidy-up stylesheet version');
-assert(/styles\.css\?v=50/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/styles\.css\?v=51/.test(leaderboardHtml), 'leaderboard page should request the secondary-link contrast stylesheet version');
+assert(/styles\.css\?v=51/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
@@ -735,6 +735,7 @@ assert(/\.athletics-mode-toggle/.test(styles), 'styles should include the Inters
 assert(/\.athletics-mode-panel/.test(styles), 'styles should include the expandable athletics mode panel');
 assert(/\.athletics-event-chip:hover/.test(styles), 'athletics event chips should behave like interactive links');
 assert(/\.interschool-team-hero/.test(styles), 'styles should include the dedicated interschool team page layout');
+assert(/html\[data-theme="dark"\] button\.secondary,[\s\S]*html\[data-theme="dark"\] a\.secondary[\s\S]*color:\s*#f5f9ff/.test(styles), 'dark mode should keep secondary links readable on dark cards');
 const themeJs = read('theme.js');
 assert(/gp_run_club_theme/.test(themeJs), 'theme switch should persist the selected mode locally');
 assert(/data-theme-toggle/.test(themeJs), 'theme switch should inject a header toggle control');
@@ -753,7 +754,7 @@ assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should reques
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v76/.test(serviceWorker), 'service worker cache should be bumped for Interschool Athletics tidy-up');
+assert(/gwynne-park-run-club-v77/.test(serviceWorker), 'service worker cache should be bumped for Interschool Athletics tidy-up');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');

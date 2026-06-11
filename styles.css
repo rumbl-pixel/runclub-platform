@@ -1015,14 +1015,40 @@ button:hover {
 }
 button:disabled { opacity: 0.6; cursor: default; }
 
-button.secondary {
+button.secondary,
+a.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
   background: white;
   color: var(--obsidian-navy);
+  border: 1px solid;
   border-color: var(--gold-glass-line);
+  font-weight: 700;
+  text-decoration: none;
 }
-button.secondary:hover {
+
+button.secondary:hover,
+a.secondary:hover {
   background: linear-gradient(180deg, rgba(255,255,255,0.92), var(--uniform-gold-hover));
   color: var(--obsidian-navy);
+  text-decoration: none;
+}
+
+html[data-theme="dark"] button.secondary,
+html[data-theme="dark"] a.secondary {
+  background: rgba(255,255,255,0.08);
+  color: #f5f9ff;
+  border-color: rgba(242,216,145,0.42);
+}
+
+html[data-theme="dark"] button.secondary:hover,
+html[data-theme="dark"] a.secondary:hover {
+  background: rgba(242,216,145,0.18);
+  color: #fff;
 }
 
 button.danger {
