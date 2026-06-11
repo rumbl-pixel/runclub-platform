@@ -686,7 +686,7 @@ assert(/--gold-glass-wash:/.test(styles), 'site theme should expose a soft gold 
 assert(/\.site-header::after[\s\S]*var\(--uniform-gold\)/.test(styles), 'sticky header should carry a very small gold trim');
 assert(/\.card::before[\s\S]*var\(--gold-glass-wash\)/.test(styles), 'cards should carry the subtle gold tint site-wide');
 assert(/\.stat-chip[\s\S]*linear-gradient\(135deg,[\s\S]*rgba\(7,20,38,0\.94\)[\s\S]*color:\s*#edf4ff/.test(styles), 'home dashboard tags should use navy glass styling with readable light text');
-assert(/\.stat-chip:hover[\s\S]*translateY\(-1px\)/.test(styles), 'home dashboard tags should use a subtle lift hover instead of a heavy colour wash');
+assert(!/\.stat-chip:hover/.test(styles), 'home dashboard informational tags should not highlight like buttons on hover');
 assert(/\.step[\s\S]*rgba\(7,20,38,0\.86\)[\s\S]*\.step strong[\s\S]*color:\s*#f5f9ff[\s\S]*\.step p[\s\S]*color:\s*#c8d6e8/.test(styles), 'how-it-works cards should use readable navy glass styling');
 assert(/\.feature-item[\s\S]*rgba\(7,20,38,0\.88\)[\s\S]*\.feature-item div[\s\S]*color:\s*#c8d6e8[\s\S]*\.feature-item div strong[\s\S]*color:\s*#f5f9ff/.test(styles), 'platform feature cards should use readable navy glass styling');
 assert(/\.impl-item[\s\S]*rgba\(7,20,38,0\.88\)[\s\S]*\.impl-item strong[\s\S]*color:\s*#f5f9ff[\s\S]*\.impl-item p,[\s\S]*color:\s*#c8d6e8/.test(styles), 'ways-to-run cards should match the readable navy glass tile styling');
@@ -719,8 +719,8 @@ assert(/privacy-badge/.test(styles), 'styles should include privacy badge stylin
 assert(/skip-link/.test(styles), 'styles should include skip-link focus styling');
 assert(/:focus-visible/.test(styles), 'styles should include visible keyboard focus styles');
 assert(/multi-school-report-card/.test(styles), 'styles should include multi-school report styling');
-assert(/styles\.css\?v=51/.test(leaderboardHtml), 'leaderboard page should request the secondary-link contrast stylesheet version');
-assert(/styles\.css\?v=51/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/styles\.css\?v=52/.test(leaderboardHtml), 'leaderboard page should request the info-hover cleanup stylesheet version');
+assert(/styles\.css\?v=52/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
@@ -754,7 +754,7 @@ assert(/goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should reques
 assert(/admin-goals\.js\?v=4/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/goals\.js\?v=4/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/goals\.js\?v=4/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v77/.test(serviceWorker), 'service worker cache should be bumped for Interschool Athletics tidy-up');
+assert(/gwynne-park-run-club-v78/.test(serviceWorker), 'service worker cache should be bumped for Interschool Athletics tidy-up');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');

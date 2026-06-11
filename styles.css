@@ -493,14 +493,6 @@ body.mobile-header-compact .main-nav button {
   backdrop-filter: blur(14px);
 }
 
-.stat-chip:hover {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.05)),
-    linear-gradient(135deg, rgba(11,31,56,0.98), rgba(23,90,151,0.82));
-  border-color: color-mix(in srgb, var(--uniform-gold) 46%, rgba(255,255,255,0.34) 54%);
-  transform: translateY(-1px);
-}
-
 /* ===========================
    Cards
 =========================== */
