@@ -2766,6 +2766,8 @@
   var brandingResultEl=document.getElementById('branding-settings-result');
   var backendReadinessSummaryEl=document.getElementById('backend-readiness-summary');
   var backendReadinessBlockersEl=document.getElementById('backend-readiness-blockers');
+  var launchReadinessChecklistEl=document.getElementById('launch-readiness-checklist');
+  var printLaunchReadinessBtn=document.getElementById('print-launch-readiness-btn');
 
   function renderOnboarding(){
     var settings=programSettings();
@@ -2879,6 +2881,48 @@
     return labels[blocker]||blocker;
   }
 
+  function publicConfig(){
+    return window.RUN_CLUB_CONFIG||{};
+  }
+
+  function launchReadinessItems(readiness){
+    var config=publicConfig();
+    return [
+      {state:config.demoMode===false?'ready':'blocked',label:'Demo mode disabled',detail:'Turn off demoMode before entering real student records.'},
+      {state:config.syncEnabled===true?'ready':'blocked',label:'Backend sync enabled',detail:'syncEnabled must be true for cross-device live use.'},
+      {state:config.liveDataMode===true?'ready':'blocked',label:'Live data mode enabled',detail:'liveDataMode should only be enabled after school approval and backend review.'},
+      {state:config.schoolId?'ready':'blocked',label:'School scope ID set',detail:'schoolId keeps records scoped to the correct school.'},
+      {state:config.supabaseUrl?'ready':'blocked',label:'Supabase project URL set',detail:'Use the public project URL only. Never paste service-role secrets here.'},
+      {state:config.supabaseAnonKey?'ready':'blocked',label:'Supabase anon key set',detail:'Use the public anon key and rely on RLS/Edge Functions for protection.'},
+      {state:readiness&&readiness.ready?'ready':'blocked',label:'Backend adapter can reach storage',detail:'REST and required Edge Function checks must pass before live use.'},
+      {state:'review',label:'School approval recorded',detail:'Confirm leadership approval, parent communication, and school privacy expectations outside the browser.'},
+      {state:'review',label:'Staff invite accounts prepared',detail:'Create invite-only owner/admin/coach accounts in Supabase Auth. Avoid public staff signup.'},
+      {state:'review',label:'RLS and role policies reviewed',detail:'Confirm school-scoped RLS policies and Edge Function secrets in the Supabase dashboard.'},
+      {state:'review',label:'Demo data cleared or exported',detail:'Export testing data, then clear demo rosters before entering real students.'},
+      {state:'review',label:'Parent/student access boundaries checked',detail:'Parents see only linked children. Students see only their own profile. Schools see only their own students.'}
+    ];
+  }
+
+  function renderLaunchReadiness(readiness){
+    if(!launchReadinessChecklistEl){return;}
+    var items=launchReadinessItems(readiness);
+    launchReadinessChecklistEl.innerHTML=items.map(function(item){
+      var label=item.state==='ready'?'Ready':item.state==='blocked'?'Blocked':'Manual review';
+      return '<article class="launch-readiness-item launch-readiness-item--'+escapeAttr(item.state)+'">'+
+        '<span class="launch-readiness-status">'+escapeHtml(label)+'</span>'+
+        '<div><strong>'+escapeHtml(item.label)+'</strong><p>'+escapeHtml(item.detail)+'</p></div>'+
+      '</article>';
+    }).join('');
+  }
+
+  function printLaunchReadiness(){
+    var readiness=window.RunClubBackend&&window.RunClubBackend.backendReadiness?window.RunClubBackend.backendReadiness():{ready:false,realDataAllowed:false,mode:'backend-adapter-missing'};
+    var rows=launchReadinessItems(readiness).map(function(item){
+      return {status:item.state==='ready'?'Ready':item.state==='blocked'?'Blocked':'Manual review',item:item.label,detail:item.detail};
+    });
+    printWindow('Launch Readiness Checklist','<h1>Gwynne Park Run Club - Launch Readiness Checklist</h1>'+reportRowsTable(rows,[{key:'status',label:'Status'},{key:'item',label:'Item'},{key:'detail',label:'Detail'}]));
+  }
+
   function renderBackendReadiness(){
     if(!backendReadinessSummaryEl||!backendReadinessBlockersEl){return;}
     var readiness=window.RunClubBackend&&window.RunClubBackend.backendReadiness?window.RunClubBackend.backendReadiness():{ready:false,realDataAllowed:false,mode:'backend-adapter-missing',blockers:['backend-adapter-missing']};
@@ -2889,6 +2933,7 @@
     backendReadinessSummaryEl.innerHTML='<strong>'+escapeHtml(label)+'</strong><span>'+escapeHtml(readiness.mode||'unknown')+'</span><p>'+escapeHtml(guard.message)+'</p>';
     var blockers=readiness.blockers&&readiness.blockers.length?readiness.blockers:['live-data-mode-disabled'];
     backendReadinessBlockersEl.innerHTML=blockers.map(function(blocker){return '<li>'+escapeHtml(backendBlockerLabel(blocker))+'</li>';}).join('');
+    renderLaunchReadiness(readiness);
   }
 
   function groupedSummary(groupField){
@@ -3565,6 +3610,7 @@
   document.getElementById('export-term-progress-csv-btn').addEventListener('click',exportTermProgressCsv);
   document.getElementById('print-term-progress-btn').addEventListener('click',printTermProgress);
   document.getElementById('print-class-report-btn').addEventListener('click',printClassReport);
+  if(printLaunchReadinessBtn){printLaunchReadinessBtn.addEventListener('click',printLaunchReadiness);}
   document.getElementById('print-award-pack-btn').addEventListener('click',printAwardPack);
   document.getElementById('export-certificate-batch-csv-btn').addEventListener('click',function(){
     dlCsv('certificate-batch-'+new Date().toISOString().slice(0,10)+'.csv',certificateBatchRows(),['batch_rank','student','year','class','milestone','km','total_km','printed']);

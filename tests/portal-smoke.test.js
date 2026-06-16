@@ -392,6 +392,9 @@ assert(/Do not enter real student data until Priority 0 is complete/.test(adminD
 assert(/backend-readiness-card/.test(adminDashboardHtml), 'admin dashboard should include a live backend readiness gate card');
 assert(/backend-readiness-summary/.test(adminDashboardHtml), 'backend readiness card should include a summary target');
 assert(/Backend Storage Gate/.test(adminDashboardHtml), 'backend readiness card should be labelled as the backend storage gate');
+assert(/launch-readiness-panel/.test(adminDashboardHtml), 'admin help should include a launch readiness checklist panel');
+assert(/launch-readiness-checklist/.test(adminDashboardHtml), 'admin help should render launch readiness checklist rows');
+assert(/print-launch-readiness-btn/.test(adminDashboardHtml), 'admin help should let staff print the launch readiness checklist');
 assert(/data-tab="students"[\s\S]*data-tab="sports"[\s\S]*data-tab="training"[\s\S]*data-tab="leaderboard"/.test(adminDashboardHtml), 'admin tabs should place Sports and Training next to Students');
 assert(/id="tab-sports"[\s\S]*athletics-mode-shell[\s\S]*cross-country-card[\s\S]*athletics-results-card/.test(adminDashboardHtml), 'admin Sports tab should contain athletics mode, Cross Country, and interschool results');
 assert(!/id="tab-students"[\s\S]*athletics-mode-shell[\s\S]*id="student-editor-modal"/.test(adminDashboardHtml), 'admin Students tab should not contain the sports controls');
@@ -423,7 +426,7 @@ assert(/training-status-list/.test(adminDashboardHtml), 'admin training tab shou
 assert(/role="tablist"/.test(adminDashboardHtml), 'admin tabs should expose a tablist role');
 assert(/aria-selected="true"/.test(adminDashboardHtml), 'admin active tab should expose selected state');
 assert(/aria-controls="tab-scanner"/.test(adminDashboardHtml), 'admin tabs should reference tab panels');
-assert(/admin-dashboard\.js\?v=48/.test(adminDashboardHtml), 'admin dashboard should request the current Sports command centre dashboard script');
+assert(/admin-dashboard\.js\?v=49/.test(adminDashboardHtml), 'admin dashboard should request the current launch readiness dashboard script');
 assert(/backend\.js\?v=21/.test(adminDashboardHtml), 'admin dashboard should load the backend adapter before app scripts');
 
 const adminDashboardJs = read('admin-dashboard.js');
@@ -458,6 +461,11 @@ assert(/resetBrandingSettings/.test(adminDashboardJs), 'admin dashboard should r
 assert(/renderBackendReadiness/.test(adminDashboardJs), 'admin dashboard should render backend readiness status');
 assert(/RunClubBackend\.backendReadiness/.test(adminDashboardJs), 'admin dashboard should use backend readiness from the adapter');
 assert(/backend-readiness-blocked/.test(adminDashboardJs), 'admin dashboard should display blocked backend readiness states');
+assert(/launchReadinessItems/.test(adminDashboardJs), 'admin dashboard should build launch readiness checklist items');
+assert(/School approval recorded/.test(adminDashboardJs), 'launch readiness should include school approval review');
+assert(/Staff invite accounts prepared/.test(adminDashboardJs), 'launch readiness should include staff invite review');
+assert(/RLS and role policies reviewed/.test(adminDashboardJs), 'launch readiness should include Supabase role and RLS review');
+assert(/printLaunchReadiness/.test(adminDashboardJs), 'admin dashboard should print launch readiness checklist');
 assert(/liveRosterGuard/.test(adminDashboardJs), 'admin dashboard should guard roster writes when live data mode is enabled');
 assert(/saveStudentsWithBackend/.test(adminDashboardJs), 'admin dashboard should route roster saves through the backend when live-ready');
 assert(/deleteStudentWithBackend/.test(adminDashboardJs), 'admin dashboard should route roster deletes through the backend when live-ready');
@@ -822,8 +830,8 @@ assert(/\.student-editor-modal[\s\S]*max-height:\s*calc\(100vh - var\(--modal-to
 assert(/athletics-consent-status-select/.test(styles), 'styles should support inline consent status dropdowns in the modal checklist');
 assert(/athletics-consent-status-select--pending/.test(styles) && /athletics-consent-status-select--granted/.test(styles) && /athletics-consent-status-select--declined/.test(styles), 'styles should colour pending, approved, and declined consent pills');
 assert(/athletics-consent-saved-list/.test(styles), 'styles should support the saved consent list inside team overview');
-assert(/styles\.css\?v=71/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
-assert(/styles\.css\?v=71/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/styles\.css\?v=72/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
+assert(/styles\.css\?v=72/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=8/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');
@@ -849,6 +857,8 @@ assert(/\.sports-command-grid/.test(styles), 'styles should include Sports comma
 assert(/\.sports-team-table-wrap/.test(styles), 'styles should include a responsive Sports team list table wrapper');
 assert(/\.athletics-event-modal-status/.test(styles), 'styles should include selected and consent status chips inside the event modal');
 assert(/\.athletics-team-row-meta/.test(styles), 'styles should include consent and PB metadata beside eligible athlete rows');
+assert(/\.launch-readiness-panel/.test(styles), 'styles should include launch readiness panel styling');
+assert(/\.launch-readiness-item--blocked/.test(styles) && /\.launch-readiness-item--review/.test(styles), 'launch readiness checklist should style blocked and manual-review items');
 assert(/\.athletics-event-chip:hover/.test(styles), 'athletics event chips should behave like interactive links');
 assert(/\.athletics-team-modal/.test(styles), 'styles should include the interschool team selector modal');
 assert(/\.athletics-team-student-option/.test(styles), 'styles should include checkbox student selection rows');
@@ -883,14 +893,14 @@ const privacyPolicyHtml = read('privacy-policy.html');
 assert(/Access boundaries/.test(privacyPolicyHtml), 'privacy policy should explain access boundaries');
 assert(/Parents can see only their own linked child or children/.test(privacyPolicyHtml), 'privacy policy should describe parent-only child access');
 assert(/advertising trackers/.test(privacyPolicyHtml), 'privacy policy should rule out advertising trackers');
-assert(/admin-dashboard\.js\?v=48/.test(adminDashboardHtml), 'admin dashboard should request the current Sports command centre dashboard script');
+assert(/admin-dashboard\.js\?v=49/.test(adminDashboardHtml), 'admin dashboard should request the current launch readiness dashboard script');
 assert(/goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh goals script after interschool goals changes');
 assert(/admin-goals\.js\?v=5/.test(adminDashboardHtml), 'admin dashboard should request a fresh admin goals script after interschool goals changes');
 assert(/student\.js\?v=20/.test(studentProfileHtml), 'student profile should request the current student portal script');
 assert(/goals\.js\?v=5/.test(studentProfileHtml), 'student profile should request a fresh goals script');
 assert(/student\.js\?v=20/.test(studentHtml), 'student login should request the current student portal script');
 assert(/goals\.js\?v=5/.test(studentHtml), 'student login should request a fresh goals script');
-assert(/gwynne-park-run-club-v104/.test(serviceWorker), 'service worker cache should be bumped for the Sports command centre update');
+assert(/gwynne-park-run-club-v105/.test(serviceWorker), 'service worker cache should be bumped for the launch readiness update');
 assert(/backend\.js/.test(serviceWorker), 'service worker should cache the backend adapter');
 assert(/interschool-team\.html/.test(serviceWorker) && /interschool-team\.js/.test(serviceWorker), 'service worker should cache the dedicated interschool team page');
 assertFile('tests/backend-live-style.test.js');
