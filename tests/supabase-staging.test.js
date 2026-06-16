@@ -24,6 +24,7 @@ assertFile('supabase/functions/csv_import/index.ts');
 assertFile('supabase/functions/guardian_access/index.ts');
 assertFile('supabase/seed.staging.sql');
 assertFile('docs/supabase-staging-checklist.md');
+assertFile('supabase/migrations/202606160001_live_beta_feature_tables.sql');
 
 const studentAuth = read('supabase/functions/student_auth/index.ts');
 assert(/Deno\.serve/.test(studentAuth), 'student_auth should expose a Supabase Edge Function handler');
@@ -57,6 +58,37 @@ assert(/STAGING1/.test(seed) && /STAGING2/.test(seed), 'staging seed should crea
 assert(/FAKE DATA ONLY/.test(seed), 'staging seed should clearly mark fake data');
 assert(!/James Smith|Emily Chen|Sarah Johnson/.test(seed), 'staging seed should not copy app demo student names');
 
+const liveBetaMigration = read('supabase/migrations/202606160001_live_beta_feature_tables.sql');
+[
+  'athletics_team_selections',
+  'athletics_results',
+  'cross_country_courses',
+  'coach_notes',
+  'student_notifications',
+  'staff_invites'
+].forEach((table) => {
+  assert(new RegExp(`create table if not exists public\\.${table}`).test(liveBetaMigration), `${table} should have a live beta table`);
+  assert(new RegExp(`alter table public\\.${table} enable row level security`).test(liveBetaMigration), `${table} should enable RLS`);
+});
+[
+  'set_athletics_consent_status',
+  'save_athletics_team_selection',
+  'record_athletics_result',
+  'save_cross_country_course',
+  'save_coach_note',
+  'create_student_notification'
+].forEach((fn) => {
+  assert(new RegExp(`create or replace function public\\.${fn}`).test(liveBetaMigration), `${fn} RPC should exist`);
+});
+assert(/staff can manage athletics team selections/.test(liveBetaMigration), 'athletics team selections should be staff managed');
+assert(/staff can manage athletics results/.test(liveBetaMigration), 'athletics results should be staff managed');
+assert(/staff can manage coach notes/.test(liveBetaMigration), 'coach notes should be staff managed');
+assert(/staff can manage student notifications/.test(liveBetaMigration), 'student notifications should be staff managed');
+assert(/user_has_school_role\(school_id, array\['owner','admin','coach'\]\)/.test(liveBetaMigration), 'live beta policies should use school-scoped staff roles');
+assert(/create index if not exists idx_athletics_team_selections_school_event/.test(liveBetaMigration), 'athletics team selections should index school and event');
+assert(/create index if not exists idx_athletics_results_school_event/.test(liveBetaMigration), 'athletics results should index school and event');
+assert(/create index if not exists idx_student_notifications_student/.test(liveBetaMigration), 'student notifications should index student lookups');
+
 const runbook = read('docs/backend-sync-runbook.md');
 assert(/supabase db push/.test(runbook), 'runbook should include migration command');
 assert(/supabase db reset/.test(runbook), 'runbook should include local reset command');
@@ -64,6 +96,8 @@ assert(/supabase functions deploy student_auth/.test(runbook), 'runbook should i
 assert(/supabase functions deploy csv_import/.test(runbook), 'runbook should include csv_import deployment command');
 assert(/supabase functions deploy guardian_access/.test(runbook), 'runbook should include guardian_access deployment command');
 assert(/fake staging data/i.test(runbook), 'runbook should warn to use fake staging data');
+assert(/staff_invites/.test(runbook), 'runbook should mention staff invite readiness');
+assert(/athletics_team_selections/.test(runbook), 'runbook should mention athletics team live tables');
 
 const packageJson = JSON.parse(read('package.json'));
 assert(packageJson.scripts['test:supabase-staging'] === 'node tests/supabase-staging.test.js', 'package should expose a Supabase staging test script');

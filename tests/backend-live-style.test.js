@@ -103,6 +103,24 @@ function assert(condition, message) {
     if (url.includes('/rest/v1/rpc/record_training_event')) {
       return Promise.resolve(response(200, [{ event_id: 'training-event-live-1', event_type: 'opened' }]));
     }
+    if (url.includes('/rest/v1/rpc/set_athletics_consent_status')) {
+      return Promise.resolve(response(200, [{ student_id: 'student-1', consent_status: 'approved' }]));
+    }
+    if (url.includes('/rest/v1/rpc/save_athletics_team_selection')) {
+      return Promise.resolve(response(200, [{ event_id: 'junior-50m', selected_count: 2 }]));
+    }
+    if (url.includes('/rest/v1/rpc/record_athletics_result')) {
+      return Promise.resolve(response(200, [{ result_id: 'athletics-result-live-1', personal_best: true }]));
+    }
+    if (url.includes('/rest/v1/rpc/save_cross_country_course')) {
+      return Promise.resolve(response(200, [{ course_id: 'course-live-1', name: 'Junior Loop' }]));
+    }
+    if (url.includes('/rest/v1/rpc/save_coach_note')) {
+      return Promise.resolve(response(200, [{ coach_note_id: 'coach-note-live-1' }]));
+    }
+    if (url.includes('/rest/v1/rpc/create_student_notification')) {
+      return Promise.resolve(response(200, [{ notification_id: 'notification-live-1' }]));
+    }
     return Promise.resolve(response(404, { error: 'missing route' }));
   });
 
@@ -321,6 +339,95 @@ function assert(condition, message) {
   assert(deleteCall.url.includes('school_id=eq.school-live-style'), 'student delete should be school scoped');
   assert(deleteCall.url.includes('barcode=eq.STAGING2'), 'student delete should target the student barcode');
   assert(JSON.parse(deleteCall.options.body).active === false, 'student delete should mark active false rather than removing history');
+
+  await backend.backendDataAccess.setAthleticsConsentStatus({
+    student_id: 'student-1',
+    barcode: 'STAGING1',
+    status: 'approved',
+    metadata: { source_screen: 'sports-tab' }
+  });
+  const athleticsConsentCall = calls.find((call) => call.url.includes('/rest/v1/rpc/set_athletics_consent_status'));
+  assert(athleticsConsentCall, 'athletics consent should write through a Supabase RPC');
+  const athleticsConsentBody = JSON.parse(athleticsConsentCall.options.body);
+  assert(athleticsConsentBody.p_school_id === 'school-live-style', 'athletics consent should include school scope');
+  assert(athleticsConsentBody.p_student_id === 'student-1', 'athletics consent should target the student');
+  assert(athleticsConsentBody.p_status === 'approved', 'athletics consent should include approved/pending/declined status');
+
+  await backend.backendDataAccess.saveAthleticsTeamSelection({
+    event_id: 'junior-50m',
+    student_ids: ['student-1', 'student-2'],
+    metadata: { division: 'Junior' }
+  });
+  const athleticsTeamCall = calls.find((call) => call.url.includes('/rest/v1/rpc/save_athletics_team_selection'));
+  assert(athleticsTeamCall, 'athletics team selection should write through a Supabase RPC');
+  const athleticsTeamBody = JSON.parse(athleticsTeamCall.options.body);
+  assert(athleticsTeamBody.p_school_id === 'school-live-style', 'athletics team selection should include school scope');
+  assert(athleticsTeamBody.p_event_id === 'junior-50m', 'athletics team selection should include the event id');
+  assert(athleticsTeamBody.p_student_ids.length === 2, 'athletics team selection should include selected students');
+
+  await backend.backendDataAccess.recordAthleticsResult({
+    student_id: 'student-1',
+    event_id: 'junior-50m',
+    event_name: 'Junior 50m',
+    event_category: 'sprint',
+    result_value: '9.82',
+    result_number: 9.82,
+    measure: 'time',
+    house: 'Blue',
+    place: '1',
+    points: 10,
+    personal_best: true,
+    date: '2026-06-16'
+  });
+  const athleticsResultCall = calls.find((call) => call.url.includes('/rest/v1/rpc/record_athletics_result'));
+  assert(athleticsResultCall, 'athletics result should write through a Supabase RPC');
+  const athleticsResultBody = JSON.parse(athleticsResultCall.options.body);
+  assert(athleticsResultBody.p_school_id === 'school-live-style', 'athletics result should include school scope');
+  assert(athleticsResultBody.p_student_id === 'student-1', 'athletics result should target the student');
+  assert(athleticsResultBody.p_event_id === 'junior-50m', 'athletics result should include event id');
+  assert(athleticsResultBody.p_result_number === 9.82, 'athletics result should include numeric PB/scoring value');
+
+  await backend.backendDataAccess.saveCrossCountryCourse({
+    id: 'course-live-1',
+    name: 'Junior Loop',
+    distance_m: 1200,
+    division: 'Junior',
+    active: true
+  });
+  const crossCountryCourseCall = calls.find((call) => call.url.includes('/rest/v1/rpc/save_cross_country_course'));
+  assert(crossCountryCourseCall, 'cross country course should write through a Supabase RPC');
+  const crossCountryBody = JSON.parse(crossCountryCourseCall.options.body);
+  assert(crossCountryBody.p_school_id === 'school-live-style', 'cross country course should include school scope');
+  assert(crossCountryBody.p_name === 'Junior Loop', 'cross country course should include course name');
+  assert(crossCountryBody.p_distance_m === 1200, 'cross country course should include metres');
+
+  await backend.backendDataAccess.saveCoachNote({
+    tool: 'needs-attention',
+    scope: 'student-1',
+    note: 'Check in before next run.',
+    staff: 'coach@example.test',
+    metadata: { source_screen: 'coach-tools' }
+  });
+  const coachNoteCall = calls.find((call) => call.url.includes('/rest/v1/rpc/save_coach_note'));
+  assert(coachNoteCall, 'coach note should write through a Supabase RPC');
+  const coachNoteBody = JSON.parse(coachNoteCall.options.body);
+  assert(coachNoteBody.p_school_id === 'school-live-style', 'coach note should include school scope');
+  assert(coachNoteBody.p_tool === 'needs-attention', 'coach note should include the coach tool');
+  assert(coachNoteBody.p_note === 'Check in before next run.', 'coach note should include note text');
+
+  await backend.backendDataAccess.createStudentNotification({
+    student_id: 'student-1',
+    title: 'Close to award',
+    message: 'Only 2 laps to go.',
+    notification_type: 'close-award',
+    metadata: { source_screen: 'coach-tools' }
+  });
+  const studentNotificationCall = calls.find((call) => call.url.includes('/rest/v1/rpc/create_student_notification'));
+  assert(studentNotificationCall, 'student notification should write through a Supabase RPC');
+  const studentNotificationBody = JSON.parse(studentNotificationCall.options.body);
+  assert(studentNotificationBody.p_school_id === 'school-live-style', 'student notification should include school scope');
+  assert(studentNotificationBody.p_student_id === 'student-1', 'student notification should target the student');
+  assert(studentNotificationBody.p_notification_type === 'close-award', 'student notification should include notification type');
 
   const customCalls = [];
   const customBackend = createBackend((url, options) => {

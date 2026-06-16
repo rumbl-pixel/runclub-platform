@@ -17,7 +17,13 @@
     studentProgressSummary: 'student_progress_summary',
     backupExports: 'backup_exports',
     demoDataImports: 'demo_data_imports',
-    studentMedicalNotes: 'student_medical_notes'
+    studentMedicalNotes: 'student_medical_notes',
+    athleticsTeamSelections: 'athletics_team_selections',
+    athleticsResults: 'athletics_results',
+    crossCountryCourses: 'cross_country_courses',
+    coachNotes: 'coach_notes',
+    studentNotifications: 'student_notifications',
+    staffInvites: 'staff_invites'
   };
 
   function localLoad(key, fallback) {
@@ -487,6 +493,78 @@
         p_metadata: entry.metadata || {}
       });
     },
+    setAthleticsConsentStatus: function (entry) {
+      var c = config();
+      return callRpc('set_athletics_consent_status', {
+        p_school_id: c.schoolId,
+        p_student_id: entry.student_id || null,
+        p_barcode: entry.barcode || '',
+        p_status: entry.status || entry.consent_status || 'pending',
+        p_metadata: entry.metadata || {}
+      });
+    },
+    saveAthleticsTeamSelection: function (selection) {
+      var c = config();
+      return callRpc('save_athletics_team_selection', {
+        p_school_id: c.schoolId,
+        p_event_id: selection.event_id || selection.eventId || '',
+        p_student_ids: selection.student_ids || selection.studentIds || [],
+        p_metadata: selection.metadata || {}
+      });
+    },
+    recordAthleticsResult: function (result) {
+      var c = config();
+      return callRpc('record_athletics_result', {
+        p_school_id: c.schoolId,
+        p_student_id: result.student_id || null,
+        p_event_id: result.event_id || '',
+        p_event_name: result.event_name || '',
+        p_event_category: result.event_category || '',
+        p_measure: result.measure || '',
+        p_result_value: result.result_value || '',
+        p_result_number: result.result_number == null ? null : Number(result.result_number),
+        p_house: result.house || '',
+        p_place: result.place || '',
+        p_points: Number(result.points || 0),
+        p_personal_best: result.personal_best === true,
+        p_result_date: result.date || result.result_date || new Date().toISOString().slice(0, 10),
+        p_metadata: result.metadata || {}
+      });
+    },
+    saveCrossCountryCourse: function (course) {
+      var c = config();
+      return callRpc('save_cross_country_course', {
+        p_school_id: c.schoolId,
+        p_course_key: course.id || course.course_key || course.name || '',
+        p_name: course.name || '',
+        p_distance_m: Number(course.distance_m || course.distanceMetres || 0),
+        p_division: course.division || '',
+        p_active: course.active !== false,
+        p_metadata: course.metadata || {}
+      });
+    },
+    saveCoachNote: function (note) {
+      var c = config();
+      return callRpc('save_coach_note', {
+        p_school_id: c.schoolId,
+        p_tool: note.tool || '',
+        p_scope: note.scope || '',
+        p_note: note.note || '',
+        p_staff_label: note.staff || note.staff_label || '',
+        p_metadata: note.metadata || {}
+      });
+    },
+    createStudentNotification: function (notification) {
+      var c = config();
+      return callRpc('create_student_notification', {
+        p_school_id: c.schoolId,
+        p_student_id: notification.student_id || null,
+        p_notification_type: notification.notification_type || notification.type || 'coach-reminder',
+        p_title: notification.title || '',
+        p_message: notification.message || '',
+        p_metadata: notification.metadata || {}
+      });
+    },
     leaderboardTotals: function () {
       if (!isConfigured()) { return Promise.resolve(localLoad('rc_students', [])); }
       return request('GET', TABLES.leaderboardTotals, null, 'school_id=eq.' + encodeURIComponent(config().schoolId) + '&order=total_laps.desc')
@@ -524,6 +602,11 @@
       training_clicks: localLoad('rc_training_clicks', []),
       training_completions: localLoad('rc_training_completions', []),
       medical_notes: localLoad('rc_medical_notes', {}),
+      athletics_team_selections: localLoad('rc_athletics_team_selections', {}),
+      athletics_results: localLoad('rc_athletics_results', []),
+      cross_country_courses: localLoad('rc_cross_country_courses', []),
+      coach_notes: localLoad('rc_coach_notes', []),
+      student_notifications: localLoad('rc_student_notifications', []),
       adjustments: localLoad('rc_adjustments', [])
     };
   }

@@ -165,6 +165,20 @@
     saveStudents(students);
     return Promise.resolve({ok:true,local:true});
   }
+  function runLiveFeatureWrite(methodName,payload,localApply,errorMessage){
+    var guard=liveRosterGuard();
+    if(!guard.ok){return Promise.resolve({ok:false,blocked:true,error:guard.message||errorMessage||'Local feature save blocked.'});}
+    var access=window.RunClubBackend&&window.RunClubBackend.backendDataAccess;
+    if(guard.live&&access&&typeof access[methodName]==='function'){
+      return access[methodName](payload).then(function(result){
+        if(!result.ok){return result;}
+        if(localApply){localApply(result);}
+        return result;
+      });
+    }
+    if(localApply){localApply({ok:true,local:true});}
+    return Promise.resolve({ok:true,local:true});
+  }
   function lapsTokm(l) { return l*programSettings().lapDistanceKm; }
   function minutesToKm(m) { return m/20; } // Marathon Kids: 20 min = 1 km
   function totalKm(s) { return lapsTokm(s.laps)+minutesToKm(s.minutes||0); }
@@ -1842,13 +1856,22 @@
     if(!currentAthleticsTeamEvent){return;}
     var rows=athleticsTeamSelections();
     var selected=Array.prototype.map.call(document.querySelectorAll('.athletics-team-student-check:checked'),function(input){return input.value;});
-    rows[athleticsTeamSelectionKey(currentAthleticsTeamEvent.id,selectedDivisionForCurrentEvent())]=selected;
-    saveAthleticsTeamSelections(rows);
-    showResult(athleticsTeamResultEl,{success:true,message:'Team saved. The summary list has been updated.',event:currentAthleticsTeamEvent.name,selected_students:selected.length});
-    renderInterschoolAthleticsEvents();
-    renderAthleticsTeamOverview();
-    refreshSportsCommandSummary();
-    renderAthleticsTeamModal();
+    var key=athleticsTeamSelectionKey(currentAthleticsTeamEvent.id,selectedDivisionForCurrentEvent());
+    runLiveFeatureWrite('saveAthleticsTeamSelection',{
+      event_id:key,
+      student_ids:selected.filter(isUuid),
+      metadata:{source_screen:'sports-tab',event_id:currentAthleticsTeamEvent.id,division:selectedDivisionForCurrentEvent(),local_student_ids:selected}
+    },function(){
+      rows[key]=selected;
+      saveAthleticsTeamSelections(rows);
+    },'Local athletics team selection blocked.').then(function(result){
+      if(!result.ok){showResult(athleticsTeamResultEl,{success:false,error:result.error||result.reason||'Team save failed.'});return;}
+      showResult(athleticsTeamResultEl,{success:true,message:'Team saved. The summary list has been updated.',event:currentAthleticsTeamEvent.name,selected_students:selected.length,backend:result.local?'local':'synced'});
+      renderInterschoolAthleticsEvents();
+      renderAthleticsTeamOverview();
+      refreshSportsCommandSummary();
+      renderAthleticsTeamModal();
+    });
   }
 
   function eventFromSelectionKey(key){
@@ -1987,13 +2010,30 @@
       if(!Object.prototype.hasOwnProperty.call(statuses,student.id)){return student;}
       return Object.assign({},student,{consent_status:statuses[student.id]});
     });
-    saveStudents(students);
-    saveAthleticsConsentSelections(selected);
-    renderAthleticsConsentSummary();
-    renderAthleticsConsentList();
-    renderAthleticsTeamOverview();
-    refreshSportsCommandSummary();
-    closeAthleticsConsentModal();
+    var changed=getStudents().filter(function(student){return Object.prototype.hasOwnProperty.call(statuses,student.id);});
+    var guard=liveRosterGuard();
+    if(!guard.ok){showResult(athleticsTeamResultEl,{success:false,error:guard.message||'Local athletics consent blocked.'});return;}
+    var access=window.RunClubBackend&&window.RunClubBackend.backendDataAccess;
+    var writes=(guard.live&&access&&access.setAthleticsConsentStatus)?changed.map(function(student){
+      return access.setAthleticsConsentStatus({
+        student_id:isUuid(student.id)?student.id:null,
+        barcode:student.barcode||student.id,
+        status:statuses[student.id]||'pending',
+        metadata:{source_screen:'sports-tab'}
+      });
+    }):[Promise.resolve({ok:true,local:true})];
+    Promise.all(writes).then(function(results){
+      var failed=results.find(function(result){return !result.ok;});
+      if(failed){showResult(athleticsTeamResultEl,{success:false,error:failed.error||failed.reason||'Consent save failed.'});return;}
+      saveStudents(students);
+      saveAthleticsConsentSelections(selected);
+      renderAthleticsConsentSummary();
+      renderAthleticsConsentList();
+      renderAthleticsTeamOverview();
+      refreshSportsCommandSummary();
+      closeAthleticsConsentModal();
+      showResult(athleticsTeamResultEl,{success:true,message:'Athletics consent checklist saved.',students:changed.length,backend:guard.live?'synced':'local'});
+    });
   }
 
   function setStudentAthleticsConsent(studentId,granted){
@@ -2003,11 +2043,20 @@
       updated=Object.assign({},student,{consent_status:granted?'granted':'pending'});
       return updated;
     });
-    saveStudents(students);
-    renderAthleticsConsentSummary();
-    renderAthleticsConsentList();
-    renderAthleticsTeamOverview();
-    refreshSportsCommandSummary();
+    runLiveFeatureWrite('setAthleticsConsentStatus',{
+      student_id:updated&&isUuid(updated.id)?updated.id:null,
+      barcode:updated&&(updated.barcode||updated.id),
+      status:updated?updated.consent_status:'pending',
+      metadata:{source_screen:'sports-tab'}
+    },function(){
+      saveStudents(students);
+    },'Local athletics consent blocked.').then(function(result){
+      if(!result.ok){showResult(athleticsTeamResultEl,{success:false,error:result.error||result.reason||'Consent save failed.'});return;}
+      renderAthleticsConsentSummary();
+      renderAthleticsConsentList();
+      renderAthleticsTeamOverview();
+      refreshSportsCommandSummary();
+    });
   }
 
   interschoolAthleticsModeEl.checked=window.RunClubGoals.isInterschoolAthleticsMode();
@@ -2151,12 +2200,23 @@
       created_by:session.email
     };
     var courses=crossCountryCourses();
-    courses.push(course);
-    saveCrossCountryCourses(courses);
-    crossCountryCourseFormEl.reset();
-    showResult(crossCountryResultEl,{success:true,message:'Cross Country course saved.',course:course});
-    renderCrossCountryCourses();
-    refreshSportsCommandSummary();
+    runLiveFeatureWrite('saveCrossCountryCourse',{
+      id:course.id,
+      name:course.name,
+      distance_m:course.distance_m,
+      division:course.year_group,
+      active:true,
+      metadata:{source_screen:'sports-tab',notes:course.notes}
+    },function(){
+      courses.push(course);
+      saveCrossCountryCourses(courses);
+    },'Local Cross Country course blocked.').then(function(result){
+      if(!result.ok){showResult(crossCountryResultEl,{success:false,error:result.error||result.reason||'Cross Country course save failed.'});return;}
+      crossCountryCourseFormEl.reset();
+      showResult(crossCountryResultEl,{success:true,message:'Cross Country course saved.',course:course,backend:result.local?'local':'synced'});
+      renderCrossCountryCourses();
+      refreshSportsCommandSummary();
+    });
   }
 
   if(crossCountryCourseFormEl){
@@ -2280,16 +2340,34 @@
     };
     row.personal_best=isPersonalBest(row);
     var rows=athleticsResults();
-    rows.push(row);
-    saveAthleticsResults(rows);
-    showResult(athleticsResultOutputEl,{success:true,message:row.personal_best?'Result saved - new PB.':'Result saved.',result:row});
-    athleticsResultFormEl.reset();
-    populateAthleticsEvents();
-    renderPBTracking();
-    renderAgeChampionScoring();
-    renderHousePoints();
-    renderAthleticsTeamOverview();
-    refreshSportsCommandSummary();
+    runLiveFeatureWrite('recordAthleticsResult',{
+      student_id:isUuid(student.id)?student.id:null,
+      event_id:row.event_id,
+      event_name:row.event_name,
+      event_category:row.event_category,
+      measure:row.measure,
+      result_value:row.result_value,
+      result_number:row.result_number,
+      house:row.house,
+      place:row.place,
+      points:row.points,
+      personal_best:row.personal_best,
+      date:row.date,
+      metadata:{source_screen:'sports-tab',attempts:attempts,local_student_id:student.id,barcode:student.barcode||student.id}
+    },function(){
+      rows.push(row);
+      saveAthleticsResults(rows);
+    },'Local athletics result blocked.').then(function(result){
+      if(!result.ok){showResult(athleticsResultOutputEl,{success:false,error:result.error||result.reason||'Result save failed.'});return;}
+      showResult(athleticsResultOutputEl,{success:true,message:row.personal_best?'Result saved - new PB.':'Result saved.',result:row,backend:result.local?'local':'synced'});
+      athleticsResultFormEl.reset();
+      populateAthleticsEvents();
+      renderPBTracking();
+      renderAgeChampionScoring();
+      renderHousePoints();
+      renderAthleticsTeamOverview();
+      refreshSportsCommandSummary();
+    });
   }
 
   function renderPBTracking(){
@@ -3329,10 +3407,46 @@
     var rows=coachNotes(); rows.push(row); saveCoachNotes(rows); return row;
   }
 
+  function saveCoachNoteWithBackend(scope,note){
+    var text=String(note||'').trim();
+    if(!text){return Promise.resolve({ok:false,validation:true,error:'Type a note before saving.'});}
+    var row={id:'coach-note-'+Date.now(),tool:activeCoachTool,scope:scope||activeCoachTool,note:text,created_at:new Date().toISOString(),staff:session.email||'coach'};
+    return runLiveFeatureWrite('saveCoachNote',{
+      tool:row.tool,
+      scope:row.scope,
+      note:row.note,
+      staff:row.staff,
+      metadata:{source_screen:'coach-tools',local_note_id:row.id}
+    },function(){
+      var rows=coachNotes();
+      rows.push(row);
+      saveCoachNotes(rows);
+    },'Local coach note blocked.').then(function(result){
+      return Object.assign({},result,{coach_note:row});
+    });
+  }
+
   function pushStudentNotification(student,type,title,message,meta){
     var rows=studentNotifications();
     rows.push({id:'student-note-'+Date.now()+'-'+Math.floor(Math.random()*1000),student_id:student.id,type:type,title:title,message:message,meta:meta||{},created_at:new Date().toISOString(),read:false});
     saveStudentNotifications(rows);
+  }
+
+  function pushStudentNotificationWithBackend(student,type,title,message,meta){
+    var row={id:'student-note-'+Date.now()+'-'+Math.floor(Math.random()*1000),student_id:student.id,type:type,title:title,message:message,meta:meta||{},created_at:new Date().toISOString(),read:false};
+    return runLiveFeatureWrite('createStudentNotification',{
+      student_id:isUuid(student.id)?student.id:null,
+      notification_type:type,
+      title:title,
+      message:message,
+      metadata:Object.assign({source_screen:'coach-tools',local_notification_id:row.id,local_student_id:student.id,barcode:student.barcode||student.id},meta||{})
+    },function(){
+      var rows=studentNotifications();
+      rows.push(row);
+      saveStudentNotifications(rows);
+    },'Local student notification blocked.').then(function(result){
+      return Object.assign({},result,{student_notification:row});
+    });
   }
 
   function closeAwardRows(limit){
@@ -3461,8 +3575,10 @@
   function notifyCloseAwardStudent(studentId,quiet){
     var row=closeAwardRows().find(function(item){return item.student.id===studentId;});
     if(!row){return;}
-    pushStudentNotification(row.student,'close-award','Close to your next award','You are '+row.lapsLeft+' lap'+(row.lapsLeft===1?'':'s')+' from '+row.next.name+'.',{laps_left:row.lapsLeft,award:row.next.name});
-    if(!quiet){showResult(coachToolResultEl,{success:true,message:'Student notification queued.',student:row.student.name,award:row.next.name});}
+    pushStudentNotificationWithBackend(row.student,'close-award','Close to your next award','You are '+row.lapsLeft+' lap'+(row.lapsLeft===1?'':'s')+' from '+row.next.name+'.',{laps_left:row.lapsLeft,award:row.next.name}).then(function(result){
+      if(!result.ok){showResult(coachToolResultEl,{success:false,error:result.error||result.reason||'Notification failed.'});return;}
+      if(!quiet){showResult(coachToolResultEl,{success:true,message:'Student notification queued.',student:row.student.name,award:row.next.name,backend:result.local?'local':'synced'});}
+    });
   }
 
   function closeCoachToolModal(){closeAdminModal(coachToolModalEl);}
@@ -3497,11 +3613,13 @@
   if(coachToolNoteFormEl){
     coachToolNoteFormEl.addEventListener('submit',function(e){
       e.preventDefault();
-      var row=saveCoachNote(coachToolNoteScopeEl.value,coachToolNoteTextEl.value);
-      if(!row){showResult(coachToolResultEl,{success:false,error:'Type a note before saving.'});return;}
-      coachToolNoteTextEl.value='';
-      renderCoachNotes();
-      showResult(coachToolResultEl,{success:true,message:'Coach note saved.',scope:row.scope});
+      saveCoachNoteWithBackend(coachToolNoteScopeEl.value,coachToolNoteTextEl.value).then(function(result){
+        if(!result.ok){showResult(coachToolResultEl,{success:false,error:result.error||result.reason||'Coach note failed.'});return;}
+        var row=result.coach_note;
+        coachToolNoteTextEl.value='';
+        renderCoachNotes();
+        showResult(coachToolResultEl,{success:true,message:'Coach note saved.',scope:row.scope,backend:result.local?'local':'synced'});
+      });
     });
   }
 

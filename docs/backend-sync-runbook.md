@@ -39,6 +39,19 @@ supabase functions deploy guardian_access
 
 Seed only fake staging data from `supabase/seed.staging.sql`. See `docs/supabase-staging-checklist.md` before connecting the UI to staging.
 
+## Live Beta Feature Tables
+
+The live beta migration adds school-scoped tables for newer admin workflows:
+
+- `athletics_team_selections` stores event team picks from the Sports tab.
+- `athletics_results` stores sprint, distance, jump, throw, relay, ball-game, and cross-country results.
+- `cross_country_courses` stores seasonal course definitions.
+- `coach_notes` stores staff-only follow-up notes from Coach Tools.
+- `student_notifications` stores coach-created profile notifications such as close-to-award reminders.
+- `staff_invites` tracks invite-only staff readiness before accounts are created in Supabase Auth.
+
+All of these tables must keep RLS enabled before live use. Staff-facing writes should go through the provided RPCs so school scope, role checks, audit context, and student existence checks stay server-side.
+
 ## Scan Sync And Conflicts
 
 Every successful local scan now receives an `idempotency_key` and is queued through `RunClubBackend.enqueueMutation`.
@@ -113,6 +126,11 @@ The payload includes:
 - sessions
 - goals
 - training assignments and link events
+- athletics_team_selections
+- athletics_results
+- cross_country_courses
+- coach_notes
+- student_notifications
 - manual adjustments
 
 The `demo_data_imports` table records received payloads, validation status, import status, and conflict count. Real imports should be reviewed before writing to production student records.
@@ -126,3 +144,5 @@ Priority 3 provides the bridge. Priority 0 is still the live-data gate:
 - school-scoped access
 - removal of universal `DEMO`
 - consent, retention, deletion, and incident processes
+- staff_invites reviewed against the real Supabase Auth invite list
+- athletics_team_selections and athletics_results checked with fake staging students before real carnival data is entered
