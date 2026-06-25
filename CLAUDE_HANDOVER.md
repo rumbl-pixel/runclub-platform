@@ -41,6 +41,7 @@ python -m http.server 8080
 - Beta Testing Toolkit in Admin Help with demo snapshot export, confirmed demo reset, first-time admin guide, feature status badges, page health labels, and tester checklist link.
 - Backend adapter and live-style tests for future Supabase work.
 - Claude transition plan, first-review brief, and beta-readiness sweep docs.
+- Beta prep completion report at `docs/beta-prep-completion-report.md`.
 
 ## What Must Not Be Broken
 
@@ -120,10 +121,10 @@ Real student data is blocked until all of these are finished:
 ## Next Build Order
 
 1. Freeze feature expansion except small beta safety/guidance wins.
-2. Run a second-agent code review focused on bugs, privacy risks, and `admin-dashboard.js` modularisation.
-3. Fix review findings before major refactor.
-4. Prepare hosted beta with demo data only.
-5. Run phone/iPad/laptop/browser/scanner beta checklist.
+2. Complete real-device beta checks: phone camera, iPad camera, Bluetooth scanner, print/download confirmations.
+3. Run a second-agent code review focused on bugs, privacy risks, and `admin-dashboard.js` modularisation.
+4. Fix review findings before major refactor.
+5. Prepare hosted beta with demo data only.
 6. Build production Supabase Auth/RLS in a separate hardening pass.
 7. Only after school approval and backend proof, consider real student data.
 

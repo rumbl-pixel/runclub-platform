@@ -632,6 +632,10 @@ Recently completed:
   - Page-aware Send Feedback footer links.
   - Homepage "What This Is / What This Is Not Yet" beta explanation.
   - Print-friendly About/Privacy styling.
+- Added `docs/beta-prep-completion-report.md` after a browser/automated beta prep sweep on 2026-06-25.
+- Desktop browser sweep passed for home, about, privacy, student, parent, leaderboard, kiosk, and key admin deep links.
+- Phone-width browser sweep passed for home, about, student profile, admin help, sports, programming, and kiosk.
+- Remaining beta items are external/manual: real phone/iPad camera scan, Bluetooth scanner, browser-native print/download confirmations, hosted demo deployment, Supabase production/Auth/RLS, and school approval.
 
 Still demo/local-only:
 
