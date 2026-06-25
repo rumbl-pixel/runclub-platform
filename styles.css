@@ -6962,3 +6962,339 @@ html[data-theme="dark"] .barcode-code {
     font-size: 0.9rem;
   }
 }
+
+/* Command shell refinement: closer to the approved Corso draft. */
+:root {
+  --corso-shell-rail: 18rem;
+  --corso-canvas: 76rem;
+  --corso-card-border: rgba(47, 45, 45, 0.18);
+}
+
+body {
+  font-size: 15px;
+}
+
+.hero-section h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #182638;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+html[data-theme="dark"] .hero-section h2 {
+  color: #fff7df;
+}
+
+.card h2,
+.card h3,
+.tab-panel h2,
+.tab-panel h3,
+.brand h1 {
+  font-family: "Open Sans", var(--brand-ui-font);
+}
+
+.card,
+.step,
+.feature-item,
+.portal-card,
+.impl-item,
+.beta-definition-grid > div,
+.resource-card,
+.coach-tool-card,
+.future-skeleton-card,
+.student-summary-card,
+.award-card,
+.report-card,
+.training-card,
+.school-settings-card,
+.student-profile-card,
+.form-panel,
+.tab-panel .card {
+  border-width: 1px;
+  border-color: var(--corso-card-border);
+  border-left: 4px solid var(--corso-red);
+  box-shadow: none;
+}
+
+.portal-card,
+.feature-item,
+.impl-item,
+.step,
+.beta-definition-grid > div {
+  min-height: 8.25rem;
+}
+
+.hero-section {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  padding-top: 1.6rem;
+}
+
+.hero-section h2 {
+  font-size: clamp(3rem, 7.2vw, 5.2rem);
+  max-width: 980px;
+}
+
+.hero-section p {
+  font-size: 1.04rem;
+  max-width: 720px;
+}
+
+.hero-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-chip {
+  border-width: 1px;
+  border-left: 4px solid var(--corso-red);
+  background: rgba(255, 253, 245, 0.86);
+  min-height: 4.1rem;
+}
+
+.features-grid,
+.impl-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.portal-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tabs {
+  align-items: stretch;
+}
+
+.tab-btn {
+  justify-content: center;
+  text-align: center;
+}
+
+body:not(.page-kiosk) .card,
+body:not(.page-kiosk) .step,
+body:not(.page-kiosk) .feature-item,
+body:not(.page-kiosk) .portal-card,
+body:not(.page-kiosk) .resource-card,
+body:not(.page-kiosk) .training-card,
+body:not(.page-kiosk) .award-card {
+  color: var(--corso-ink);
+}
+
+body:not(.page-kiosk) .card p,
+body:not(.page-kiosk) .step p,
+body:not(.page-kiosk) .feature-item div,
+body:not(.page-kiosk) .portal-card p,
+body:not(.page-kiosk) .resource-card p,
+body:not(.page-kiosk) .training-card p,
+body:not(.page-kiosk) .award-card p {
+  color: var(--corso-muted);
+}
+
+body:not(.page-kiosk) .card h2,
+body:not(.page-kiosk) .card h3,
+body:not(.page-kiosk) .step strong,
+body:not(.page-kiosk) .feature-item div strong,
+body:not(.page-kiosk) .portal-card h3,
+body:not(.page-kiosk) .resource-card h3,
+body:not(.page-kiosk) .training-card h3,
+body:not(.page-kiosk) .award-card h3 {
+  color: var(--corso-ink);
+}
+
+body:not(.page-kiosk) .corso-wordmark {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  body:not(.page-kiosk) {
+    padding-left: var(--corso-shell-rail);
+  }
+
+  body:not(.page-kiosk) .site-header {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--corso-shell-rail);
+    height: 100vh;
+    padding: 1.6rem 1.35rem;
+    border: 0;
+    border-right: 1px solid rgba(47, 45, 45, 0.10);
+    background:
+      linear-gradient(180deg, rgba(255, 58, 40, 0.035), transparent 16rem),
+      var(--corso-cream);
+    overflow-y: auto;
+  }
+
+  body:not(.page-kiosk) .site-header::after {
+    display: none;
+  }
+
+  body:not(.page-kiosk) .header-inner {
+    display: grid;
+    align-content: start;
+    gap: 2.6rem;
+    min-height: calc(100vh - 3.2rem);
+  }
+
+  body:not(.page-kiosk) .brand {
+    display: grid;
+    gap: 0.7rem;
+    align-items: start;
+  }
+
+  body:not(.page-kiosk) .brand-logo {
+    width: 190px;
+    max-width: 100%;
+    flex-basis: auto;
+  }
+
+  body:not(.page-kiosk) .brand h1 {
+    font-size: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  body:not(.page-kiosk) .main-nav {
+    position: static;
+    display: grid;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+    transition: none;
+  }
+
+  body:not(.page-kiosk) .mobile-menu-toggle {
+    display: none;
+  }
+
+  body:not(.page-kiosk) .main-nav a,
+  body:not(.page-kiosk) .main-nav button {
+    justify-content: flex-start;
+    min-height: 3.55rem;
+    padding: 0.85rem 1rem;
+    border: 0;
+    border-left: 4px solid transparent;
+    background: transparent;
+    color: #203044;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  body:not(.page-kiosk) .main-nav a:hover,
+  body:not(.page-kiosk) .main-nav button:hover {
+    background: rgba(255, 58, 40, 0.06);
+    color: var(--corso-red);
+    border-left-color: var(--corso-red);
+    box-shadow: none;
+    transform: none;
+  }
+
+  body:not(.page-kiosk) .main-nav a[aria-current="page"],
+  body:not(.page-kiosk) .main-nav a:first-child {
+    background: rgba(255, 58, 40, 0.06);
+    color: var(--corso-red);
+    border-left-color: var(--corso-red);
+  }
+
+  body:not(.page-kiosk) .tagline,
+  body:not(.page-kiosk) .session-bar {
+    display: block;
+    margin-top: auto;
+    padding-top: 1.4rem;
+    border-top: 1px solid rgba(47, 45, 45, 0.16);
+    color: #6f665a;
+    font-size: 0.92rem;
+  }
+
+  body:not(.page-kiosk) .content {
+    width: min(var(--corso-canvas), calc(100vw - var(--corso-shell-rail) - 4rem));
+    margin: 0 auto;
+    padding-top: 2.2rem;
+  }
+
+  body:not(.page-kiosk).page-home .content {
+    width: min(var(--corso-canvas), calc(100vw - var(--corso-shell-rail) - 4rem));
+  }
+
+  body:not(.page-kiosk) .hero-section {
+    padding-top: 0.7rem;
+  }
+
+  body:not(.page-kiosk) .hero-section::before {
+    content: "Welcome back, Coach";
+    display: block;
+    color: #182638;
+    font-family: "Open Sans", var(--brand-ui-font);
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: -0.75rem;
+  }
+
+  body:not(.page-kiosk) .card {
+    margin-block: 1.35rem;
+  }
+
+  body:not(.page-kiosk) .tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero-stats,
+  .features-grid,
+  .portal-grid,
+  .impl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .brand-logo {
+    width: 54px;
+  }
+
+  .hero-section h2 {
+    font-size: clamp(2.45rem, 14vw, 3.5rem);
+    letter-spacing: -0.045em;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .hero-stats,
+  .features-grid,
+  .portal-grid,
+  .impl-grid,
+  .steps-grid,
+  .beta-definition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card,
+  .step,
+  .feature-item,
+  .portal-card,
+  .impl-item,
+  .beta-definition-grid > div {
+    padding: 0.95rem;
+    min-height: auto;
+  }
+
+  .stat-chip {
+    min-height: 3.6rem;
+  }
+}
