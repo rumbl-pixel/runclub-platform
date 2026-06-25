@@ -14,6 +14,8 @@
     "deploy:cloudflare:preview": "npm run cloudflare:check && npx wrangler pages deploy dist-pages --project-name corso-platform --branch beta-demo",
     "check:staging-readiness": "node scripts/staging-readiness-check.js",
     "check:supabase-live-style": "node scripts/supabase-live-style-check.js",
+    "check:supabase-production": "node scripts/supabase-production-readiness-check.js",
+    "provision:supabase-school": "node scripts/provision-supabase-school.js",
     "supabase:start": "supabase start --ignore-health-check",
     "supabase:status": "supabase status",
     "supabase:lint": "supabase db lint",

@@ -647,6 +647,13 @@ Recently completed:
   - Cloudflare OAuth login completed.
   - Created the Cloudflare Pages project `corso-platform`.
   - Deployed the demo beta to `https://corso-platform.pages.dev/`.
+- Supabase production setup helpers added on 2026-06-25:
+  - Added `docs/supabase-production-runbook.md`.
+  - Added `scripts/supabase-production-readiness-check.js`.
+  - Added `scripts/provision-supabase-school.js`.
+  - Added npm scripts `check:supabase-production` and `provision:supabase-school`.
+  - The provisioning helper creates/updates a school, creates a coach Auth account from assigned username + password, writes the `app_users` and school-scoped `school_users` coach row, and records the `staff_invites` audit row.
+  - The helper uses `SUPABASE_SERVICE_ROLE_KEY` from the local shell only and never writes it to browser files.
 
 Still demo/local-only:
 
@@ -656,6 +663,8 @@ Still demo/local-only:
 - Mini Coach recommendations.
 - Compliance sign-off workflow.
 - Compass import.
+- Real Supabase production project creation/linking.
+- Real coach account provisioning against Supabase production.
 
 Live blockers:
 

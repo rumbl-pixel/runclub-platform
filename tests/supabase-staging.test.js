@@ -26,7 +26,10 @@ assertFile('supabase/seed.staging.sql');
 assertFile('docs/supabase-staging-checklist.md');
 assertFile('docs/staging-coach-staff.sql');
 assertFile('docs/platform-admin-grant.sql');
+assertFile('docs/supabase-production-runbook.md');
 assertFile('scripts/staging-readiness-check.js');
+assertFile('scripts/supabase-production-readiness-check.js');
+assertFile('scripts/provision-supabase-school.js');
 assertFile('supabase/migrations/202606160001_live_beta_feature_tables.sql');
 assertFile('supabase/migrations/202606180001_platform_admin_school_coach_access.sql');
 
@@ -129,6 +132,8 @@ assert(/athletics_team_selections/.test(runbook), 'runbook should mention athlet
 const packageJson = JSON.parse(read('package.json'));
 assert(packageJson.scripts['test:supabase-staging'] === 'node tests/supabase-staging.test.js', 'package should expose a Supabase staging test script');
 assert(packageJson.scripts['check:staging-readiness'] === 'node scripts/staging-readiness-check.js', 'package should expose a staging readiness check script');
+assert(packageJson.scripts['check:supabase-production'] === 'node scripts/supabase-production-readiness-check.js', 'package should expose a Supabase production readiness check script');
+assert(packageJson.scripts['provision:supabase-school'] === 'node scripts/provision-supabase-school.js', 'package should expose a school coach provisioning script');
 assert(packageJson.scripts.test.includes('tests/supabase-staging.test.js'), 'npm test should include Supabase staging checks');
 
 const readinessCheck = read('scripts/staging-readiness-check.js');
@@ -137,5 +142,26 @@ assert(/SUPABASE_ANON_KEY/.test(readinessCheck), 'staging readiness check should
 assert(/RUN_CLUB_SCHOOL_ID/.test(readinessCheck), 'staging readiness check should inspect school id env');
 assert(/docker info/.test(readinessCheck), 'staging readiness check should inspect Docker availability');
 assert(/supabase --version/.test(readinessCheck), 'staging readiness check should inspect Supabase CLI availability');
+
+const productionRunbook = read('docs/supabase-production-runbook.md');
+assert(/projects create corso-production/.test(productionRunbook), 'production runbook should document Supabase project creation');
+assert(/ap-southeast-2/.test(productionRunbook), 'production runbook should recommend an Australian region');
+assert(/npm run provision:supabase-school/.test(productionRunbook), 'production runbook should include the provisioning command');
+assert(/Site code/.test(productionRunbook) && /assigned username/.test(productionRunbook), 'production runbook should preserve the site-code username login model');
+assert(/Never add them to `config\.js`/.test(productionRunbook), 'production runbook should keep service-role keys out of browser config');
+
+const productionReadinessCheck = read('scripts/supabase-production-readiness-check.js');
+assert(/SUPABASE_SERVICE_ROLE_KEY/.test(productionReadinessCheck), 'production readiness check should require the service role only as an env var');
+assert(/CORSO_SITE_CODE/.test(productionReadinessCheck), 'production readiness check should validate site code input');
+assert(/CORSO_COACH_USERNAME/.test(productionReadinessCheck), 'production readiness check should validate coach username input');
+assert(/No secret values are printed/.test(productionReadinessCheck), 'production readiness check should state that secrets are not printed');
+
+const provisionSchool = read('scripts/provision-supabase-school.js');
+assert(/auth\/v1\/admin\/users/.test(provisionSchool), 'provisioning script should create Supabase Auth users through the admin API');
+assert(/school_users/.test(provisionSchool), 'provisioning script should create a school_users row');
+assert(/staff_invites/.test(provisionSchool), 'provisioning script should write a staff_invites audit row');
+assert(/role:\s*'coach'/.test(provisionSchool), 'provisioning script should force school staff to coach role');
+assert(/Password: supplied but not printed/.test(provisionSchool), 'provisioning script should not print staff passwords');
+assert(!/console\.log\(.*CORSO_COACH_PASSWORD/.test(provisionSchool), 'provisioning script must not log coach passwords');
 
 console.log('supabase staging checks passed');

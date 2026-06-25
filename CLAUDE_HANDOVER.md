@@ -48,6 +48,12 @@ python -m http.server 8080
   - npm scripts `cloudflare:check`, `deploy:cloudflare`, and `deploy:cloudflare:preview`
   - Cloudflare Pages project: `corso-platform`
   - URL: `https://corso-platform.pages.dev/`
+- Supabase production setup helpers:
+  - `docs/supabase-production-runbook.md`
+  - `scripts/supabase-production-readiness-check.js`
+  - `scripts/provision-supabase-school.js`
+  - npm scripts `check:supabase-production` and `provision:supabase-school`
+  - Production helper creates/updates a school, creates an assigned coach username in Supabase Auth, adds the school-scoped `coach` role, and records `staff_invites`.
 - Backend adapter and live-style tests for future Supabase work.
 - Claude transition plan, first-review brief, and beta-readiness sweep docs.
 - Beta prep completion report at `docs/beta-prep-completion-report.md`.
@@ -95,6 +101,8 @@ Real student data is blocked until all of these are finished:
 ## Known Skeleton Or Demo-Only Areas
 
 - Supabase Auth is not fully live.
+- Supabase production project is not created/linked in this repo yet because it requires Jeremy's Supabase access token, org ID, and database password.
+- Supabase coach provisioning flow is implemented as a CLI helper, but has not been run against a real production project yet.
 - RLS policies need final implementation and proof.
 - School/site-code login is currently a demo/local model.
 - Parent guardian access is demo/local until backend tokens are live.
@@ -123,8 +131,8 @@ Real student data is blocked until all of these are finished:
 | Programming | Done | Lesson catalogue, drag/drop planner, Mini Coach helper. |
 | Mini Coach | Skeleton | Useful local assistant, not production AI. |
 | Compliance workspace | Skeleton | Vendor posture and evidence tools exist; school sign-off still external. |
-| Supabase backend | Needs backend | Adapter/tests exist; production setup not done. |
-| Auth/RLS | Needs backend | Must be done before real student data. |
+| Supabase backend | Needs backend | Adapter/tests and production setup helpers exist; real project creation/linking still requires Supabase credentials. |
+| Auth/RLS | Needs backend | Coach invite provisioning helper exists; RLS proof must be done before real student data. |
 | Native app/App Store | Later | PWA first. |
 
 ## Next Build Order
@@ -142,6 +150,7 @@ Real student data is blocked until all of these are finished:
 npm test
 node --check admin-dashboard.js
 node --check theme.js
+npm run check:supabase-production
 git diff --check
 ```
 

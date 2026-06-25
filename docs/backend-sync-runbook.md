@@ -23,6 +23,15 @@ Cutover order:
 
 Staff login now uses a StrideTrack-style 4-digit Site code plus assigned usernames in the UI when `demoMode: false`. The Site code resolves the school scope through `siteCode`/`schoolSites` in `config.js`, then the browser converts each username to an internal Supabase Auth email using `authUsernameDomain` (for example `coach01` becomes `coach01@corso.local`). School staff must be invited as `coach` only, with a matching `school_users` row for that one school. The Corso owner uses the separate `platform_admins` grant, not a school staff role, so platform-wide access stays owner-only and auditable. The browser stores the staff access token in `runClubAdminSession` and uses it for live REST/RPC requests; `config.js` must still contain only the public anon key, never the service-role key.
 
+For the production helper path, use `docs/supabase-production-runbook.md`, then run:
+
+```bash
+npm run check:supabase-production
+npm run provision:supabase-school
+```
+
+The provisioning script uses local environment variables only. It must not be run with real student data until production Auth, RLS, school/site isolation, and parent/guardian linking have been proven.
+
 Staging setup starts with fake data:
 
 ```bash
