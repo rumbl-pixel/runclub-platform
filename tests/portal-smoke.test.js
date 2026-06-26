@@ -1091,8 +1091,8 @@ assert(/\.student-editor-modal\.athletics-team-modal[\s\S]*width:\s*min\(100%,\s
 assert(/athletics-consent-status-select/.test(styles), 'styles should support inline consent status dropdowns in the modal checklist');
 assert(/athletics-consent-status-select--pending/.test(styles) && /athletics-consent-status-select--granted/.test(styles) && /athletics-consent-status-select--declined/.test(styles), 'styles should colour pending, approved, and declined consent pills');
 assert(/athletics-consent-saved-list/.test(styles), 'styles should support the saved consent list inside team overview');
-assert(/styles\.css\?v=126/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
-assert(/styles\.css\?v=126/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
+assert(/styles\.css\?v=127/.test(leaderboardHtml), 'leaderboard page should request the current stylesheet version');
+assert(/styles\.css\?v=127/.test(interschoolTeamHtml), 'interschool team page should request the current stylesheet');
 assert(/theme\.js\?v=16/.test(studentProfileHtml), 'student profile should load the shared light/dark theme switch');
 assert(/data-theme="dark"/.test(styles), 'site styles should define dark theme overrides');
 assert(/html\[data-theme="dark"\] \.privacy-badge--public[\s\S]*color:\s*#fff3c4/.test(styles), 'dark mode should keep public-name privacy badges readable');

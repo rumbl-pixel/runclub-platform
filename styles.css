@@ -7879,3 +7879,35 @@ html[data-theme="dark"] body:not(.page-kiosk) .site-footer .feature-suggestion-b
   background-color: #fff7df;
   color: #191716;
 }
+
+body:not(.page-kiosk) .training-library-chip:hover,
+body:not(.page-kiosk) .training-library-chip:focus-visible {
+  background: var(--corso-red);
+  border-color: var(--corso-ink);
+  color: #fffdf5;
+}
+
+body:not(.page-kiosk) .training-library-chip:hover strong,
+body:not(.page-kiosk) .training-library-chip:hover span,
+body:not(.page-kiosk) .training-library-chip:hover small,
+body:not(.page-kiosk) .training-library-chip:focus-visible strong,
+body:not(.page-kiosk) .training-library-chip:focus-visible span,
+body:not(.page-kiosk) .training-library-chip:focus-visible small {
+  color: #fffdf5;
+}
+
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:hover,
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:focus-visible {
+  background: #fff7df;
+  border-color: var(--corso-red-dark);
+  color: #191716;
+}
+
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:hover strong,
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:hover span,
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:hover small,
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:focus-visible strong,
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:focus-visible span,
+html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:focus-visible small {
+  color: #191716;
+}
