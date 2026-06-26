@@ -284,7 +284,7 @@ body.mobile-nav-open .main-nav {
 
 .theme-toggle:hover {
   background: var(--corso-red);
-  color: #fffdf5;
+  color: var(--corso-ink);
 }
 
 .theme-toggle-track {
@@ -1683,7 +1683,7 @@ html[data-theme="dark"] .tab-btn:not(.active) {
 
 .coach-hub-tile:hover,
 .coach-hub-tile:focus-visible {
-  background: rgba(255, 47, 34, 0.055);
+  background: rgba(128, 194, 242, 0.13);
   border-color: var(--corso-red-dark);
   color: var(--corso-ink);
   transform: none;
@@ -6503,9 +6503,9 @@ html[data-theme="dark"] .athletics-event-chip small {
   --corso-ink: #2f2d2d;
   --corso-ink-2: #161616;
   --corso-muted: #6d665c;
-  --corso-red: #ff3a28;
-  --corso-red-dark: #d42f22;
-  --corso-red-soft: rgba(255, 58, 40, 0.10);
+  --corso-red: #80c2f2;
+  --corso-red-dark: #2f7fbd;
+  --corso-red-soft: rgba(128, 194, 242, 0.16);
   --corso-line: rgba(47, 45, 45, 0.22);
   --corso-line-strong: rgba(47, 45, 45, 0.58);
   --corso-black-panel: #2f2d2d;
@@ -6523,9 +6523,9 @@ html[data-theme="dark"] .athletics-event-chip small {
   --obsidian-navy-3: #3f3b38;
   --uniform-gold: var(--corso-red);
   --uniform-gold-dark: var(--corso-red-dark);
-  --uniform-gold-soft: rgba(255, 58, 40, 0.16);
-  --uniform-gold-wash: rgba(255, 58, 40, 0.08);
-  --uniform-gold-hover: rgba(255, 58, 40, 0.14);
+  --uniform-gold-soft: rgba(128, 194, 242, 0.22);
+  --uniform-gold-wash: rgba(128, 194, 242, 0.12);
+  --uniform-gold-hover: rgba(128, 194, 242, 0.18);
   --glass-surface: var(--corso-paper);
   --glass-surface-strong: #fffefa;
   --shadow-sm: none;
@@ -6551,7 +6551,7 @@ html[data-theme="dark"] {
   --muted: var(--corso-muted);
   --line: var(--corso-line);
   --line-strong: var(--corso-line-strong);
-  --obsidian-blue: #ff715f;
+  --obsidian-blue: #80c2f2;
   --obsidian-navy: #fff7df;
   --obsidian-navy-2: #fff1c6;
   --obsidian-navy-3: #f1d596;
@@ -6562,14 +6562,14 @@ html[data-theme="dark"] {
 body {
   font-family: "Open Sans", var(--brand-ui-font);
   background:
-    linear-gradient(180deg, rgba(255, 58, 40, 0.045), transparent 18rem),
+    linear-gradient(180deg, rgba(128, 194, 242, 0.12), transparent 18rem),
     var(--corso-cream);
   color: var(--corso-ink);
 }
 
 html[data-theme="dark"] body:not(.page-kiosk) {
   background:
-    linear-gradient(180deg, rgba(255, 58, 40, 0.08), transparent 18rem),
+    linear-gradient(180deg, rgba(128, 194, 242, 0.14), transparent 18rem),
     var(--corso-cream);
   color: var(--corso-ink);
 }
@@ -6580,7 +6580,7 @@ a {
 }
 
 html[data-theme="dark"] a {
-  color: #ff8b7d;
+  color: #9fd4fb;
 }
 
 .content {
@@ -6650,7 +6650,7 @@ html[data-theme="dark"] a {
 .menu-toggle:hover,
 .theme-toggle:hover {
   background: var(--corso-red);
-  color: #fffdf5;
+  color: var(--corso-ink);
   text-decoration: none;
   transform: translate(-2px, -2px);
   box-shadow: 4px 4px 0 var(--corso-ink);
@@ -6822,7 +6822,7 @@ button:not(.link-btn):hover,
 input[type="submit"]:hover {
   background: var(--corso-red);
   border-color: var(--corso-ink);
-  color: #fffdf5;
+  color: var(--corso-ink);
   transform: translate(-2px, -2px);
   box-shadow: 4px 4px 0 var(--corso-ink);
 }
@@ -6846,7 +6846,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--corso-red);
-  box-shadow: 4px 4px 0 rgba(255, 58, 40, 0.20);
+  box-shadow: 4px 4px 0 rgba(128, 194, 242, 0.28);
 }
 
 pre,
@@ -7121,7 +7121,7 @@ body:not(.page-kiosk) .corso-wordmark {
     border: 0;
     border-right: 1px solid rgba(47, 45, 45, 0.10);
     background:
-      linear-gradient(180deg, rgba(255, 58, 40, 0.035), transparent 16rem),
+      linear-gradient(180deg, rgba(128, 194, 242, 0.09), transparent 16rem),
       var(--corso-cream);
     overflow-y: auto;
   }
@@ -7191,7 +7191,7 @@ body:not(.page-kiosk) .corso-wordmark {
 
   body:not(.page-kiosk) .main-nav a:hover,
   body:not(.page-kiosk) .main-nav button:hover {
-    background: rgba(255, 58, 40, 0.06);
+    background: rgba(128, 194, 242, 0.14);
     color: var(--corso-red);
     border-left-color: var(--corso-red);
     box-shadow: none;
@@ -7200,7 +7200,7 @@ body:not(.page-kiosk) .corso-wordmark {
 
   body:not(.page-kiosk) .main-nav a[aria-current="page"],
   body:not(.page-kiosk) .main-nav a:first-child {
-    background: rgba(255, 58, 40, 0.06);
+    background: rgba(128, 194, 242, 0.14);
     color: var(--corso-red);
     border-left-color: var(--corso-red);
   }
@@ -7307,19 +7307,19 @@ body:not(.page-kiosk) .corso-wordmark {
   --corso-cream: #fff8ea;
   --corso-paper: #fffdf7;
   --corso-paper-soft: rgba(255, 253, 247, 0.78);
-  --corso-red: #ff2f22;
-  --corso-red-dark: #dc2018;
+  --corso-red: #80c2f2;
+  --corso-red-dark: #2f7fbd;
   --corso-ink: #172435;
   --corso-muted: #506072;
   --corso-line: rgba(36, 42, 51, 0.18);
-  --corso-line-red: rgba(255, 47, 34, 0.84);
+  --corso-line-red: rgba(47, 127, 189, 0.84);
   --corso-shell-rail: 17.8rem;
   --corso-canvas: 73.5rem;
 }
 
 body {
   background:
-    radial-gradient(circle at 52% 18%, rgba(255, 236, 190, 0.38), transparent 30rem),
+    radial-gradient(circle at 52% 18%, rgba(128, 194, 242, 0.24), transparent 30rem),
     linear-gradient(180deg, #fffdf8 0%, var(--corso-cream) 100%);
   color: var(--corso-ink);
   font-family: "Open Sans", system-ui, sans-serif;
@@ -7428,7 +7428,7 @@ body {
 }
 
 .quick-action-card:hover {
-  background: rgba(255, 47, 34, 0.055);
+  background: rgba(128, 194, 242, 0.13);
   color: var(--corso-ink);
   transform: none;
 }
@@ -7482,7 +7482,7 @@ body {
   width: 3.3rem;
   height: 3.3rem;
   border-radius: 999px;
-  background: rgba(255, 47, 34, 0.09);
+  background: rgba(128, 194, 242, 0.16);
   color: var(--corso-red);
   font-size: 1.45rem;
 }
@@ -7502,8 +7502,8 @@ body {
 }
 
 .command-primary {
-  color: white;
-  background: linear-gradient(180deg, #ff392d, var(--corso-red-dark));
+  color: var(--corso-ink);
+  background: linear-gradient(180deg, #80c2f2, var(--corso-red-dark));
 }
 
 .command-secondary {
@@ -7519,7 +7519,7 @@ body {
 .command-primary:hover,
 .command-secondary:hover {
   background: var(--corso-red);
-  color: #fff;
+  color: var(--corso-ink);
   transform: none;
 }
 
@@ -7541,7 +7541,7 @@ body {
   height: 3.15rem;
   clip-path: polygon(50% 0, 88% 15%, 82% 72%, 50% 100%, 18% 72%, 12% 15%);
   color: #fff;
-  background: linear-gradient(180deg, #ff3b30, #e82117);
+  background: linear-gradient(180deg, #80c2f2, #2f7fbd);
   font-weight: 900;
 }
 
@@ -7672,7 +7672,7 @@ body {
 
   body:not(.page-kiosk) .main-nav a[aria-current="page"],
   body:not(.page-kiosk) .main-nav a:first-child {
-    background: rgba(255, 47, 34, 0.055);
+    background: rgba(128, 194, 242, 0.13);
     color: var(--corso-red);
     border-left-color: var(--corso-red);
   }
@@ -7884,7 +7884,7 @@ body:not(.page-kiosk) .training-library-chip:hover,
 body:not(.page-kiosk) .training-library-chip:focus-visible {
   background: var(--corso-red);
   border-color: var(--corso-ink);
-  color: #fffdf5;
+  color: var(--corso-ink);
 }
 
 body:not(.page-kiosk) .training-library-chip:hover strong,
@@ -7893,7 +7893,7 @@ body:not(.page-kiosk) .training-library-chip:hover small,
 body:not(.page-kiosk) .training-library-chip:focus-visible strong,
 body:not(.page-kiosk) .training-library-chip:focus-visible span,
 body:not(.page-kiosk) .training-library-chip:focus-visible small {
-  color: #fffdf5;
+  color: var(--corso-ink);
 }
 
 html[data-theme="dark"] body:not(.page-kiosk) .training-library-chip:hover,
