@@ -1,0 +1,244 @@
+/* ============================================================
+   shadcn skin overlay (preview)
+   ------------------------------------------------------------
+   A non-destructive alternative palette. Everything is scoped
+   under html[data-skin="shadcn"], so the Classic look stays the
+   default and this only applies when the skin is toggled on
+   (skin.js, or ?skin=shadcn). Loaded AFTER styles.css so these
+   rules win.
+
+   Approach: define the shadcn design tokens, remap the app's
+   existing semantic variables onto them (so variable-driven
+   components inherit the palette automatically), then flatten
+   the handful of components that hard-code the glass/gold/pill
+   look into shadcn's flat-surface style.
+   ============================================================ */
+
+html[data-skin="shadcn"] {
+  /* --- shadcn tokens (light) --- */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.5 0.134 242.749);
+  --primary-foreground: oklch(0.977 0.013 236.62);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --radius: 0.625rem;
+
+  /* Convenience derivations */
+  --primary-hover: oklch(0.44 0.134 242.749);
+
+  /* --- remap the app's semantic variables onto shadcn tokens --- */
+  --ink: var(--foreground);
+  --muted: oklch(0.552 0.016 285.938);          /* muted text */
+  --paper: var(--background);
+  --surface: var(--card);
+  --surface-tint: oklch(0.967 0.001 286.375);   /* subtle panel fill */
+  --line: var(--border);
+  --line-strong: var(--border);
+  --glass-surface: var(--card);
+  --glass-surface-strong: var(--card);
+  --glass-dark: var(--card);
+
+  /* Brand blues collapse to the single shadcn primary */
+  --school-blue: var(--primary);
+  --school-blue-2: var(--primary);
+  --school-blue-3: var(--primary);
+  --school-blue-strong: var(--primary-hover);
+  --obsidian-navy: var(--primary);
+  --obsidian-navy-2: var(--primary-hover);
+  --obsidian-navy-3: var(--primary-hover);
+  --obsidian-blue: var(--primary);
+
+  /* Gold accents neutralised */
+  --uniform-gold: var(--primary);
+  --uniform-gold-dark: var(--primary-hover);
+  --uniform-gold-soft: transparent;
+  --uniform-gold-wash: transparent;
+  --uniform-gold-hover: var(--accent);
+  --gold-glass-wash: transparent;
+  --gold-glass-line: var(--border);
+  --white-trim: var(--border);
+  --white-trim-soft: var(--border);
+
+  --danger: var(--destructive);
+
+  /* Flatter, shadcn-style shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-glass-soft: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-glass: 0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+/* --- shadcn tokens (dark) — reuse the existing dark toggle --- */
+html[data-skin="shadcn"][data-theme="dark"] {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.443 0.11 240.79);
+  --primary-foreground: oklch(0.977 0.013 236.62);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --primary-hover: oklch(0.52 0.12 240.79);
+
+  --muted: oklch(0.705 0.015 286.067);
+  --surface-tint: oklch(0.274 0.006 286.033);
+}
+
+/* ============================================================
+   Component flattening
+   ============================================================ */
+
+/* Flat page background — drop the gradient + gold radial wash */
+html[data-skin="shadcn"] body {
+  background: var(--background);
+}
+
+/* Cards: flat surface, hairline border, soft shadow, no glass blur */
+html[data-skin="shadcn"] .card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: none;
+}
+html[data-skin="shadcn"] .card::before,
+html[data-skin="shadcn"] .card::after {
+  display: none;
+  content: none;
+}
+
+/* Header: flat surface with a hairline bottom border */
+html[data-skin="shadcn"] .site-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+html[data-skin="shadcn"] .site-header::after,
+html[data-skin="shadcn"] .site-header::before {
+  display: none;
+  content: none;
+}
+
+/* Primary buttons */
+html[data-skin="shadcn"] button,
+html[data-skin="shadcn"] .btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+html[data-skin="shadcn"] button:hover,
+html[data-skin="shadcn"] .btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: none;
+}
+
+/* Secondary / outline buttons */
+html[data-skin="shadcn"] button.secondary,
+html[data-skin="shadcn"] a.secondary,
+html[data-skin="shadcn"] .btn-secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+html[data-skin="shadcn"] button.secondary:hover,
+html[data-skin="shadcn"] a.secondary:hover,
+html[data-skin="shadcn"] .btn-secondary:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Destructive buttons */
+html[data-skin="shadcn"] button.danger {
+  background: var(--background);
+  color: var(--destructive);
+  border: 1px solid var(--destructive);
+}
+html[data-skin="shadcn"] button.danger:hover {
+  background: var(--destructive);
+  color: var(--primary-foreground);
+}
+
+/* Stat chips → neutral pills */
+html[data-skin="shadcn"] .stat-chip {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* Form controls */
+html[data-skin="shadcn"] input,
+html[data-skin="shadcn"] select,
+html[data-skin="shadcn"] textarea {
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+}
+html[data-skin="shadcn"] input:focus,
+html[data-skin="shadcn"] select:focus,
+html[data-skin="shadcn"] textarea:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+}
+
+/* Strip residual glass blur anywhere it lingers under this skin */
+html[data-skin="shadcn"] [class*="glass"],
+html[data-skin="shadcn"] .panel,
+html[data-skin="shadcn"] .tile {
+  backdrop-filter: none;
+}
+
+/* Floating skin toggle (injected by skin.js) */
+.skin-toggle {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  font: 600 0.82rem/1 var(--brand-ui-font, system-ui, sans-serif);
+  color: #fff;
+  background: #0c5aa8;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}
+.skin-toggle:hover { filter: brightness(1.06); }
+html[data-skin="shadcn"] .skin-toggle {
+  background: var(--primary);
+  border-radius: var(--radius);
+}
