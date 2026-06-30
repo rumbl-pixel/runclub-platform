@@ -32,10 +32,12 @@ assertFile('scripts/supabase-production-readiness-check.js');
 assertFile('scripts/provision-supabase-school.js');
 assertFile('supabase/migrations/202606160001_live_beta_feature_tables.sql');
 assertFile('supabase/migrations/202606180001_platform_admin_school_coach_access.sql');
+assertFile('supabase/migrations/202606300001_guardian_link_rpc_qualification.sql');
 
 const studentAuth = read('supabase/functions/student_auth/index.ts');
 assert(/Deno\.serve/.test(studentAuth), 'student_auth should expose a Supabase Edge Function handler');
 assert(/SUPABASE_SERVICE_ROLE_KEY/.test(studentAuth), 'student_auth should use service role only inside the Edge Function');
+assert(/CORSO_SUPABASE_SERVICE_ROLE_KEY/.test(studentAuth), 'student_auth should support Supabase-safe Corso secret names');
 assert(/dry_run/.test(studentAuth), 'student_auth should support dry-run live-style checks');
 assert(/school_id/.test(studentAuth) && /barcode/.test(studentAuth), 'student_auth should scope lookup by school and barcode');
 assert(/Access-Control-Allow-Origin/.test(studentAuth), 'student_auth should include CORS headers');
@@ -44,6 +46,12 @@ assert(!/localStorage/.test(studentAuth), 'student_auth must not depend on brows
 const csvImport = read('supabase/functions/csv_import/index.ts');
 assert(/Deno\.serve/.test(csvImport), 'csv_import should expose a Supabase Edge Function handler');
 assert(/SUPABASE_SERVICE_ROLE_KEY/.test(csvImport), 'csv_import should use service role only inside the Edge Function');
+assert(/CORSO_SUPABASE_SERVICE_ROLE_KEY/.test(csvImport), 'csv_import should support Supabase-safe Corso secret names');
+assert(/bearerToken/.test(csvImport) && /auth\.getUser\(token\)/.test(csvImport), 'csv_import should verify a Supabase Auth bearer token before handling roster data');
+assert(/platform_admins/.test(csvImport), 'csv_import should allow explicit platform admin access after token verification');
+assert(/school_users/.test(csvImport) && /\.eq\("role", "coach"\)/.test(csvImport), 'csv_import should require a coach role for the requested school');
+assert(/isUuid/.test(csvImport) && /invalid_school_id/.test(csvImport), 'csv_import should reject malformed school ids before roster handling');
+assert(/missing_staff_token/.test(csvImport) && /not_authorised_for_school/.test(csvImport), 'csv_import should fail closed for unauthorised roster imports');
 assert(/dry_run/.test(csvImport), 'csv_import should support dry-run validation');
 assert(/parseCsv/.test(csvImport), 'csv_import should parse uploaded roster CSV text');
 assert(/skipped_details/.test(csvImport), 'csv_import should report skipped duplicate or invalid rows');
@@ -53,6 +61,7 @@ assert(!/localStorage/.test(csvImport), 'csv_import must not depend on browser s
 const guardianAccess = read('supabase/functions/guardian_access/index.ts');
 assert(/Deno\.serve/.test(guardianAccess), 'guardian_access should expose a Supabase Edge Function handler');
 assert(/SUPABASE_SERVICE_ROLE_KEY/.test(guardianAccess), 'guardian_access should use service role only inside the Edge Function');
+assert(/CORSO_SUPABASE_SERVICE_ROLE_KEY/.test(guardianAccess), 'guardian_access should support Supabase-safe Corso secret names');
 assert(/school_id/.test(guardianAccess) && /code/.test(guardianAccess), 'guardian_access should scope lookup by school and guardian code');
 assert(/guardian_links/.test(guardianAccess), 'guardian_access should validate guardian link records');
 assert(/scan_audit_logs/.test(guardianAccess), 'guardian_access should write access audit records');
@@ -81,12 +90,16 @@ assert(/platform_admins/.test(platformAdminGrantSql), 'platform admin SQL should
 assert(/'platform_admin'/.test(platformAdminGrantSql), 'platform admin SQL should use the platform_admin role');
 
 const platformAdminMigration = read('supabase/migrations/202606180001_platform_admin_school_coach_access.sql');
+const guardianLinkQualificationMigration = read('supabase/migrations/202606300001_guardian_link_rpc_qualification.sql');
 assert(/create table if not exists public\.platform_admins/.test(platformAdminMigration), 'platform admin migration should create platform_admins');
 assert(/create or replace function public\.is_platform_admin/.test(platformAdminMigration), 'platform admin migration should create the platform admin helper');
 assert(/public\.is_platform_admin\(\)/.test(platformAdminMigration), 'school role helper should include platform admin override');
 assert(/update public\.school_users[\s\S]+set role = 'coach'[\s\S]+where role in \('owner','admin'\)/.test(platformAdminMigration), 'migration should convert old school owner/admin rows to coach');
 assert(/check \(role in \('coach','parent','student'\)\)/.test(platformAdminMigration), 'school users should be constrained to coach, parent, or student roles');
 assert(/check \(role = 'coach'\)/.test(platformAdminMigration), 'staff invites should be constrained to coach invites');
+assert(/from public\.guardian_links gl/.test(guardianLinkQualificationMigration), 'guardian link RPC fix should alias guardian_links to avoid return-column ambiguity');
+assert(/gl\.student_id = resolved_student\.id/.test(guardianLinkQualificationMigration), 'guardian link RPC fix should qualify student_id references');
+assert(/return query select inserted\.id, inserted\.student_id/.test(guardianLinkQualificationMigration), 'guardian link RPC should still return the issued link id and student id');
 
 const liveBetaMigration = read('supabase/migrations/202606160001_live_beta_feature_tables.sql');
 [
@@ -149,12 +162,18 @@ assert(/ap-southeast-2/.test(productionRunbook), 'production runbook should reco
 assert(/npm run provision:supabase-school/.test(productionRunbook), 'production runbook should include the provisioning command');
 assert(/Site code/.test(productionRunbook) && /assigned username/.test(productionRunbook), 'production runbook should preserve the site-code username login model');
 assert(/Never add them to `config\.js`/.test(productionRunbook), 'production runbook should keep service-role keys out of browser config');
+assert(/CORSO_SUPABASE_SERVICE_ROLE_KEY/.test(productionRunbook), 'production runbook should document Supabase-safe Corso Edge Function secret names');
+assert(/csv_import` rejects requests without a valid staff bearer token/.test(productionRunbook), 'production runbook should require staff auth for roster import Edge Function use');
 
 const productionReadinessCheck = read('scripts/supabase-production-readiness-check.js');
 assert(/SUPABASE_SERVICE_ROLE_KEY/.test(productionReadinessCheck), 'production readiness check should require the service role only as an env var');
 assert(/CORSO_SITE_CODE/.test(productionReadinessCheck), 'production readiness check should validate site code input');
 assert(/CORSO_COACH_USERNAME/.test(productionReadinessCheck), 'production readiness check should validate coach username input');
 assert(/No secret values are printed/.test(productionReadinessCheck), 'production readiness check should state that secrets are not printed');
+assert(/config\.js demo lockout/.test(productionReadinessCheck), 'production readiness check should verify config.js remains demo locked before real data');
+assert(/browser service-role scan/.test(productionReadinessCheck), 'production readiness check should scan browser-delivered files for service-role secrets');
+assert(/Edge service-role guard scan/.test(productionReadinessCheck), 'production readiness check should flag unsafe service-role Edge Function write paths');
+assert(/CORSO_ALLOW_LIVE_CONFIG/.test(productionReadinessCheck), 'production readiness check should require an explicit override before accepting a live browser config');
 
 const provisionSchool = read('scripts/provision-supabase-school.js');
 assert(/auth\/v1\/admin\/users/.test(provisionSchool), 'provisioning script should create Supabase Auth users through the admin API');

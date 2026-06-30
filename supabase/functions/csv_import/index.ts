@@ -24,6 +24,98 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   });
 }
 
+function bearerToken(req: Request): string {
+  const header = req.headers.get("authorization") || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : "";
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+async function authorisedForSchool(supabase: ReturnType<typeof createClient>, req: Request, school_id: string) {
+  const token = bearerToken(req);
+  if (!token) {
+    return { ok: false, status: 401, error: "missing_staff_token" };
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  const userId = userData?.user?.id;
+  if (userError || !userId) {
+    return { ok: false, status: 401, error: "invalid_staff_token" };
+  }
+
+  const { data: platformAdmin, error: platformError } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .eq("active", true)
+    .maybeSingle();
+  if (platformError) {
+    return { ok: false, status: 500, error: "platform_admin_check_failed" };
+  }
+  if (platformAdmin) {
+    return { ok: true, userId };
+  }
+
+  const { data: schoolUser, error: roleError } = await supabase
+    .from("school_users")
+    .select("user_id, role")
+    .eq("school_id", school_id)
+    .eq("user_id", userId)
+    .eq("role", "coach")
+    .maybeSingle();
+  if (roleError) {
+    return { ok: false, status: 500, error: "school_role_check_failed" };
+  }
+  if (!schoolUser) {
+    return { ok: false, status: 403, error: "not_authorised_for_school" };
+  }
+
+  return { ok: true, userId };
+}
+
+// --- Student login credential generation -----------------------------------
+// Username: FirstName + LastInitial + number (e.g. JamesS1), unique per school.
+// Password: kid-friendly Colour/adjective + Animal + 2 digits (e.g. BlueFox42).
+const PASSWORD_ADJECTIVES = ["Blue","Green","Happy","Brave","Sunny","Swift","Lucky","Calm","Bright","Cosy","Jolly","Kind","Bold","Mighty","Speedy"];
+const PASSWORD_NOUNS = ["Fox","Lion","Panda","Tiger","Otter","Koala","Dolphin","Falcon","Bear","Rocket","Comet","Maple","River","Cloud","Star"];
+
+function randomFrom<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function generateStudentPassword(): string {
+  const digits = String(Math.floor(Math.random() * 90) + 10);
+  return `${randomFrom(PASSWORD_ADJECTIVES)}${randomFrom(PASSWORD_NOUNS)}${digits}`;
+}
+
+function usernameStem(first: string, last: string): string {
+  const firstPart = String(first || "").replace(/[^A-Za-z0-9]/g, "");
+  const initial = String(last || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 1);
+  const stem = (firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase()) + initial.toUpperCase();
+  return stem || "Runner";
+}
+
+function generateStudentUsername(first: string, last: string, used: Set<string>): string {
+  const stem = usernameStem(first, last);
+  let n = 1;
+  let candidate = `${stem}${n}`;
+  while (used.has(candidate.toLowerCase())) {
+    n += 1;
+    candidate = `${stem}${n}`;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
+// Synthetic, never-emailed login address for username-only auth.
+function authEmailForUsername(username: string, domain: string): string {
+  const normalized = String(username || "").trim().toLowerCase().replace(/[^a-z0-9._-]/g, "");
+  return `${normalized}@${domain}`;
+}
+
 function parseCsvLine(line: string): string[] {
   const cells: string[] = [];
   let current = "";
@@ -103,8 +195,8 @@ Deno.serve(async (req) => {
     return jsonResponse({ ok: false, error: "method_not_allowed" }, 405);
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const supabaseUrl = Deno.env.get("CORSO_SUPABASE_URL") || Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("CORSO_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceRoleKey) {
     return jsonResponse({ ok: false, error: "missing_server_config" }, 500);
   }
@@ -116,6 +208,17 @@ Deno.serve(async (req) => {
 
   if (!school_id) {
     return jsonResponse({ ok: false, error: "missing_school_id" }, 400);
+  }
+  if (!isUuid(school_id)) {
+    return jsonResponse({ ok: false, error: "invalid_school_id" }, 400);
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+  const auth = await authorisedForSchool(supabase, req, school_id);
+  if (!auth.ok) {
+    return jsonResponse({ ok: false, error: auth.error }, auth.status);
   }
 
   const parsed = parseCsv(csv, school_id);
@@ -129,22 +232,80 @@ Deno.serve(async (req) => {
     });
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
   const { data, error } = await supabase
     .from("students")
     .upsert(parsed.rows, { onConflict: "school_id,barcode" })
-    .select("id, barcode");
+    .select("id, barcode, first_name, last_name, username, user_id");
 
   if (error) {
     return jsonResponse({ ok: false, error: "student_upsert_failed", detail: error.message }, 500);
   }
 
+  // Create student login accounts for any imported students that do not yet
+  // have one. Usernames are unique per school; passwords are returned ONCE here
+  // so the coach can hand them out, and are never persisted in plaintext.
+  const studentDomain = (Deno.env.get("CORSO_STUDENT_AUTH_DOMAIN") || "students.corso.local").trim().toLowerCase();
+  const imported = data || [];
+
+  // Seed the used-username set with usernames already taken in this school.
+  const { data: existingUsernames } = await supabase
+    .from("students")
+    .select("username")
+    .eq("school_id", school_id)
+    .not("username", "is", null);
+  const usedUsernames = new Set<string>(
+    (existingUsernames || [])
+      .map((r: { username: string | null }) => String(r.username || "").toLowerCase())
+      .filter(Boolean),
+  );
+
+  const credentials: Array<{ student_id: string; barcode: string; name: string; username: string; password: string }> = [];
+  const credential_errors: Array<{ student_id: string; reason: string }> = [];
+
+  for (const row of imported) {
+    if (row.user_id && row.username) {
+      continue; // already has a login account
+    }
+    const username = row.username || generateStudentUsername(row.first_name, row.last_name, usedUsernames);
+    const password = generateStudentPassword();
+    const email = authEmailForUsername(username, studentDomain);
+
+    const { data: created, error: createError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { role: "student", school_id, username },
+    });
+    if (createError || !created?.user?.id) {
+      credential_errors.push({ student_id: row.id, reason: createError?.message || "auth_create_failed" });
+      continue;
+    }
+
+    const { error: linkError } = await supabase
+      .from("students")
+      .update({ username, user_id: created.user.id })
+      .eq("id", row.id);
+    if (linkError) {
+      credential_errors.push({ student_id: row.id, reason: linkError.message });
+      continue;
+    }
+
+    credentials.push({
+      student_id: row.id,
+      barcode: row.barcode,
+      name: `${row.first_name} ${row.last_name}`.trim(),
+      username,
+      password,
+    });
+  }
+
   return jsonResponse({
     ok: true,
     dry_run: false,
-    imported_count: data?.length || 0,
+    imported_count: imported.length,
+    credentials_created: credentials.length,
+    credentials, // shown once; not stored in plaintext anywhere
+    credential_errors,
     skipped_count: parsed.skipped_details.length,
     skipped_details: parsed.skipped_details,
   });

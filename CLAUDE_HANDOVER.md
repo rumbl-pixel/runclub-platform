@@ -1,159 +1,377 @@
-# Claude Start Here - Corso
+# Claude Start Here - Corso Launch Proof Handover
 
-Last updated: 2026-06-25
+Last updated: 2026-06-30
 
-## What Corso Is
+This handover is the current source of truth for the next Claude/Codex agent. Do not restart the design, product direction, or feature set. The active stage is launch proof and security hardening before any real student data is imported.
 
-Corso is a privacy-first school run club and athletics platform. It helps staff track laps, attendance, awards, student goals, training tasks, interschool athletics teams, cross country, programming sessions, reports, parent/student visibility, and school compliance readiness.
+## Immediate Instruction
 
-The product is currently a beta/demo static web app with local-first data and Supabase/live-style paths started. It must not be treated as production-ready for real student data yet.
+Start by preserving the current work. Do not begin a broad redesign, rewrite, or new feature sprint.
 
-## Current Repo
+Current priority:
 
-- GitHub: `rumbl-pixel/runclub-platform`
-- Local path: `C:\Users\jerem\Documents\Codex\runclub-platform`
-- Local URL: `http://127.0.0.1:8080`
+1. Keep the public/browser build demo locked until Jeremy explicitly approves live mode.
+2. Keep real student data blocked until production Auth, RLS, school isolation, parent linking, and local/demo lockout have been proven and signed off.
+3. Continue security-first setup, manual QA, and deployment readiness.
+4. If changing code, use small scoped changes and verify with tests.
+5. After every user-facing response, show the July 20 readiness checklist at the end.
+
+Required checklist format:
+
+- ~~Supabase production configured~~
+- ~~Auth enabled and verified~~
+- ~~RLS policies verified~~
+- ~~School/site isolation proven~~
+- ~~Parent linking proven~~
+- ~~Demo/local lockout before real student data~~
+- Real student data import approved only after above proof
+
+## Product Snapshot
+
+Corso is a privacy-first school run club and athletics platform. It supports staff-led lap scanning, rosters, awards, student goals, events, training tasks, interschool athletics, cross country, reports, parent visibility, student visibility, and school compliance evidence.
+
+Product principles:
+
+- No ads.
+- No student emails.
+- No student self-reporting of activity.
+- Staff/coaches manage activity records.
+- Students can see only their own profile.
+- Parents can see only linked child/children.
+- Schools can see only their own students.
+- Kiosk/scanner surfaces are staff/admin controlled.
+- Medical and safety notes must not appear on public leaderboards or kiosk surfaces.
+- Service-role keys and private credentials must never reach browser-delivered files.
+
+The original school-specific build was for Gwynne Park Run Club, but Corso is now a multi-school platform direction with strict school/site isolation.
+
+## Repo And Runtime
+
+- GitHub repo: `rumbl-pixel/runclub-platform`
+- Local workspace: `C:\Users\jerem\Documents\Codex\runclub-platform`
 - Hosted demo beta: `https://corso-platform.pages.dev/`
-- Run locally:
+- Typical local URL: `http://127.0.0.1:8080`
+
+Run locally:
 
 ```powershell
 cd C:\Users\jerem\Documents\Codex\runclub-platform
 python -m http.server 8080
 ```
 
-## What Has Been Built
+Important files:
 
-- Public home page, About page, Privacy Policy, beta demo banner, homepage beta explainer, Ko-fi support widget.
-- Admin login and Admin Dashboard.
-- School-scoped staff/site-code login model skeleton.
-- Student login and student profile.
-- Parent read-only portal.
-- Scanner and kiosk scanner.
-- Students roster management, barcodes, CSV import, guardian demo links.
-- Leaderboards by whole school, division, and year group.
-- Awards, certificates, custom awards, challenges, badges.
-- Events calendar with school-holiday/challenge surfaces.
-- Coach Hub combining Sports, Training, Programming, and Insights.
-- Sports/Interschool Athletics command centre with consent, event teams, team list summary, results, PBs, house points, and Cross Country toggle.
-- Training assignment flow with student checklist completion.
-- Programming/session builder with athletics PE catalogue, drag/drop lesson legs, editable timings, and Mini Coach planning widget.
-- Compliance workspace with vendor posture, signup/use attestation, evidence exports, parent notice, breach log, and launch readiness checks.
-- School Settings for school name, logo, colour override, reset to Corso defaults.
-- Beta Testing Toolkit in Admin Help with demo snapshot export, confirmed demo reset, first-time admin guide, feature status badges, page health labels, and tester checklist link.
-- Cloudflare Pages hosted demo beta:
-  - `wrangler.toml`
-  - `_headers`
-  - `docs/cloudflare-pages-deploy.md`
-  - `scripts/build-cloudflare-pages.js`
-  - npm scripts `cloudflare:check`, `deploy:cloudflare`, and `deploy:cloudflare:preview`
-  - Cloudflare Pages project: `corso-platform`
-  - URL: `https://corso-platform.pages.dev/`
-- Supabase production setup helpers:
-  - `docs/supabase-production-runbook.md`
-  - `scripts/supabase-production-readiness-check.js`
-  - `scripts/provision-supabase-school.js`
-  - npm scripts `check:supabase-production` and `provision:supabase-school`
-  - Production helper creates/updates a school, creates an assigned coach username in Supabase Auth, adds the school-scoped `coach` role, and records `staff_invites`.
-- Backend adapter and live-style tests for future Supabase work.
-- Claude transition plan, first-review brief, and beta-readiness sweep docs.
-- Beta prep completion report at `docs/beta-prep-completion-report.md`.
+- `index.html` - public portal/home.
+- `about.html` - About Corso.
+- `privacy-policy.html` - privacy policy.
+- `admin.html` - admin login.
+- `admin-dashboard.html` - main admin console.
+- `admin-dashboard.js` - main admin feature logic; large file, avoid broad refactor unless asked.
+- `student.html` and `student-profile.html` - student access and profile shell.
+- `student.js` - student profile and award print logic.
+- `parent.html` and `parent.js` - guardian portal and award print logic.
+- `kiosk.html`, `kiosk.js`, `kiosk.css` - scanning kiosk.
+- `leaderboard.html`, `leaderboard.js` - public leaderboard.
+- `interschool-team.html`, `interschool-team.js` - supplementary interschool team page.
+- `styles.css` - global styling/theme/layout.
+- `theme.js` - theme toggle, dynamic avatar initials, school chip label.
+- `backend.js` - backend/live-style adapter.
+- `config.js` - public browser config. Must stay public-safe.
+- `supabase/migrations` - Supabase schema/RLS/RPC migrations.
+- `supabase/functions` - Supabase Edge Functions.
+- `scripts/supabase-production-readiness-check.js` - production safety check.
+- `scripts/provision-supabase-school.js` - school/coach provisioning helper.
+- `docs/supabase-production-runbook.md` - production runbook.
+- `docs/handover-summary.md` and `docs/roadmap-progress.md` - older but useful historical context.
+
+## Current High-Level State
+
+Core tracked product priorities are functionally complete. The active lane is no longer feature expansion; it is launch proof:
+
+- Supabase production setup.
+- Staff Auth.
+- RLS proof.
+- School/site isolation.
+- Parent/guardian linking.
+- Demo/local lockout before real student data.
+- Manual device/browser print checks.
+- School approval and parent communication before import.
+
+Do not import real student data yet. The final checklist item remains intentionally incomplete until Jeremy explicitly approves a real data import after proof review.
+
+## Supabase Production State
+
+Supabase is configured and proven against the live project.
+
+Project:
+
+- Name: `Corso`
+- Project ref: `bwsjugqwcxyisvfeuwqq`
+- Region: Southeast Asia (Singapore)
+- First provisioned school: `Gwynne Park Primary School`
+- Site code: `1001`
+- School id: `c013a13d-644a-40a9-b553-80c46e5389fe`
+- Coach username: `coach01`
+- Coach auth email: `coach01@corso.local`
+
+Important: the coach password was generated internally during proof work and was not printed. Before human login testing, reset/set a password for `coach01@corso.local` in the Supabase Dashboard UI.
+
+Production migrations:
+
+- Remote and local migrations are aligned through `202606300001_guardian_link_rpc_qualification.sql`.
+- That newest migration fixes ambiguous column references in guardian RPCs by fully qualifying table aliases.
+
+Edge Functions deployed:
+
+- `student_auth`
+- `guardian_access`
+- `csv_import`
+
+Edge Function secrets:
+
+- Supabase CLI blocks custom secrets starting with `SUPABASE_`.
+- Functions now support `CORSO_SUPABASE_URL` and `CORSO_SUPABASE_SERVICE_ROLE_KEY`, with fallback to the platform-provided names.
+- Do not print, commit, or expose service-role keys.
+
+## Live Security Proof Completed
+
+Fake proof data was created and then cleaned up.
+
+Verified:
+
+- Coach Auth works.
+- RLS exposes only the coach's school.
+- Anonymous student table reads are blocked.
+- Guardian access returns only the linked child.
+- Wrong-school guardian access is denied.
+- `csv_import` rejects requests without a valid staff bearer token.
+- Visible student barcode proof showed only the own-school fake student.
+
+Fake proof cleanup completed:
+
+- Guardian links matching `GP-SECURITY1-*`.
+- Scan audit rows for `SECURITY1` and `SECURITY2`.
+- Fake students `SECURITY1` and `SECURITY2`.
+- Fake isolation school slug `corso-isolation-test-school`.
+
+## Browser Config Lockout
+
+`config.js` intentionally remains demo locked:
+
+```js
+demoMode: true
+syncEnabled: false
+liveDataMode: false
+```
+
+This is correct. Do not enable live mode or sync for the public browser build unless Jeremy explicitly approves it. Even after live backend proof, real student data import remains blocked until the final readiness item is approved.
+
+## Security Workflow Warning
+
+Microsoft Defender flagged the Codex computer-use helper during this work:
+
+- Detection: `Trojan:Win32/ClickFix.DE!MTB`
+- Root cause assessment: Defender matched command-line/transcript content passed to `codex-computer-use.exe`, likely because prior messages included user instructions about manually pasting PowerShell/environment commands.
+- Defender status after checks: threat inactive.
+- The exact local helper executable was removed:
+  `C:\Users\jerem\AppData\Local\OpenAI\Codex\runtimes\cua_node\1b23c930bdf84ed6\bin\node_modules\@oai\sky\bin\windows\codex-computer-use.exe`
+- No other `codex-computer-use.exe` copies were found under `C:\Users\jerem\AppData\Local\OpenAI\Codex`.
+- A targeted Defender scan of that runtime folder completed.
+
+Rules for the next agent:
+
+- Do not use the computer-use helper in this thread.
+- Do not ask Jeremy to paste long PowerShell commands for secrets or environment variables.
+- Prefer running safe local verification commands yourself.
+- Never print tokens, passwords, anon/service-role keys beyond public-safe config values.
+- If user action is required for secrets, prefer GUI-first steps such as Supabase Dashboard instructions.
+- Do not suggest Defender exclusions for the Codex runtime.
+
+## Recent UI/UX Work Completed
+
+Do not redo this from scratch. The user asked for a site-wide visual sweep, contrast fixes, clearer icons, logo changes, and print checks.
+
+Completed:
+
+- Logo recolored from orange to the platform blue.
+- Logo background made transparent in `assets/corso-logo.png`.
+- Logo click-to-dashboard restored on `admin-dashboard.html` and `interschool-team.html`.
+- Theme/contrast toggle moved directly underneath the logo via `theme.js` and CSS.
+- Favicon links added across pages.
+- Whole-site contrast and clipping fixes in `styles.css`.
+- Ko-fi/support widget overflow fixed.
+- Coach quick action tiles now use dark text/icons by default and blue on hover.
+- Home `command-primary` button text forced to white, including `-webkit-text-fill-color`.
+- Portal grid icons replaced with larger labeled badges so the sections are clearer.
+- Home top-right `CB` avatar now derives initials from the logged-in admin session.
+- Home school chip is no longer a pointless button; it reflects the configured school/run club name.
+- Index stylesheet cache version was bumped.
+
+Award/print loading issue:
+
+- Print stuck-loading path was fixed by adding `schedulePrintWindow` handling in:
+  - `admin-dashboard.js`
+  - `student.js`
+  - `parent.js`
+
+Remaining manual print proof:
+
+- A human should still click through real browser print/download flows for award certificates and barcode cards on the final device/browser set.
+
+## CSV Import Security Hardening
+
+`supabase/functions/csv_import/index.ts` was hardened:
+
+- Extracts bearer token from the `Authorization` header.
+- Validates `school_id` UUID shape.
+- Calls `supabase.auth.getUser(token)`.
+- Allows active platform admins.
+- Otherwise requires `school_users.role = coach` for the requested `school_id`.
+- Rejects missing or invalid staff tokens.
+- Rejects access to an unauthorized school.
+
+Readiness checker now includes an Edge service-role guard scan to flag service-role Edge Function writes without staff bearer auth, except approved public lookup functions:
+
+- `student_auth`
+- `guardian_access`
+
+## Verification Completed
+
+Latest verification passed:
+
+```powershell
+npm test
+node --check scripts\supabase-production-readiness-check.js
+git diff --check
+npm run build:cloudflare
+supabase migration list --linked
+```
+
+Notes:
+
+- `npm test` passed all current tests, including portal smoke, goals baseline, backend live-style, scanning live-mode, Supabase staging, and sync workflow.
+- `git diff --check` passed with only line-ending warnings.
+- Cloudflare Pages bundle built successfully into `dist-pages`.
+- Supabase migration list showed local and remote aligned through `202606300001`.
+
+## Current Git Working Tree
+
+There are uncommitted changes from the UI sweep and Supabase hardening. Do not revert them unless Jeremy explicitly asks.
+
+Modified:
+
+- `about.html`
+- `admin-dashboard.html`
+- `admin-dashboard.js`
+- `admin.html`
+- `assets/corso-logo.png`
+- `docs/supabase-production-runbook.md`
+- `index.html`
+- `interschool-team.html`
+- `kiosk.html`
+- `leaderboard.html`
+- `parent.html`
+- `parent.js`
+- `privacy-policy.html`
+- `scripts/supabase-production-readiness-check.js`
+- `student-profile.html`
+- `student.html`
+- `student.js`
+- `styles.css`
+- `supabase/functions/csv_import/index.ts`
+- `supabase/functions/guardian_access/index.ts`
+- `supabase/functions/student_auth/index.ts`
+- `tests/portal-smoke.test.js`
+- `tests/supabase-staging.test.js`
+- `theme.js`
+
+Untracked:
+
+- `supabase/migrations/202606300001_guardian_link_rpc_qualification.sql`
+
+Before committing or deploying, review the diff and keep the commit message focused on launch proof/security/UI polish.
 
 ## What Must Not Be Broken
 
-- Privacy-first model:
-  - No ads.
-  - No student emails.
-  - No student self-reporting activity.
-  - Students see only their own profile.
-  - Parents see only their own linked child/children.
-  - Schools see only their own students.
-  - Kiosk/scanner is staff/admin only.
-- Demo/local mode must stay safe by default.
-- Do not enter or seed real student data.
-- Do not put service-role keys, private API keys, or school credentials in browser-delivered files.
-- Keep `config.js` public-safe.
-- Keep dark/light mode readable.
-- Preserve existing deep links where practical, especially:
+- Public browser files must not include service-role keys or private credentials.
+- `config.js` must remain public-safe.
+- Demo/local lockout must remain in place until explicit approval.
+- Do not seed or import real student data.
+- Do not expose medical notes on leaderboard/kiosk/public surfaces.
+- Do not allow students to self-report activity.
+- Do not make scanner/kiosk publicly usable without staff/admin context.
+- Do not break deep links:
   - `?tab=sports`
   - `?tab=training`
   - `?tab=resources`
   - `?tab=school-settings`
   - `?tab=help`
-- Sports/Interschool rules:
-  - Junior events show Year 1-2 only.
-  - Intermediate events show Year 3-4 only.
-  - Senior events show Year 5-6 only.
-  - Interschool training/attendance must not add Run Club laps.
+- Do not let interschool athletics or cross-country scans add Run Club laps.
+- Preserve Sports/Interschool eligibility:
+  - Junior events: Years 1-2 only.
+  - Intermediate events: Years 3-4 only.
+  - Senior events: Years 5-6 only.
 
-## Privacy Rules
+## Manual QA Still Worth Doing
 
-Real student data is blocked until all of these are finished:
+The code proof is strong, but final launch proof still needs real device/browser checks:
 
-- Production Supabase project configured.
-- Staff Auth/invite flow implemented.
-- Row-level security proven by tests.
-- School/site scoping proven.
-- Parent/guardian linking proven.
-- Audit logs and breach process proven.
-- Retention/deletion process chosen.
-- School approval and parent communication completed.
+- Real phone camera scan.
+- Real iPad camera scan.
+- Bluetooth scanner input.
+- Barcode card print/download proof.
+- Award certificate print/download proof.
+- Fake roster import rehearsal through the real UI.
+- Coach login test after Supabase Dashboard password reset.
+- Cloudflare deployment check if moving beyond local build.
 
-## Known Skeleton Or Demo-Only Areas
+## Next Sensible Work
 
-- Supabase Auth is not fully live.
-- Supabase production project is not created/linked in this repo yet because it requires Jeremy's Supabase access token, org ID, and database password.
-- Supabase coach provisioning flow is implemented as a CLI helper, but has not been run against a real production project yet.
-- RLS policies need final implementation and proof.
-- School/site-code login is currently a demo/local model.
-- Parent guardian access is demo/local until backend tokens are live.
-- Mini Coach is rule-based/local. It is not production AI advice.
-- Compass import is CSV/template direction only, not live Compass API integration.
-- Compliance workspace supports evidence and sign-off posture, but does not make a school automatically compliant.
-- App Store/native app packaging is later.
+Recommended next sequence:
 
-## Feature Status Table
+1. Review the current diff and make sure no accidental files or secret values are present.
+2. Commit the launch-proof/security/UI changes if Jeremy wants a checkpoint.
+3. Reset/set the password for `coach01@corso.local` in Supabase Dashboard.
+4. Perform human login proof as `coach01`.
+5. Run the real-device scanning and print/download checks.
+6. Prepare live public config only after Jeremy approves moving from demo lock to controlled live trial.
+7. Keep real student data import blocked until Jeremy explicitly approves the final checklist item.
 
-| Area | Status | Notes |
-| --- | --- | --- |
-| Home/About/Privacy | Done | About page and beta safety messaging exist. |
-| Beta testing toolkit | Done | Export demo snapshot, reset demo data, checklist, feedback, and status labels exist. |
-| Admin dashboard shell | Done | Large file; future modularisation recommended. |
-| Coach Hub | Done | Groups Sports, Training, Programming, and Insights. |
-| Students roster | Done | Demo/local with backend paths started. |
-| Scanner/kiosk | Needs manual test | Source checks pass; real phone/iPad/scanner checks still needed. |
-| Student profile | Done | Includes timeline, awards, training checklist, barcode, medical. |
-| Parent portal | Needs manual test | Read-only model exists; guardian backend flow still needed. |
-| Leaderboards | Done | Whole school, divisions, year groups. |
-| Awards/certificates | Needs manual test | Browser print/PDF flows need human click-through. |
-| Events calendar | Done | Challenge and holiday surfaces exist. |
-| Sports/Interschool | Needs manual test | Many features exist; high-risk area after edits. |
-| Training assignment | Done | Student checklist completion exists. |
-| Programming | Done | Lesson catalogue, drag/drop planner, Mini Coach helper. |
-| Mini Coach | Skeleton | Useful local assistant, not production AI. |
-| Compliance workspace | Skeleton | Vendor posture and evidence tools exist; school sign-off still external. |
-| Supabase backend | Needs backend | Adapter/tests and production setup helpers exist; real project creation/linking still requires Supabase credentials. |
-| Auth/RLS | Needs backend | Coach invite provisioning helper exists; RLS proof must be done before real student data. |
-| Native app/App Store | Later | PWA first. |
+## Useful Commands
 
-## Next Build Order
-
-1. Freeze feature expansion except small beta safety/guidance wins.
-2. Complete real-device beta checks: phone camera, iPad camera, Bluetooth scanner, print/download confirmations.
-3. Run a second-agent code review focused on bugs, privacy risks, and `admin-dashboard.js` modularisation.
-4. Fix review findings before major refactor.
-5. Build production Supabase Auth/RLS in a separate hardening pass.
-6. Only after school approval and backend proof, consider real student data.
-
-## Test Commands
+Safe local checks:
 
 ```powershell
+cd C:\Users\jerem\Documents\Codex\runclub-platform
 npm test
-node --check admin-dashboard.js
-node --check theme.js
-npm run check:supabase-production
+node --check scripts\supabase-production-readiness-check.js
 git diff --check
+npm run build:cloudflare
 ```
 
-## Claude First Task
+Supabase checks, without printing secrets:
 
-Start with a review, not a rewrite. Report file-referenced bugs, privacy risks, brittle flows, and missing tests. Then propose a modularisation plan for `admin-dashboard.js`. Do not refactor the whole app before discussing the review findings with Jeremy.
+```powershell
+cd C:\Users\jerem\Documents\Codex\runclub-platform
+npx supabase migration list --linked
+```
+
+If a token is needed, first check whether it exists without printing it. Prefer in-process environment bridging rather than asking Jeremy to paste commands.
+
+## Older Docs To Read For Context
+
+Read these after this handover if more history is needed:
+
+- `docs/handover-summary.md`
+- `docs/roadmap-progress.md`
+- `docs/supabase-production-runbook.md`
+- `docs/access-model-decision.md`
+- `docs/backend-stack-decision.md`
+- `docs/education-compliance-readiness.md`
+- `docs/claude-first-review-brief.md`
+
+Some older docs may still describe Supabase/Auth/RLS as pending. This handover is newer and supersedes those older statements where they conflict.
+
+## Final Reminder
+
+The platform is now past the broad build stage and into proof, security, and controlled launch. Be conservative. Protect student privacy first, avoid broad visual redesigns, keep browser config demo locked, and do not import real student data until Jeremy explicitly approves the last readiness gate.

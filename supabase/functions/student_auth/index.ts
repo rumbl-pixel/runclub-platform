@@ -21,8 +21,8 @@ Deno.serve(async (req) => {
     return jsonResponse({ ok: false, error: "method_not_allowed" }, 405);
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const supabaseUrl = Deno.env.get("CORSO_SUPABASE_URL") || Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("CORSO_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceRoleKey) {
     return jsonResponse({ ok: false, error: "missing_server_config" }, 500);
   }

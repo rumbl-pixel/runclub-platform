@@ -14,6 +14,16 @@
   var currentAccess = null;
   var MILESTONE_LABELS = { 5: 'First 5 Laps', 10: '10 Lap Club', 25: 'Quarter Century', 50: 'Half Century', 100: 'Century Club', 200: 'Double Century', 500: 'Elite Runner' };
 
+  function schedulePrintWindow(printWin) {
+    var trigger = function () {
+      setTimeout(function () {
+        try { printWin.focus(); printWin.print(); } catch (error) {}
+      }, 120);
+    };
+    if (printWin.document.readyState === 'complete') { trigger(); }
+    else { printWin.addEventListener('load', trigger, { once: true }); }
+  }
+
   function load(key, fallback) {
     try {
       var raw = localStorage.getItem(key);
@@ -227,7 +237,7 @@
     html += '</body></html>';
     win.document.write(html);
     win.document.close();
-    win.print();
+    schedulePrintWindow(win);
   }
 
   function goalRow(goal) {

@@ -20,6 +20,42 @@
     }
   }
 
+  function programSettings() {
+    try {
+      return JSON.parse(localStorage.getItem('rc_program_settings') || '{}') || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function adminSession() {
+    try {
+      return JSON.parse(localStorage.getItem('runClubAdminSession') || '{}') || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function currentSchoolName() {
+    var program = programSettings();
+    var settings = brandingSettings();
+    var cfg = window.RUN_CLUB_CONFIG || {};
+    return String(program.schoolName || program.school_name || cfg.schoolName || settings.appTitle || DEFAULT_RUN_CLUB_NAME).trim() || DEFAULT_RUN_CLUB_NAME;
+  }
+
+  function coachInitials() {
+    var session = adminSession();
+    var raw = String(session.display_name || session.name || session.username || session.email || '').trim();
+    if (!raw || raw === '{}') { return 'CO'; }
+    if (raw.indexOf('@') !== -1) { raw = raw.split('@')[0]; }
+    var parts = raw.replace(/[_\-.]+/g, ' ').split(/\s+/).filter(Boolean);
+    if (parts.length > 1) {
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+    var compact = raw.replace(/[^a-z0-9]/gi, '').toUpperCase();
+    return (compact.slice(0, 2) || 'CO');
+  }
+
   function replaceTextNode(parent, value) {
     var textNode = Array.prototype.find.call(parent.childNodes, function (node) {
       return node.nodeType === 3 && node.textContent.trim();
@@ -32,7 +68,6 @@
   }
 
   function applyBrandingSettings() {
-    var settings = brandingSettings();
     document.querySelectorAll('.brand h1').forEach(function (el) {
       el.textContent = 'Corso';
     });
@@ -41,7 +76,13 @@
       img.alt = 'Corso';
     });
     document.querySelectorAll('.school-switcher').forEach(function (el) {
-      replaceTextNode(el, settings.appTitle + ' ');
+      el.textContent = currentSchoolName();
+      el.setAttribute('aria-label', 'Current school: ' + currentSchoolName());
+    });
+    document.querySelectorAll('.coach-avatar').forEach(function (el) {
+      var initials = coachInitials();
+      el.textContent = initials;
+      el.setAttribute('aria-label', initials === 'CO' ? 'Coach account' : 'Signed in as ' + initials);
     });
     document.querySelectorAll('.kiosk-brand').forEach(function (el) {
       replaceTextNode(el, 'Corso');
@@ -111,7 +152,12 @@
       toggle.addEventListener('click', function () {
         applyTheme(activeTheme === 'dark' ? 'light' : 'dark');
       });
-      headerInner.appendChild(toggle);
+      var brand = headerInner.querySelector('.brand');
+      if (brand) {
+        brand.appendChild(toggle);
+      } else {
+        headerInner.appendChild(toggle);
+      }
     }
 
     if (!document.querySelector('[data-mobile-menu-toggle]')) {

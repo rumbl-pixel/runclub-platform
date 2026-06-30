@@ -79,6 +79,13 @@ npx supabase secrets set SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 ```
 
+If Supabase blocks custom secrets beginning with `SUPABASE_`, use the Corso-specific names supported by the Edge Functions:
+
+```powershell
+npx supabase secrets set CORSO_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+npx supabase secrets set CORSO_SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+```
+
 Service-role keys belong only in local shell variables or Supabase secrets. Never add them to `config.js`, Cloudflare public variables, GitHub, or browser files.
 
 ## 4. Provision The First School Coach
@@ -154,8 +161,10 @@ Keep `liveDataMode: false` until all July 20 readiness checks are complete.
 - Anonymous REST reads do not expose private student data.
 - `student_auth` returns only the matched student for the configured school.
 - `csv_import` dry run validates a fake roster before writing.
+- `csv_import` rejects requests without a valid staff bearer token and a coach/platform-admin grant for the requested school.
 - Guardian access is child-only and audited.
 - No service-role key exists in browser-delivered files.
+- The production readiness check passes `browser service-role scan` and `Edge service-role guard scan`.
 
 ## 7. Useful Commands
 

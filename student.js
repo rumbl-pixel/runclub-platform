@@ -27,6 +27,16 @@
 
   var currentStudent = null;
 
+  function schedulePrintWindow(printWin) {
+    var trigger = function () {
+      setTimeout(function () {
+        try { printWin.focus(); printWin.print(); } catch (error) {}
+      }, 120);
+    };
+    if (printWin.document.readyState === 'complete') { trigger(); }
+    else { printWin.addEventListener('load', trigger, { once: true }); }
+  }
+
   function getStudentSession() {
     try {
       return JSON.parse(localStorage.getItem(STUDENT_SESSION_KEY));
@@ -223,8 +233,7 @@
       '</div></body></html>';
     win.document.write(html);
     win.document.close();
-    win.focus();
-    win.print();
+    schedulePrintWindow(win);
   }
 
   function renderStudentBarcode(student) {
@@ -343,8 +352,7 @@
       '</body></html>';
     win.document.write(html);
     win.document.close();
-    win.focus();
-    win.print();
+    schedulePrintWindow(win);
   }
 
   function wireStudentTermReport(student) {
@@ -839,13 +847,30 @@
     });
   }
 
+  // Authenticate a student by username + password against the roster.
+  // Barcodes are NOT accepted here - they are for lap scanning only.
+  function authenticateStudent(username, password) {
+    var u = String(username || '').trim();
+    if (u.toUpperCase() === 'DEMO') {
+      return Scan.getStudents()[0] || null;
+    }
+    var key = u.toLowerCase();
+    return Scan.getStudents().find(function (s) {
+      return s.username && String(s.username).toLowerCase() === key &&
+        s.password && String(s.password) === String(password);
+    }) || null;
+  }
+
   function handleLogin(e) {
     e.preventDefault();
-    var code = document.getElementById('code').value.trim().toUpperCase();
-    if (!code) { return; }
-    var student = findStudent(code);
+    var usernameEl = document.getElementById('student-username');
+    var passwordEl = document.getElementById('student-password');
+    var username = usernameEl ? usernameEl.value.trim() : '';
+    var password = passwordEl ? passwordEl.value : '';
+    if (!username) { return; }
+    var student = authenticateStudent(username, password);
     if (!student) {
-      alert('Code not recognised. Check your barcode card or ask your teacher.');
+      alert('Username or password not recognised. Check your login card or ask your teacher.');
       return;
     }
     saveStudentSession(student);

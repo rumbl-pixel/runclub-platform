@@ -48,6 +48,16 @@
   var DEFAULT_RUN_CLUB_NAME = 'School Run Club';
   var DEFAULT_BRAND_LOGO = 'assets/corso-logo.png';
 
+  function schedulePrintWindow(printWin) {
+    var trigger = function () {
+      setTimeout(function () {
+        try { printWin.focus(); printWin.print(); } catch (error) {}
+      }, 120);
+    };
+    if (printWin.document.readyState === 'complete') { trigger(); }
+    else { printWin.addEventListener('load', trigger, { once: true }); }
+  }
+
   var ATHLETICS_EVENT_OPTIONS = [
     {id:'xc',name:'Cross Country',category:'cross-country',measure:'time',points:true},
     {id:'junior-50m',name:'Junior 50m',category:'sprint',measure:'time',points:true,division:'Junior'},
@@ -136,7 +146,18 @@
     ];
   }
 
-  function getStudents() { return load(K.students, defaultStudents()); }
+  function getStudents() {
+    var students = load(K.students, defaultStudents());
+    // Backfill login credentials for rosters created before student login existed.
+    // Persist once so generated passwords stay stable across reads.
+    var changed = false;
+    students.forEach(function (s) {
+      if (!s.username) { s.username = generateStudentUsername(s.first, s.last, students); changed = true; }
+      if (!s.password) { s.password = generateStudentPassword(); changed = true; }
+    });
+    if (changed) { save(K.students, students); }
+    return students;
+  }
   function saveStudents(s) { save(K.students,s); }
   function liveRosterGuard(){
     var backend=window.RunClubBackend;
@@ -406,8 +427,7 @@
       '</div></body></html>';
     win.document.write(html);
     win.document.close();
-    win.focus();
-    win.print();
+    schedulePrintWindow(win);
   }
 
   function generateBarcodeId(first, last, students) {
@@ -425,6 +445,51 @@
       candidate = stem + String(n).padStart(2, '0');
     }
     return candidate;
+  }
+
+  // Student login username: FirstName + LastInitial + number (e.g. JamesS1).
+  // Collision-safe across the roster's existing usernames. Barcodes are NOT
+  // login credentials any more - they stay purely for lap-tracking scans.
+  function generateStudentUsername(first, last, students) {
+    var firstPart = String(first || '').replace(/[^A-Za-z0-9]/g, '');
+    var initial = String(last || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 1);
+    var stem = (firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase()) + initial.toUpperCase();
+    if (!stem) { stem = 'Runner'; }
+    var used = {};
+    (students || []).forEach(function (s) {
+      if (s && s.username) { used[String(s.username).toLowerCase()] = true; }
+    });
+    var n = 1;
+    var candidate = stem + n;
+    while (used[candidate.toLowerCase()]) {
+      n += 1;
+      candidate = stem + n;
+    }
+    return candidate;
+  }
+
+  // Kid-friendly generic password: Colour/adjective + Animal + 2 digits
+  // (e.g. BlueFox42). Easy to read off a card and type; per student, not shared.
+  var PASSWORD_ADJECTIVES = ['Blue','Green','Happy','Brave','Sunny','Swift','Lucky','Calm','Bright','Cosy','Jolly','Kind','Bold','Mighty','Speedy'];
+  var PASSWORD_NOUNS = ['Fox','Lion','Panda','Tiger','Otter','Koala','Dolphin','Falcon','Bear','Rocket','Comet','Maple','River','Cloud','Star'];
+  function randomFrom(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function generateStudentPassword() {
+    var digits = String(Math.floor(Math.random() * 90) + 10); // 10-99
+    return randomFrom(PASSWORD_ADJECTIVES) + randomFrom(PASSWORD_NOUNS) + digits;
+  }
+
+  // Attach login credentials to a freshly created/imported student in demo mode.
+  // Stored locally so the coach can print them and the student login can match.
+  // (In live mode the csv_import edge function creates the real Supabase Auth
+  // account and the plaintext password is only returned once, never stored.)
+  function assignStudentCredentials(student, students) {
+    if (!student.username) {
+      student.username = generateStudentUsername(student.first, student.last, students);
+    }
+    if (!student.password) {
+      student.password = generateStudentPassword();
+    }
+    return student;
   }
 
   function dlJson(filename,data) {
@@ -1023,7 +1088,13 @@
   function renderBarcodeConfirmation(student){
     barcodeConfirmationEl.hidden=false;
     barcodeConfirmationEl.innerHTML=
-      '<div><strong>Barcode generated</strong><br><span>'+escapeHtml(student.name)+' • '+escapeHtml(student.barcode||student.id)+'</span></div>'+
+      '<div><strong>Student added</strong><br><span>'+escapeHtml(student.name)+'</span></div>'+
+      '<div class="student-login-credentials">'+
+        '<strong>Login details</strong>'+
+        '<div class="student-login-row"><span>Username</span><code>'+escapeHtml(student.username||'')+'</code></div>'+
+        '<div class="student-login-row"><span>Password</span><code>'+escapeHtml(student.password||'')+'</code></div>'+
+        '<small>Give these to the student to log in. The barcode below is for lap scanning only.</small>'+
+      '</div>'+
       barcodeCardHtml(student);
   }
 
@@ -2635,6 +2706,7 @@
     var students=getStudents();
     var id=generateBarcodeId(first,last,students);
     var student={id:id,barcode:id,first:first,last:last,name:first+' '+last,year:year,cls:cls,house:house,team:team,pseudonym:'',preferred_name:'',consent_status:'pending',hide_public_name:false,share_certificates_publicly:false,laps:0,minutes:0,events:[]};
+    assignStudentCredentials(student,students);
     students.push(student);
     saveStudentsWithBackend(students,student).then(function(result){
       if(!result.ok){showResult(addStudentResultEl,{success:false,error:result.error||result.reason||'Local roster save blocked.'});return;}
@@ -3652,7 +3724,7 @@
     html+='<h1>Run Club Leaderboard</h1><table><thead><tr><th>Rank</th><th>Student</th><th>Class</th><th>Distance</th><th>Medal</th></tr></thead><tbody>';
     sorted.forEach(function(s,i){html+='<tr><td class="rank">#'+(i+1)+'</td><td>'+s.name+'</td><td>'+s.cls+'</td><td>'+totalKm(s).toFixed(2)+' km</td><td>'+medalFor(s).name+'</td></tr>';});
     html+='</tbody></table></body></html>';
-    win.document.write(html); win.document.close(); win.print();
+    win.document.write(html); win.document.close(); schedulePrintWindow(win);
   }
   document.getElementById('print-leaderboard-btn').addEventListener('click',printLeaderboardPoster);
 
@@ -4921,7 +4993,7 @@
     var win=window.open('','_blank');
     if(!win){return;}
     win.document.write('<html><head><title>'+escapeHtml(title)+'</title><style>body{font-family:Arial,sans-serif;color:#102a43;padding:20px;}h1{color:#003880;}table{width:100%;border-collapse:collapse;font-size:12px;}th,td{border-bottom:1px solid #d9e2ec;text-align:left;padding:7px;}th{background:#f4f7fb;}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}</style></head><body>'+body+'</body></html>');
-    win.document.close(); win.focus(); win.print();
+    win.document.close(); schedulePrintWindow(win);
   }
 
   function printProgramResources(){
@@ -5810,6 +5882,7 @@
         }
         var id=generateBarcodeId(mapped.first,mapped.last,students);
         var importedStudent=Object.assign({id:id,barcode:id,first:mapped.first,last:mapped.last,name:name,year:mapped.year,cls:mapped.cls,school:mapped.school,laps:0,minutes:0,events:[]},privacyDefaults());
+        assignStudentCredentials(importedStudent,students);
         students.push(importedStudent);
         importedStudents.push(importedStudent);
         existingKeys[key]=true;
@@ -5879,6 +5952,7 @@
         }
         var id=generateBarcodeId(first,last,students);
         var importedStudent=Object.assign({id:id,barcode:id,first:first,last:last,name:name,year:year,cls:cls,school:programSettings().schoolName,laps:0,minutes:0,events:[]},privacyDefaults());
+        assignStudentCredentials(importedStudent,students);
         students.push(importedStudent);
         importedStudents.push(importedStudent);
         existingKeys[key]=true;
@@ -5920,7 +5994,7 @@
       html+='<div class="barcode-card-print"><div class="barcode-card-school">Corso</div><strong class="barcode-card-name">'+escapeHtml(s.name)+'</strong><div class="barcode-card-meta">'+escapeHtml(s.year)+' / '+escapeHtml(s.cls)+'</div><div class="barcode-qr-row">'+barcodeBarsHtml(code)+qrCodeHtml(code)+'</div><div class="barcode-code">'+escapeHtml(code)+'</div></div>';
     });
     html+='</div></body></html>';
-    win.document.write(html); win.document.close(); win.focus(); win.print();
+    win.document.write(html); win.document.close(); schedulePrintWindow(win);
   });
 
 })();

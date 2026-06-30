@@ -8,6 +8,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0c5aa8" />
     <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
+    <link rel="icon" href="assets/app-icon-192.png" />
     <script src="config.js"></script>
     <script src="theme.js?v=16"></script>
   </head>
@@ -28,11 +29,14 @@
       <div style="max-width:480px;margin:0 auto;">
         <h2 style="margin-bottom:1rem;">&#128179; Student Login</h2>
         <form id="student-form" class="card" action="student-profile.html">
-          <label>Your code
-            <input type="text" id="code" required placeholder="e.g. STUDENT1 or DEMO" autocomplete="off" autocapitalize="characters" />
+          <label>Username
+            <input type="text" id="student-username" required placeholder="e.g. JamesS1 or DEMO" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" />
+          </label>
+          <label>Password
+            <input type="password" id="student-password" placeholder="Your run club password" autocomplete="current-password" />
           </label>
           <button id="submit-btn" type="submit">Sign in</button>
-          <p style="margin-top:0.75rem;font-size:0.82rem;color:#888;">Your teacher gave you this code on your barcode card. Type DEMO to open a sample student profile.</p>
+          <p style="margin-top:0.75rem;font-size:0.82rem;color:#888;">Your teacher gave you a login card with your username and password. Type DEMO to open a sample student profile.</p>
         </form>
 
       </div>

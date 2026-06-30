@@ -80,6 +80,7 @@ for (const file of pwaPages) {
   assert(/rel="manifest" href="manifest\.webmanifest"/.test(contents), `${file} should link the web app manifest`);
   assert(/name="theme-color" content="#0c5aa8"/.test(contents), `${file} should set the PWA theme color`);
   assert(/rel="apple-touch-icon" href="assets\/app-icon-192\.png"/.test(contents), `${file} should include an Apple touch icon`);
+  assert(/rel="icon" href="assets\/app-icon-192\.png"/.test(contents), `${file} should include a favicon`);
   assert(/<script src="pwa\.js"><\/script>/.test(contents), `${file} should register PWA behavior`);
   assert(/class="skip-link"/.test(contents), `${file} should include a keyboard skip link`);
   assert(/<main[^>]*id="main-content"/.test(contents), `${file} should expose a labelled main content target`);
@@ -281,6 +282,8 @@ assert(!/rc_selfreports/.test(studentJs), 'student reflections should not reuse 
 assert(/student\.js\?v=21/.test(studentProfileHtml) && /student\.js\?v=21/.test(studentHtml), 'student pages should request the current coach-notifications student script');
 
 const homeHtml = read('index.html');
+assert(/styles\.css\?v=129/.test(homeHtml), 'home page should request the current contrast-safe stylesheet');
+assert(/theme\.js\?v=17/.test(homeHtml), 'home page should request the current dynamic account chip script');
 assert(!/href="kiosk\.html"|Scanner kiosk/.test(homeHtml), 'public home page should not link directly to the admin-only kiosk');
 assert(/Track setup/.test(homeHtml), 'home page should describe track setup more specifically than vague activity tracking');
 assert(/Parents can view their child's laps, distance, awards, goals, and training/.test(homeHtml), 'home page parent portal copy should stay read-only and not suggest home activity logging');
@@ -288,7 +291,12 @@ assert(!/Log effort from home/.test(homeHtml), 'home page should not suggest par
 assert(/href="leaderboard\.html"/.test(homeHtml), 'home page should link to the public leaderboard page');
 assert(homeHtml.indexOf('Admin login</a>') > homeHtml.indexOf('Parent portal</a>'), 'home nav should place admin login at the far right');
 assert(!/class="hero-buttons"/.test(homeHtml), 'home page should not show duplicate hero login buttons');
+assert(/<span class="school-switcher" aria-label="Current school">School Run Club<\/span>/.test(homeHtml), 'home topbar school label should be a status chip, not a pointless button');
+assert(/<span class="coach-avatar" aria-label="Coach account">CO<\/span>/.test(homeHtml), 'home topbar coach avatar should have a neutral fallback before sign-in');
 assert(homeHtml.indexOf('<strong>Admin Portal</strong>') > homeHtml.indexOf('<strong>Privacy Policy</strong>'), 'portal grid should place Admin Portal at the far-right/end position');
+['Tools','Student','Family','Ranks','Safe','Info','Login'].forEach((label) => {
+  assert(homeHtml.includes(`portal-icon-label">${label}</span>`), `portal grid should include a clear ${label} badge label`);
+});
 
 const kioskJs = read('kiosk.js');
 assert(/runClubAdminSession/.test(kioskJs), 'kiosk should require an admin session');
@@ -312,7 +320,9 @@ const adminDashboardHtml = read('admin-dashboard.html');
 const interschoolTeamHtml = read('interschool-team.html');
 assert(/assets\/corso-logo\.png/.test(adminDashboardHtml), 'admin dashboard should use the supplied Corso logo by default');
 const dashboardBrandLink = adminDashboardHtml.match(/<a[^>]*brand-home-link[^>]*>/);
-assert(dashboardBrandLink && /href="index\.html"/.test(dashboardBrandLink[0]), 'admin dashboard logo/banner should link back to the home page');
+assert(dashboardBrandLink && /href="admin-dashboard\.html"/.test(dashboardBrandLink[0]), 'admin dashboard logo/banner should link back to the admin dashboard');
+const interschoolTeamBrandLink = interschoolTeamHtml.match(/<a[^>]*brand-home-link[^>]*>/);
+assert(interschoolTeamBrandLink && /href="admin-dashboard\.html"/.test(interschoolTeamBrandLink[0]), 'interschool team logo/banner should link back to the admin dashboard');
 assert(/offline-queue-card/.test(adminDashboardHtml), 'admin dashboard should include an offline scan queue panel');
 assert(/scanner-settings-card/.test(adminDashboardHtml), 'admin dashboard should include scanner settings');
 assert(/duplicate-cooldown-seconds/.test(adminDashboardHtml), 'admin scanner settings should expose duplicate cooldown seconds');
@@ -1036,6 +1046,9 @@ assert(/\.site-header::after[\s\S]*var\(--uniform-gold\)/.test(styles), 'sticky 
 assert(/\.card::before[\s\S]*var\(--gold-glass-wash\)/.test(styles), 'cards should carry the subtle gold tint site-wide');
 assert(/\.stat-chip[\s\S]*linear-gradient\(135deg,[\s\S]*rgba\(7,20,38,0\.94\)[\s\S]*color:\s*#edf4ff/.test(styles), 'home dashboard tags should use navy glass styling with readable light text');
 assert(!/\.stat-chip:hover/.test(styles), 'home dashboard informational tags should not highlight like buttons on hover');
+assert(/\.command-primary[\s\S]*color:\s*#ffffff !important[\s\S]*-webkit-text-fill-color:\s*#ffffff[\s\S]*\.command-primary:hover[\s\S]*color:\s*#ffffff !important/.test(styles), 'home dashboard primary buttons should keep forced light text on blue backgrounds');
+assert(/\.portal-card \.portal-icon[\s\S]*min-width:\s*5\.35rem[\s\S]*border:\s*2px solid #0755a3[\s\S]*\.portal-card:hover \.portal-icon[\s\S]*background:\s*#0755a3/.test(styles), 'portal grid icons should render as larger labelled blue badges');
+assert(/\.quick-action-card[\s\S]*color:\s*#071426[\s\S]*\.quick-action-card:hover[\s\S]*color:\s*#0755a3/.test(styles), 'coach quick actions should be dark by default and blue on hover');
 assert(/\.step[\s\S]*rgba\(7,20,38,0\.86\)[\s\S]*\.step strong[\s\S]*color:\s*#f5f9ff[\s\S]*\.step p[\s\S]*color:\s*#c8d6e8/.test(styles), 'how-it-works cards should use readable navy glass styling');
 assert(/\.feature-item[\s\S]*rgba\(7,20,38,0\.88\)[\s\S]*\.feature-item div[\s\S]*color:\s*#c8d6e8[\s\S]*\.feature-item div strong[\s\S]*color:\s*#f5f9ff/.test(styles), 'platform feature cards should use readable navy glass styling');
 assert(/\.impl-item[\s\S]*rgba\(7,20,38,0\.88\)[\s\S]*\.impl-item strong[\s\S]*color:\s*#f5f9ff[\s\S]*\.impl-item p,[\s\S]*color:\s*#c8d6e8/.test(styles), 'ways-to-run cards should match the readable navy glass tile styling');
@@ -1061,7 +1074,7 @@ assert(/mobile-menu-toggle/.test(styles), 'site header should include a compact 
 assert(/\.main-nav[\s\S]*position:\s*absolute[\s\S]*opacity:\s*0[\s\S]*visibility:\s*hidden/.test(styles), 'portal nav should live in a hidden pop-out menu by default');
 assert(/body\.mobile-nav-open \.main-nav[\s\S]*opacity:\s*1[\s\S]*visibility:\s*visible/.test(styles), 'portal nav should open from the persistent menu button');
 assert(/body\.mobile-header-compact \.mobile-menu-toggle[\s\S]*order:\s*3/.test(styles), 'compact header should place the menu button after the theme toggle');
-assert(/body\.mobile-header-compact \.theme-toggle[\s\S]*order:\s*2/.test(styles), 'compact header should place the theme toggle before the menu button');
+assert(/\.brand \.theme-toggle[\s\S]*grid-column:\s*1/.test(styles), 'header theme toggle should sit directly under the logo inside the brand area');
 assert(/body\.mobile-header-compact \.main-nav[\s\S]*position:\s*absolute[\s\S]*opacity:\s*0[\s\S]*transform:\s*translateY\(-8px\) scale\(0\.98\)/.test(styles), 'compact header should keep compatibility styling for the hidden nav state');
 assert(/@media \(max-width: 640px\)[\s\S]*button,[\s\S]*\.btn-primary,[\s\S]*\.secondary[\s\S]*min-height:\s*44px/.test(styles), 'mobile buttons should use comfortable tap targets');
 assert(/@media \(max-width: 640px\)[\s\S]*\.progress-history-table,[\s\S]*\.training-status-table[\s\S]*min-width:\s*520px/.test(styles), 'mobile data tables should keep readable widths inside scroll containers');
@@ -1149,7 +1162,13 @@ assert(/rc_theme_settings/.test(themeJs), 'shared theme script should read coach
 assert(!/logoDataUrl/.test(themeJs), 'shared theme script should not apply uploaded school emblems');
 assert(!/schoolBlue|uniformGold|applyBrandColors|setProperty\('--school-blue'/.test(themeJs), 'shared theme script should not read or apply coach-selected colour tokens');
 assert(/assets\/corso-logo\.png/.test(themeJs), 'shared theme script should fall back to the supplied Corso logo');
+assert(/rc_program_settings/.test(themeJs) && /currentSchoolName/.test(themeJs), 'shared theme script should show the current configured school name in the home topbar');
+assert(/runClubAdminSession/.test(themeJs) && /coachInitials/.test(themeJs), 'shared theme script should derive the coach avatar from the signed-in admin session');
 assert(/data-theme-toggle/.test(themeJs), 'theme switch should inject a header toggle control');
+assert(/brand\.appendChild\(toggle\)/.test(themeJs), 'theme switch should attach directly under the Corso logo/brand area');
+assert(/schedulePrintWindow/.test(read('admin-dashboard.js')), 'admin print windows should wait for the generated document to load before printing');
+assert(/schedulePrintWindow/.test(read('student.js')), 'student print windows should wait for the generated document to load before printing');
+assert(/schedulePrintWindow/.test(read('parent.js')), 'parent print windows should wait for the generated document to load before printing');
 assert(/☾/.test(themeJs) && /☀/.test(themeJs), 'theme switch should use moon and sun icons instead of text labels');
 assert(/data-mobile-menu-toggle/.test(themeJs), 'theme script should inject the compact mobile menu control');
 assert(/classList\.add\('mobile-header-compact'\)/.test(themeJs), 'theme script should keep the site header permanently compact');
